@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/showUserProfileFragment">
+    <fragment
+        android:id="@+id/showUserProfileFragment"
+        android:name="it.polito.mad.group25.lab2.fragments.userprofile.ShowUserProfileFragment"
+        android:label="show_user_profile_fragment"
+        tools:layout="@layout/show_user_profile_fragment" >
+        <action
+            android:id="@+id/action_showUserProfileFragment_to_editUserProfileFragment"
+            app:destination="@id/editUserProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editUserProfileFragment"
+        android:name="it.polito.mad.group25.lab2.fragments.userprofile.EditUserProfileFragment"
+        android:label="edit_user_profile_fragment"
+        tools:layout="@layout/edit_user_profile_fragment" >
+        <action
+            android:id="@+id/action_editUserProfileFragment_to_showUserProfileFragment"
+            app:destination="@id/showUserProfileFragment" />
+    </fragment>
+</navigation>
