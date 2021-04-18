@@ -16,7 +16,7 @@
         tools:layout_editor_absoluteX="16dp">
 
         <ImageButton
-            android:id="@+id/imageButton"
+            android:id="@+id/changeUserProfilePicButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:srcCompat="@android:drawable/ic_menu_camera" />

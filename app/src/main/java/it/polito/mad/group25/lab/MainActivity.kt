@@ -1,4 +1,4 @@
-package it.polito.mad.group25.lab2
+package it.polito.mad.group25.lab
 
 import android.os.Bundle
 import android.view.Menu
@@ -10,7 +10,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
-import it.polito.mad.group25.lab2.databinding.ActivityMainBinding
+import it.polito.mad.group25.lab.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,6 +22,9 @@ class MainActivity : AppCompatActivity() {
 
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
+
+        setSupportActionBar(activityMainBinding.appBarMain.toolbar)
+
 
         val drawerLayout: DrawerLayout = activityMainBinding.drawerLayout
         val navView: NavigationView = activityMainBinding.navView

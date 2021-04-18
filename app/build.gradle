@@ -8,7 +8,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "it.polito.mad.group25.lab1"
+        applicationId "it.polito.mad.group25.lab"
         minSdkVersion 16
         targetSdkVersion 30
         versionCode 1

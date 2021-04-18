@@ -1,4 +1,4 @@
-package it.polito.mad.group25.lab2
+package it.poito.mad.group25.lab2
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

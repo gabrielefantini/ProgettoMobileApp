@@ -1,4 +1,4 @@
-package it.polito.mad.group25.lab2
+package it.polito.mad.group25.lab
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -17,6 +17,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("it.polito.mad.group25.lab1", appContext.packageName)
+        assertEquals("it.polito.mad.group25.lab", appContext.packageName)
     }
 }

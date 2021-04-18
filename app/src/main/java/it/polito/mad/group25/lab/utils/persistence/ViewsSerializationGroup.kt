@@ -1,4 +1,4 @@
-package it.polito.mad.group25.lab2.utils.persistence
+package it.polito.mad.group25.lab.utils.persistence
 
 import android.view.View
 

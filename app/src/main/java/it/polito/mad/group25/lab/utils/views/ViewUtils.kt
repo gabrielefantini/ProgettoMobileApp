@@ -1,7 +1,7 @@
-package it.polito.mad.group25.lab2.utils.views
+package it.polito.mad.group25.lab.utils.views
 
 import android.view.View
-import it.polito.mad.group25.lab2.utils.persistence.ViewsSerializationGroup
+import it.polito.mad.group25.lab.utils.persistence.ViewsSerializationGroup
 
 object ViewUtils {
     fun <T : View, S> loadViews(

@@ -1,12 +1,9 @@
-package it.polito.mad.group25.lab2.utils.activity
+package it.polito.mad.group25.lab.utils.activity
 
 import android.app.Activity
-import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import it.polito.mad.group25.lab2.utils.ExecutionChain
-import it.polito.mad.group25.lab2.utils.views.ViewUtils
 import java.util.*
 
 
