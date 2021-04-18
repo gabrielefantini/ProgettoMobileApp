@@ -2,6 +2,8 @@ package it.polito.mad.group25.lab.utils
 
 import android.os.Build
 import java.lang.reflect.Field
+import java.math.BigDecimal
+import java.math.BigInteger
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KProperty
@@ -10,6 +12,26 @@ fun Field.isGenericType(): Boolean = type.typeParameters.isNotEmpty()
 
 @Suppress("UNCHECKED_CAST")
 private fun <T> tryInstantiateClass(clazz: Class<T>, vararg args: Any?): T {
+    if (args.size == 1 && clazz.isAssignableFrom(args[0]!!.javaClass))
+        return args[0]!! as T
+
+    if (args.size == 1 && args[0] is String) {
+        val str = args[0] as String
+        when (clazz.canonicalName) {
+            Int::class.java.canonicalName -> return str.toInt() as T
+            Short::class.java.canonicalName -> return str.toShort() as T
+            Long::class.java.canonicalName -> return str.toLong() as T
+            Double::class.java.canonicalName -> return str.toDouble() as T
+            Float::class.java.canonicalName -> return str.toFloat() as T
+            BigDecimal::class.java.canonicalName -> return str.toBigDecimal() as T
+            BigInteger::class.java.canonicalName -> return str.toBigInteger() as T
+            Byte::class.java.canonicalName -> return str.toByte() as T
+            Boolean::class.java.canonicalName -> return str.toBoolean() as T
+            CharArray::class.java.canonicalName -> return str.toCharArray() as T
+            Regex::class.java.canonicalName -> return str.toRegex() as T
+        }
+    }
+
     val destinationConstructors = clazz.constructors
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val childConstructor = destinationConstructors.filter {
@@ -33,16 +55,6 @@ private fun <T> tryInstantiateClass(clazz: Class<T>, vararg args: Any?): T {
 fun <T> Class<T>.tryInstantiate(vararg args: Any?): T = tryInstantiateClass(this, *args)
 
 fun <T : Any> KClass<T>.tryInstantiate(vararg args: Any?): T = tryInstantiateClass(this.java, *args)
-
-@Suppress("UNCHECKED_CAST")
-fun <T : Number> Class<T>.tryInstantiate(vararg args: Any?): T {
-    if (args.size == 1) {
-        val arg = args[0]!!
-        if (arg is Number) return arg as T
-        if (arg is String) return Integer.parseInt(arg) as T
-    }
-    return tryInstantiateClass(this, *args)
-}
 
 fun <T : Iterable<Annotation>> T.containsAnnotation(annotationClass: KClass<out Annotation>): Boolean =
     any { annotationClass.java.isAssignableFrom(it::class.java) }
