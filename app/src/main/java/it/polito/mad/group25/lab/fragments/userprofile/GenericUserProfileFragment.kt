@@ -16,7 +16,10 @@ import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
 import it.polito.mad.group25.lab.utils.views.fromFile
 import java.io.File
 
-abstract class GenericUserProfileFragment(contentLayoutId: Int) : Fragment(contentLayoutId) {
+abstract class GenericUserProfileFragment(
+    private val nullSafeAssignment: Boolean,
+    contentLayoutId: Int
+) : Fragment(contentLayoutId) {
 
     protected lateinit var userProfileViewModel: UserProfileViewModel
 
@@ -29,10 +32,23 @@ abstract class GenericUserProfileFragment(contentLayoutId: Int) : Fragment(conte
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<TextView>(R.id.fullName).text = userProfileViewModel.fullName
-        view.findViewById<TextView>(R.id.nickName).text = userProfileViewModel.nickName
-        view.findViewById<TextView>(R.id.email).text = userProfileViewModel.email
-        view.findViewById<TextView>(R.id.location).text = userProfileViewModel.location
+        if (nullSafeAssignment) {
+            userProfileViewModel.fullName?.also {
+                view.findViewById<TextView>(R.id.fullName).text = it
+            }
+            userProfileViewModel.nickName?.also {
+                view.findViewById<TextView>(R.id.nickName).text = it
+            }
+            userProfileViewModel.email?.also { view.findViewById<TextView>(R.id.email).text = it }
+            userProfileViewModel.location?.also {
+                view.findViewById<TextView>(R.id.location).text = it
+            }
+        } else {
+            view.findViewById<TextView>(R.id.fullName).text = userProfileViewModel.fullName
+            view.findViewById<TextView>(R.id.nickName).text = userProfileViewModel.nickName
+            view.findViewById<TextView>(R.id.email).text = userProfileViewModel.email
+            view.findViewById<TextView>(R.id.location).text = userProfileViewModel.location
+        }
         view.findViewById<ImageView>(R.id.profilePic)
             .fromFile(userProfileViewModel.userProfilePhotoFile)
     }
@@ -52,3 +68,4 @@ class UserProfileViewModel(application: Application) : AndroidViewModel(applicat
     override fun getContext(): Context = getApplication()
 
 }
+

@@ -12,9 +12,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.utils.nullOnBlank
 import it.polito.mad.group25.lab.utils.views.toFile
 
-class EditUserProfileFragment : GenericUserProfileFragment(R.layout.edit_user_profile_fragment) {
+class EditUserProfileFragment :
+    GenericUserProfileFragment(false, R.layout.edit_user_profile_fragment) {
 
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void>
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
@@ -98,22 +100,58 @@ class EditUserProfileFragment : GenericUserProfileFragment(R.layout.edit_user_pr
     }
 
     private fun saveEdits() {
-        userProfileViewModel.fullName =
-            requireView().findViewById<EditText>(R.id.fullName).text.toString()
-        userProfileViewModel.nickName =
-            requireView().findViewById<EditText>(R.id.nickName).text.toString()
-        userProfileViewModel.email =
-            requireView().findViewById<EditText>(R.id.email).text.toString()
-        userProfileViewModel.location =
-            requireView().findViewById<EditText>(R.id.location).text.toString()
+        requireView().findViewById<EditText>(R.id.fullName).text.toString().nullOnBlank()
+            ?.also { userProfileViewModel.fullName = it }
+        requireView().findViewById<EditText>(R.id.nickName).text.toString().nullOnBlank()
+            ?.also { userProfileViewModel.nickName = it }
+        requireView().findViewById<EditText>(R.id.email).text.toString().nullOnBlank()
+            ?.also { userProfileViewModel.email = it }
+        requireView().findViewById<EditText>(R.id.location).text.toString().nullOnBlank()
+            ?.also { userProfileViewModel.location = it }
+
         requireView().findViewById<ImageView>(R.id.profilePic).toFile()
             ?.let { userProfileViewModel.userProfilePhotoFile = it }
+        fireDataChanges()
     }
 
+    private fun fireDataChanges() {
+        val act = activity
+        if (act is UserProfileDataChangeListener) {
+            act.onUserProfileDataChanged(
+                UserProfileData.fromViewModel(
+                    userProfileViewModel,
+                    requireView().findViewById<ImageView>(R.id.profilePic).drawable
+                )
+            )
+        }
+    }
 }
 
 class EditUserProfileViewModel : ViewModel() {
-
     var tempProfileDrawable: Drawable? = null
+}
 
+data class UserProfileData(
+    val fullName: String?,
+    val nickName: String?,
+    val email: String?,
+    val location: String?,
+    val imageProfileDrawable: Drawable?
+) {
+    companion object {
+        fun fromViewModel(
+            userProfileViewModel: UserProfileViewModel,
+            imageProfileDrawable: Drawable? = null
+        ) = UserProfileData(
+            userProfileViewModel.fullName,
+            userProfileViewModel.nickName,
+            userProfileViewModel.email,
+            userProfileViewModel.location,
+            imageProfileDrawable
+        )
+    }
+}
+
+interface UserProfileDataChangeListener {
+    fun onUserProfileDataChanged(data: UserProfileData)
 }

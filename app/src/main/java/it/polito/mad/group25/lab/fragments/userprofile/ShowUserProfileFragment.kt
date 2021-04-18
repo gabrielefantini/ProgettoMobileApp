@@ -6,7 +6,8 @@ import android.view.MenuItem
 import androidx.navigation.findNavController
 import it.polito.mad.group25.lab.R
 
-class ShowUserProfileFragment : GenericUserProfileFragment(R.layout.show_user_profile_fragment) {
+class ShowUserProfileFragment :
+    GenericUserProfileFragment(true, R.layout.show_user_profile_fragment) {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) =
         inflater.inflate(R.menu.menu, menu)

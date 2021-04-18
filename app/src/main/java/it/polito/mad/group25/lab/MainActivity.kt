@@ -1,9 +1,11 @@
 package it.polito.mad.group25.lab
 
 import android.os.Bundle
-import android.view.Menu
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -11,8 +13,11 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import it.polito.mad.group25.lab.databinding.ActivityMainBinding
+import it.polito.mad.group25.lab.fragments.userprofile.UserProfileData
+import it.polito.mad.group25.lab.fragments.userprofile.UserProfileDataChangeListener
+import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var activityMainBinding: ActivityMainBinding
@@ -36,16 +41,37 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.main, menu)
-        return true
+        navView.menu.findItem(R.id.nav_user_profile).setOnMenuItemClickListener {
+            navController.navigate(R.id.showUserProfileFragment)
+            drawerLayout.closeDrawers()
+            true
+        }
+        updateNavHeaderUserInfo(
+            UserProfileData.fromViewModel(
+                ViewModelProvider(this).get(
+                    UserProfileViewModel::class.java
+                ), findViewById<ImageView>(R.id.profilePic).drawable
+            )
+        )
     }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+
+    override fun onUserProfileDataChanged(data: UserProfileData) = updateNavHeaderUserInfo(data)
+
+    private fun updateNavHeaderUserInfo(data: UserProfileData) {
+        val parent = activityMainBinding.navView.getHeaderView(0)
+        parent.findViewById<ImageView>(R.id.nav_header_user_profile_pic)
+            ?.run { data.imageProfileDrawable?.let { setImageDrawable(it) } }
+
+        parent.findViewById<TextView>(R.id.nav_header_user_profile_nick)
+            ?.run { data.nickName?.also { text = it } }
+
+        parent.findViewById<TextView>(R.id.nav_header_user_profile_email)
+            ?.run { data.email?.also { text = it } }
     }
 }
