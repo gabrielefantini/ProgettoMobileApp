@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.utils.persistence.impl.FileSharedPreferencesSerde
 import it.polito.mad.group25.lab.utils.viewmodel.PersistOnChange
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
 import it.polito.mad.group25.lab.utils.views.fromFile
@@ -62,7 +61,7 @@ class UserProfileViewModel(application: Application) : AndroidViewModel(applicat
     var email: String? by PersistOnChange(null)
     var location: String? by PersistOnChange(null)
     var userProfilePhotoFile: File by PersistOnChange(
-        FileSharedPreferencesSerde(application.filesDir, "userProfilePicture")
+        File(application.filesDir, "userProfilePicture")
     )
 
     override fun getContext(): Context = getApplication()

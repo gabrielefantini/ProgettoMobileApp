@@ -2,8 +2,7 @@ package it.polito.mad.group25.lab.utils.viewmodel
 
 import android.content.Context
 import android.content.SharedPreferences
-import it.polito.mad.group25.lab.utils.persistence.DifferentiatedSerdeStrategy
-import it.polito.mad.group25.lab.utils.tryInstantiate
+import com.fasterxml.jackson.databind.ObjectMapper
 import it.polito.mad.group25.lab.utils.type
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -13,20 +12,12 @@ interface PersistableContainer {
     fun getContext(): Context
 }
 
-class PersistOnChange<T> private constructor(
-    private val hasDefault: Boolean,
-    private val default: T?,
-    private val customStrategy: DifferentiatedSerdeStrategy<T, SharedPreferences, SharedPreferences.Editor>? = null
-) : ReadWriteProperty<PersistableContainer, T> {
+class PersistOnChange<T>(private val default: T) :
+    ReadWriteProperty<PersistableContainer, T> {
 
-    constructor(
-        customStrategy: DifferentiatedSerdeStrategy<T, SharedPreferences, SharedPreferences.Editor>
-    ) : this(false, null, customStrategy)
-
-    constructor(
-        default: T,
-        customStrategy: DifferentiatedSerdeStrategy<T, SharedPreferences, SharedPreferences.Editor>? = null
-    ) : this(true, default, customStrategy)
+    private companion object {
+        val objectMapper = ObjectMapper()
+    }
 
     private var loaded = false
     private var value: T? = null
@@ -34,7 +25,6 @@ class PersistOnChange<T> private constructor(
     override fun setValue(thisRef: PersistableContainer, property: KProperty<*>, value: T) {
         persist(
             getStorage(thisRef),
-            customStrategy,
             extractId(property),
             value
         )
@@ -49,17 +39,13 @@ class PersistOnChange<T> private constructor(
 
         value = loadPersistence(
             getStorage(thisRef),
-            customStrategy,
             property.type().java as Class<T>,
             extractId(property)
         )
         loaded = true
 
-        if (!hasDefault)
-            return value as T
-
         return if (value == null)
-            default as T
+            default
         else value as T
     }
 
@@ -72,26 +58,20 @@ class PersistOnChange<T> private constructor(
 
     private fun persist(
         storage: SharedPreferences,
-        customStrategy: DifferentiatedSerdeStrategy<T, SharedPreferences, SharedPreferences.Editor>?,
         id: String,
         value: T
     ) {
         val storageEditor = storage.edit()
-        if (customStrategy != null)
-            customStrategy(value, id, storageEditor)
-        else storageEditor.putString(id, value.toString())
+        storageEditor.putString(id, objectMapper.writeValueAsString(value))
         storageEditor.apply()
     }
 
     private fun loadPersistence(
         storage: SharedPreferences,
-        customStrategy: DifferentiatedSerdeStrategy<T, SharedPreferences, SharedPreferences.Editor>?,
         typo: Class<T>,
         id: String
     ): T? {
-        return if (customStrategy != null)
-            customStrategy(id, storage)
-        else storage.getString(id, null)?.let { typo.tryInstantiate(it) }
+        return storage.getString(id, null)?.let { objectMapper.readValue(it, typo) }
     }
 }
 
