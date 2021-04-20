@@ -14,6 +14,7 @@ import androidx.navigation.findNavController
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.utils.nullOnBlank
 import it.polito.mad.group25.lab.utils.views.toFile
+import java.io.File
 
 class EditUserProfileFragment :
     GenericUserProfileFragment(false, R.layout.edit_user_profile_fragment) {
@@ -118,10 +119,7 @@ class EditUserProfileFragment :
         val act = activity
         if (act is UserProfileDataChangeListener) {
             act.onUserProfileDataChanged(
-                UserProfileData.fromViewModel(
-                    userProfileViewModel,
-                    requireView().findViewById<ImageView>(R.id.profilePic).drawable
-                )
+                UserProfileData.fromViewModel(userProfileViewModel)
             )
         }
     }
@@ -136,18 +134,17 @@ data class UserProfileData(
     val nickName: String?,
     val email: String?,
     val location: String?,
-    val imageProfileDrawable: Drawable?
+    val imageProfile: File
 ) {
     companion object {
         fun fromViewModel(
             userProfileViewModel: UserProfileViewModel,
-            imageProfileDrawable: Drawable? = null
         ) = UserProfileData(
             userProfileViewModel.fullName,
             userProfileViewModel.nickName,
             userProfileViewModel.email,
             userProfileViewModel.location,
-            imageProfileDrawable
+            userProfileViewModel.userProfilePhotoFile
         )
     }
 }

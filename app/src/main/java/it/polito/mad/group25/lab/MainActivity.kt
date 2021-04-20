@@ -16,6 +16,7 @@ import it.polito.mad.group25.lab.databinding.ActivityMainBinding
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileData
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileDataChangeListener
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
+import it.polito.mad.group25.lab.utils.views.fromFile
 
 class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
 
@@ -48,9 +49,7 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
         }
         updateNavHeaderUserInfo(
             UserProfileData.fromViewModel(
-                ViewModelProvider(this).get(
-                    UserProfileViewModel::class.java
-                ), findViewById<ImageView>(R.id.profilePic).drawable
+                ViewModelProvider(this).get(UserProfileViewModel::class.java)
             )
         )
     }
@@ -66,7 +65,7 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
     private fun updateNavHeaderUserInfo(data: UserProfileData) {
         val parent = activityMainBinding.navView.getHeaderView(0)
         parent.findViewById<ImageView>(R.id.nav_header_user_profile_pic)
-            ?.run { data.imageProfileDrawable?.let { setImageDrawable(it) } }
+            ?.run { fromFile(data.imageProfile) }
 
         parent.findViewById<TextView>(R.id.nav_header_user_profile_nick)
             ?.run { data.nickName?.also { text = it } }
