@@ -38,12 +38,21 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.showUserProfileFragment, R.id.editUserProfileFragment), drawerLayout
+            setOf(
+                R.id.showUserProfileFragment,
+                R.id.editUserProfileFragment,
+                R.id.showTripDetailsFragment
+            ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         navView.menu.findItem(R.id.nav_user_profile).setOnMenuItemClickListener {
             navController.navigate(R.id.showUserProfileFragment)
+            drawerLayout.closeDrawers()
+            true
+        }
+        navView.menu.findItem(R.id.nav_trip_details).setOnMenuItemClickListener {
+            navController.navigate(R.id.showTripDetailsFragment)
             drawerLayout.closeDrawers()
             true
         }

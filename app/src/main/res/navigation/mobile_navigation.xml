@@ -22,4 +22,10 @@
             android:id="@+id/action_editUserProfileFragment_to_showUserProfileFragment"
             app:destination="@id/showUserProfileFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/showTripDetailsFragment"
+        android:name="it.polito.mad.group25.lab.fragments.tripdetails.ShowTripDetailsFragment"
+        android:label="Trip Details"
+        tools:layout="@layout/trip_details_fragment"
+        ></fragment>
 </navigation>
