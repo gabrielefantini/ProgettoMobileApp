@@ -1,5 +1,9 @@
 package it.polito.mad.group25.lab.utils.entities
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 data class Trip (
@@ -12,7 +16,7 @@ data class Trip (
         val additionalInfo: MutableList<String>
         )
 
-data class TripLocation(
-        val locationTime: Date,
-        val location: String
-        )
+class TripLocation(var location: String,time: LocalDateTime) {
+        @RequiresApi(Build.VERSION_CODES.O)
+        val locationTime = time.format(DateTimeFormatter.ofPattern("HH:mm"))
+}

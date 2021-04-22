@@ -2,6 +2,7 @@ package it.polito.mad.group25.lab.fragments.tripdetails
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,13 +10,19 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.utils.entities.TripLocation
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.*
 
 abstract class TripDetailsFragment(
     contentLayoutId: Int
@@ -33,16 +40,16 @@ abstract class TripDetailsFragment(
         super.onViewCreated(view, savedInstanceState)
         val context = this.context
 
-        view.findViewById<TextView>(R.id.carName).text = "---"
+        /*view.findViewById<TextView>(R.id.carName).text = "---"
         view.findViewById<TextView>(R.id.departureDate).text = "---"
-        view.findViewById<TextView>(R.id.seatsText).text = "---aaa"
+        view.findViewById<TextView>(R.id.seatsText).text = "---"*/
 
         val rv = view.findViewById<RecyclerView>(R.id.tripList)
         rv.layoutManager = LinearLayoutManager(context)
-        rv.adapter = TripAdapter(tripDetailsViewModel.exampleTrips)
+        rv.adapter = TripAdapter(tripDetailsViewModel.tripLocations)
 
         val additionalInfoChips = view.findViewById<ChipGroup>(R.id.additionalInfoChips)
-        tripDetailsViewModel.exampleChips.forEach {
+        tripDetailsViewModel.chips.forEach {
             var chip = Chip(context)
             chip.text = it
             additionalInfoChips.addView(chip)
@@ -54,17 +61,28 @@ abstract class TripDetailsFragment(
 class TripDetailsViewModel(application: Application): AndroidViewModel(application),
         PersistableContainer{
 
-    var exampleChips = listOf("chip1","chip2")
-    var exampleTrips = mutableListOf(Trip2("loc1","10:00"),Trip2("loc2","11:00"),Trip2("loc3","12:00"),Trip2("loc4","13:00"))
+    //andrà sostituito con il view model condiviso
+    var chips = listOf("chip1","chip2")
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    var tripLocations = mutableListOf(
+            Trip2("loc1",LocalDateTime.now()),
+            Trip2("loc2",LocalDateTime.now().plusMinutes(30)),
+            Trip2("loc3",LocalDateTime.now().plusMinutes(60)),
+            Trip2("loc4",LocalDateTime.now().plusMinutes(90)))
+
+
+    //
 
     override fun getContext(): Context = getApplication()
 }
 
-data class Trip2
-(
-        var location: String,
-        var time: String,
-)
+@RequiresApi(Build.VERSION_CODES.O)
+class Trip2 (l:String, d:LocalDateTime) {
+    var location: String = l
+    var time: String = d.format(DateTimeFormatter.ofPattern("HH:mm"))
+}
+
 
 class TripAdapter(val list:List<Trip2>): RecyclerView.Adapter<TripAdapter.TripViewHolder>(){
 
@@ -90,6 +108,7 @@ class TripAdapter(val list:List<Trip2>): RecyclerView.Adapter<TripAdapter.TripVi
     override fun getItemCount(): Int = list.size
 
     override fun getItemViewType(position: Int): Int {
+        if(list.size == 1) return R.layout.trip_destination_line
         return when(position){
             0 -> R.layout.trip_departure_line
             list.size-1 -> R.layout.trip_destination_line
