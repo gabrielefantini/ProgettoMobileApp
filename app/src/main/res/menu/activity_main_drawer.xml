@@ -12,5 +12,9 @@
             android:id="@+id/nav_trip_details"
             android:icon="@drawable/ic_menu_gallery"
             android:title="Trip Details" />
+        <item
+            android:id="@+id/nav_trip_edit"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Trip Edit" />
     </group>
 </menu>

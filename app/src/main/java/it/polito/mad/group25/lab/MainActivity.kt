@@ -41,7 +41,8 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
             setOf(
                 R.id.showUserProfileFragment,
                 R.id.editUserProfileFragment,
-                R.id.showTripDetailsFragment
+                R.id.showTripDetailsFragment,
+                R.id.showTripEditFragment
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -53,6 +54,11 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
         }
         navView.menu.findItem(R.id.nav_trip_details).setOnMenuItemClickListener {
             navController.navigate(R.id.showTripDetailsFragment)
+            drawerLayout.closeDrawers()
+            true
+        }
+        navView.menu.findItem(R.id.nav_trip_edit).setOnMenuItemClickListener {
+            navController.navigate(R.id.showTripEditFragment)
             drawerLayout.closeDrawers()
             true
         }
@@ -74,7 +80,9 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
     private fun updateNavHeaderUserInfo(data: UserProfileData) {
         val parent = activityMainBinding.navView.getHeaderView(0)
         parent.findViewById<ImageView>(R.id.nav_header_user_profile_pic)
-            ?.run { fromFile(data.imageProfile) }
+            ?.run {
+            if(data.imageProfile != null)
+                fromFile(data.imageProfile) }
 
         parent.findViewById<TextView>(R.id.nav_header_user_profile_nick)
             ?.run { data.nickName?.also { text = it } }

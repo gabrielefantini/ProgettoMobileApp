@@ -1,69 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
-
-
+    android:orientation="vertical"
+    tools:context=".fragments.tripdetails.ShowTripDetailsFragment">
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="3"
         android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/changeCarPicButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            app:srcCompat="@android:drawable/ic_menu_camera" />
 
         <ImageView
             android:id="@+id/carImage"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="center"
+            android:layout_height="150dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
             android:layout_marginBottom="8dp"
-            android:layout_weight="1"
             android:src="@drawable/ic_car" />
 
-        <TextView
+        <EditText
             android:id="@+id/carName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
             android:paddingRight="8dp"
-            android:text="nome macchina"
+            android:hint="nome macchina"
             android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <View
-            android:id="@+id/divider4"
+            android:id="@+id/divider2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
+
+
+        <TextView
+            android:id="@+id/departureDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:hint="gg/mm/yyyy"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tripList"
+            android:layout_width="378dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <View
+            android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="?android:attr/listDivider" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_height="154dp">
 
             <ImageView
                 android:id="@+id/durationIcon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:src="@drawable/ic_duration"
                 app:layout_constraintBottom_toTopOf="@+id/seatsIcon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.042"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/seatsIcon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:src="@drawable/ic_seat"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/durationIcon" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/ic_duration" />
 
             <TextView
                 android:id="@+id/durationText"
@@ -71,61 +95,63 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:text="n h "
+                android:text="3h est."
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintBottom_toBottomOf="@+id/durationIcon"
                 app:layout_constraintStart_toEndOf="@+id/durationIcon"
                 app:layout_constraintTop_toTopOf="@+id/durationIcon" />
 
-            <TextView
+            <ImageView
+                android:id="@+id/seatsIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.042"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/durationIcon"
+                android:src="@drawable/ic_seat" />
+
+            <EditText
                 android:id="@+id/seatsText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:text="n"
+                android:hint="2"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintBottom_toBottomOf="@+id/seatsIcon"
                 app:layout_constraintStart_toEndOf="@+id/seatsIcon"
                 app:layout_constraintTop_toTopOf="@+id/seatsIcon" />
 
-            <ImageView
-                android:id="@+id/priceIcon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:src="@drawable/ic_price"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/guideline3"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.18" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_begin="174dp"
-                app:layout_constraintGuide_percent="0.5" />
-
-            <TextView
+            <EditText
                 android:id="@+id/priceText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:text="nn.n"
+                android:hint="20.0"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintBottom_toBottomOf="@+id/priceIcon"
                 app:layout_constraintStart_toEndOf="@+id/priceIcon"
                 app:layout_constraintTop_toTopOf="@+id/priceIcon" />
+
+            <ImageView
+                android:id="@+id/priceIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.62"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.245"
+                android:src="@drawable/ic_price" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <View
-            android:id="@+id/divider5"
+            android:id="@+id/divider3"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="?android:attr/listDivider" />
@@ -144,41 +170,8 @@
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/additionalInfoChips"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginBottom="8dp"
-            android:layout_weight="0.8">
-
-        </com.google.android.material.chip.ChipGroup>
-
+            android:layout_marginLeft="8dp"/>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="3.5"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/departureDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="16dp"
-            android:text="gg/mm/yyyy"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/tripList"
-            android:layout_width="333dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

@@ -14,7 +14,8 @@ class ShowTripDetailsFragment : TripDetailsFragment(R.layout.trip_details_fragme
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.editProfile -> {
-                showError("item selected")  //TODO: collegamento con TripEditFragment
+                activity?.findNavController(R.id.nav_host_fragment_content_main)
+                    ?.navigate(R.id.action_showTripDetailsFragment_to_showTripEditFragment)
                 true
             }
             else -> super.onOptionsItemSelected(item)

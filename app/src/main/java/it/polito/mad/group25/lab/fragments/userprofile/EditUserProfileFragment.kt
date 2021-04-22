@@ -134,7 +134,7 @@ data class UserProfileData(
     val nickName: String?,
     val email: String?,
     val location: String?,
-    val imageProfile: File
+    val imageProfile: File?
 ) {
     companion object {
         fun fromViewModel(
