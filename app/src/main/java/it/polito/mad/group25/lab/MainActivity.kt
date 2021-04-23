@@ -40,9 +40,6 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.showUserProfileFragment,
-                R.id.editUserProfileFragment,
-                R.id.showTripDetailsFragment,
-                R.id.showTripEditFragment,
                 R.id.TripListFragment
             ), drawerLayout
         )
