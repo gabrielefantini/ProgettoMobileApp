@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/TripListFragment">
+    app:startDestination="@id/showUserProfileFragment">
     <fragment
         android:id="@+id/showUserProfileFragment"
         android:name="it.polito.mad.group25.lab.fragments.userprofile.ShowUserProfileFragment"
