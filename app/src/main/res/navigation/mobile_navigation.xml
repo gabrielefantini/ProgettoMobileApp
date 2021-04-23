@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/showUserProfileFragment">
+    app:startDestination="@id/TripListFragment">
     <fragment
         android:id="@+id/showUserProfileFragment"
         android:name="it.polito.mad.group25.lab.fragments.userprofile.ShowUserProfileFragment"
@@ -49,5 +49,11 @@
         android:label="Trip List"
         tools:layout="@layout/trip_list_fragment"
         >
+        <action
+            android:id="@+id/action_TripListFragment_to_showTripEditFragment"
+            app:destination="@id/showTripEditFragment" />
+        <action
+            android:id="@+id/action_TripListFragment_to_showTripDetailsFragment"
+            app:destination="@id/showTripDetailsFragment" />
     </fragment>
 </navigation>

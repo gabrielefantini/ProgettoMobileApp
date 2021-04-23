@@ -14,7 +14,7 @@ import java.util.*
 @RequiresApi(Build.VERSION_CODES.O)
 class SharedViewModel: ViewModel(){
     private var _tripSelected = MutableLiveData<Int>(0)
-    private var _tripList = MutableLiveData<MutableList<Trip>>(mutableListOf(trip,trip2)) //togliere i trip d'esempio
+    private var _tripList = MutableLiveData<MutableList<Trip>>(mutableListOf(trip,trip2,trip,trip2)) //togliere i trip d'esempio
 
     val tripSelected: LiveData<Int> = _tripSelected
     val tripList: LiveData<MutableList<Trip>> = _tripList

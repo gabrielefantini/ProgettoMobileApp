@@ -6,6 +6,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -100,4 +101,5 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
         parent.findViewById<TextView>(R.id.nav_header_user_profile_email)
             ?.run { data.email?.also { text = it } }
     }
+
 }
