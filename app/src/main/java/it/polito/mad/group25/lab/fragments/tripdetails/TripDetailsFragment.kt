@@ -17,11 +17,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.utils.entities.TripLocation
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 
 abstract class TripDetailsFragment(
