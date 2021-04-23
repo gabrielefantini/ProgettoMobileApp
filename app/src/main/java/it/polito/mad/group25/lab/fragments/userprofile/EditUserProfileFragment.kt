@@ -93,7 +93,7 @@ class EditUserProfileFragment :
             R.id.saveProfileEdit -> {
                 saveEdits()
                 activity?.findNavController(R.id.nav_host_fragment_content_main)
-                    ?.navigate(R.id.action_editUserProfileFragment_to_showUserProfileFragment)
+                    ?.navigateUp()
                 true
             }
             else -> super.onOptionsItemSelected(item)

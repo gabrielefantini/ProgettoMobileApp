@@ -9,16 +9,8 @@
             android:icon="@mipmap/basic_profile_pic_foreground"
             android:title="@string/menu_profile" />
         <item
-            android:id="@+id/nav_trip_details"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Trip Details" />
-        <item
-            android:id="@+id/nav_trip_edit"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Trip Edit" />
-        <item
             android:id="@+id/nav_trip_list"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Trip List" />
+            android:title="@string/trip_list" />
     </group>
 </menu>

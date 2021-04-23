@@ -58,18 +58,23 @@ abstract class TripEditFragment(
             view.findViewById<ImageView>(R.id.carImage).setImageDrawable(it)
         }
 
-        val depDate =  view.findViewById<TextView>(R.id.departureDate)
+        val depDate = view.findViewById<TextView>(R.id.departureDate)
 
-        depDate.setOnClickListener{
+        depDate.setOnClickListener {
             val calendar = Calendar.getInstance()
             val day = calendar.get(Calendar.DAY_OF_MONTH)
             val month = calendar.get(Calendar.MONTH)
             val year = calendar.get(Calendar.YEAR)
-            var datePickerDialog = DatePickerDialog(this.requireActivity(), DatePickerDialog.OnDateSetListener{
-                    view, year, month, day ->
-                // Display Selected date in TextView
-                depDate.setText("$day/$month/$year")
-            }, year, month, day)
+            var datePickerDialog = DatePickerDialog(
+                this.requireActivity(),
+                DatePickerDialog.OnDateSetListener { view, year, month, day ->
+                    // Display Selected date in TextView
+                    depDate.setText("$day/$month/$year")
+                },
+                year,
+                month,
+                day
+            )
             datePickerDialog.show()
         }
 
@@ -86,7 +91,7 @@ abstract class TripEditFragment(
 
         val imageButton = view.findViewById<ImageButton>(R.id.changeCarPicButton)
         registerForContextMenu(imageButton)
-        imageButton.setOnClickListener{
+        imageButton.setOnClickListener {
             it.showContextMenu()
         }
 
@@ -124,7 +129,7 @@ abstract class TripEditFragment(
             R.id.saveProfileEdit -> {
                 saveEdits()
                 activity?.findNavController(R.id.nav_host_fragment_content_main)
-                    ?.navigate(R.id.action_showTripEditFragment_to_showTripDetailsFragment)
+                    ?.navigateUp()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -132,16 +137,21 @@ abstract class TripEditFragment(
     }
 
     private fun saveEdits() {
-       // TODO
+        // TODO
     }
 
 }
 
-class TripDetailsViewModel(application: Application): AndroidViewModel(application),
+class TripDetailsViewModel(application: Application) : AndroidViewModel(application),
     PersistableContainer {
 
-    var exampleChips = listOf("chip1","chip2")
-    var exampleTrips = mutableListOf(Trip2("loc1","10:00"),Trip2("loc2","11:00"),Trip2("loc3","12:00"),Trip2("loc4","13:00"))
+    var exampleChips = listOf("chip1", "chip2")
+    var exampleTrips = mutableListOf(
+        Trip2("loc1", "10:00"),
+        Trip2("loc2", "11:00"),
+        Trip2("loc3", "12:00"),
+        Trip2("loc4", "13:00")
+    )
 
     override fun getContext(): Context = getApplication()
     var tempCarDrawable: Drawable? = null
@@ -153,20 +163,20 @@ data class Trip2
     var time: String,
 )
 
-class TripAdapter(val list:List<Trip2>): RecyclerView.Adapter<TripAdapter.TripViewHolder>(){
+class TripAdapter(val list: List<Trip2>) : RecyclerView.Adapter<TripAdapter.TripViewHolder>() {
 
-    class TripViewHolder(v:View): RecyclerView.ViewHolder(v){
+    class TripViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         val location = v.findViewById<TextView>(R.id.trip_location)
         val time = v.findViewById<TextView>(R.id.trip_time)
 
-        fun bind(t:Trip2){
+        fun bind(t: Trip2) {
             location.text = t.location
             time.text = t.time
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
-        val layout = LayoutInflater.from(parent.context).inflate(viewType,parent,false)
+        val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return TripViewHolder(layout)
     }
 
@@ -177,9 +187,9 @@ class TripAdapter(val list:List<Trip2>): RecyclerView.Adapter<TripAdapter.TripVi
     override fun getItemCount(): Int = list.size
 
     override fun getItemViewType(position: Int): Int {
-        return when(position){
+        return when (position) {
             0 -> R.layout.trip_departure_line
-            list.size-1 -> R.layout.trip_destination_line
+            list.size - 1 -> R.layout.trip_destination_line
             else -> R.layout.trip_line
         }
     }

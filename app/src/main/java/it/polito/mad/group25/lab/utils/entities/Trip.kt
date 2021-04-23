@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 data class Trip (
         val carPic: String,
@@ -17,9 +16,9 @@ data class Trip (
         )
 
 @RequiresApi(Build.VERSION_CODES.O)
-inline fun Trip.startDateFormatted(): String = this.tripStartDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+fun Trip.startDateFormatted(): String = this.tripStartDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
 data class TripLocation(var location: String,var locationTime: LocalDateTime)
 
 @RequiresApi(Build.VERSION_CODES.O)
-inline fun TripLocation.timeFormatted(): String = this.locationTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+fun TripLocation.timeFormatted(): String = this.locationTime.format(DateTimeFormatter.ofPattern("HH:mm"))

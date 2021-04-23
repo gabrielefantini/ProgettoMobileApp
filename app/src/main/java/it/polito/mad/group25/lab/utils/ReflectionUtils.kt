@@ -76,7 +76,7 @@ fun <T : Any> Class<T>.distanceFrom(sourceClass: Class<*>): Int? {
         i++
         actualParent = actualParent.superclass
     }
-    return if (this == Any::class) i else null
+    return if (this == Any::class.java) i else null
 }
 
 fun <T : Any> KClass<T>.distanceFrom(sourceClass: KClass<*>): Int? =

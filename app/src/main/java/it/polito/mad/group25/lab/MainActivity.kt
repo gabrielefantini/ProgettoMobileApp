@@ -1,12 +1,10 @@
 package it.polito.mad.group25.lab
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -18,7 +16,6 @@ import it.polito.mad.group25.lab.databinding.ActivityMainBinding
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileData
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileDataChangeListener
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
-import it.polito.mad.group25.lab.utils.entities.Trip
 import it.polito.mad.group25.lab.utils.views.fromFile
 
 class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
@@ -58,22 +55,12 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
             drawerLayout.closeDrawers()
             true
         }
-        navView.menu.findItem(R.id.nav_trip_details).setOnMenuItemClickListener {
-            navController.navigate(R.id.showTripDetailsFragment)
-            drawerLayout.closeDrawers()
-            true
-        }
-        navView.menu.findItem(R.id.nav_trip_edit).setOnMenuItemClickListener {
-            navController.navigate(R.id.showTripEditFragment)
-            drawerLayout.closeDrawers()
-            true
-        }
+
         navView.menu.findItem(R.id.nav_trip_list).setOnMenuItemClickListener {
             navController.navigate(R.id.TripListFragment)
             drawerLayout.closeDrawers()
             true
         }
-
 
         updateNavHeaderUserInfo(
             UserProfileData.fromViewModel(

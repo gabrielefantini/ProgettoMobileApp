@@ -7,8 +7,8 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModelProvider
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.utils.viewmodel.PersistOnChange
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
@@ -20,11 +20,10 @@ abstract class GenericUserProfileFragment(
     contentLayoutId: Int
 ) : Fragment(contentLayoutId) {
 
-    protected lateinit var userProfileViewModel: UserProfileViewModel
+    protected val userProfileViewModel: UserProfileViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        userProfileViewModel = ViewModelProvider(this).get(UserProfileViewModel::class.java)
         setHasOptionsMenu(true)
     }
 

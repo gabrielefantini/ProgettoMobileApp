@@ -21,5 +21,6 @@
     <string name="menu_slideshow">Slideshow</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="user_profile_title">User Profile</string>
+    <string name="trip_list">Trip List</string>
 
 </resources>
