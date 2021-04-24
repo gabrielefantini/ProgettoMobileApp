@@ -44,7 +44,6 @@ abstract class TripEditFragment(
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
     private var idTrip: Int = -1
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         tripEditViewModel = ViewModelProvider(this).get(TripEditViewModel::class.java)
