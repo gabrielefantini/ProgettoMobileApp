@@ -45,6 +45,7 @@ abstract class TripDetailsFragment(
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
         super.onViewCreated(view, savedInstanceState)
         val context = this.context
 
@@ -52,7 +53,7 @@ abstract class TripDetailsFragment(
         val additionalInfoChips = view.findViewById<ChipGroup>(R.id.additionalInfoChips)
 
         sharedViewModel.tripSelected.observe(viewLifecycleOwner, { tripId ->
-            var trip = sharedViewModel.tripList.value?.get(tripId)
+            val trip = sharedViewModel.tripList.value?.get(tripId)
             if (trip != null) {
 
                 view.findViewById<TextView>(R.id.carName).text = trip.carName
@@ -79,16 +80,15 @@ abstract class TripDetailsFragment(
         })
 
     }
+}
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun getDurationFormatted(first:LocalDateTime, last:LocalDateTime): String{
-        val durationMin = ChronoUnit.MINUTES.between(first, last).toInt()
-        val hours = durationMin/60
-        val min = durationMin%60
+@RequiresApi(Build.VERSION_CODES.O)
+fun getDurationFormatted(first:LocalDateTime, last:LocalDateTime): String{
+    val durationMin = ChronoUnit.MINUTES.between(first, last).toInt()
+    val hours = durationMin/60
+    val min = durationMin%60
 
-        return "${if (hours != 0) "$hours h" else ""} ${if (min != 0) "$min min" else ""}"
-    }
-
+    return "${if (hours != 0) "$hours h" else ""} ${if (min != 0) "$min min" else ""}"
 }
 
 class TripLocationAdapter(private val list:List<TripLocation>): RecyclerView.Adapter<TripLocationAdapter.TripLocationViewHolder>(){
