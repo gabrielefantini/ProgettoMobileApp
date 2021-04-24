@@ -27,9 +27,10 @@ import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.SharedViewModel
 import it.polito.mad.group25.lab.fragments.tripdetails.TripLocationAdapter
 import it.polito.mad.group25.lab.fragments.tripdetails.getDurationFormatted
-import it.polito.mad.group25.lab.utils.entities.TripLocation
 import it.polito.mad.group25.lab.utils.entities.startDateFormatted
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 abstract class TripEditFragment(
@@ -41,6 +42,8 @@ abstract class TripEditFragment(
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void>
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
+    private var idTrip: Int = -1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +77,7 @@ abstract class TripEditFragment(
         sharedViewModel.tripSelected.observe(viewLifecycleOwner,{ tripId ->
             var trip = sharedViewModel.tripList.value?.get(tripId)
             if(trip != null){
+                idTrip = sharedViewModel.tripSelected.value!!
 
                 view.findViewById<EditText>(R.id.carName).setText(trip.carName)
                 depDate.text = trip.startDateFormatted()
@@ -153,6 +157,7 @@ abstract class TripEditFragment(
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) =
         inflater.inflate(R.menu.menu_foto, menu)
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.saveProfileEdit -> {
@@ -165,8 +170,22 @@ abstract class TripEditFragment(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun saveEdits() {
         // TODO
+        if (idTrip != -1) {
+            val tripSel = sharedViewModel.tripList.value?.get(idTrip)
+            if (tripSel != null) {
+                tripSel.carName = view?.findViewById<EditText>(R.id.carName)?.text.toString()
+                tripSel.seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
+                tripSel.price = view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble()
+                val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
+                date = date.split("/").map { it -> if (it.length < 2) "0"+it else it}.reduce { acc, s ->  acc+"/"+s}
+                tripSel.tripStartDate = LocalDate.parse(date, formatter)
+                tripSel.carPic = tripEditViewModel.tempCarDrawable.toString()
+            }
+        }
     }
 
 }

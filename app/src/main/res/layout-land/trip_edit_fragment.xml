@@ -162,11 +162,13 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tripList"
-                android:layout_width="366dp"
+                android:layout_width="268dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
                 android:layout_marginBottom="16dp"
                 android:layout_weight="0.8">
 

@@ -2,16 +2,17 @@ package it.polito.mad.group25.lab.utils.entities
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 data class Trip (
-        val carPic: String,
-        val carName: String,
-        val tripStartDate: LocalDateTime,
+        var carPic: String,
+        var carName: String,
+        var tripStartDate: LocalDate,
         val locations: MutableList<TripLocation>,
-        val seats: Int,
-        val price: Double,
+        var seats: Int,
+        var price: Double,
         val additionalInfo: MutableList<String>
         )
 
