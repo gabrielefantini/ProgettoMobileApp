@@ -187,7 +187,6 @@ abstract class TripEditFragment(
             }
         }
     }
-
 }
 
 class TripEditViewModel(application: Application) : AndroidViewModel(application),
