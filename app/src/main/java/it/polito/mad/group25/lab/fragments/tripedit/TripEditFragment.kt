@@ -232,24 +232,21 @@ abstract class TripEditFragment(
         if (idTrip != -1) {
             val tripSel = sharedViewModel.tripList.value?.get(idTrip)
             if (tripSel != null) {
-                try {
-                    val price = view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble()
-                    val seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
+                val price = view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble()
+                val seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
+                if (seats < 0 || seats > 7) Toast.makeText(context, "The number of seats must be between 0 and 7", Toast.LENGTH_LONG).show()
+                else {
                     tripSel.carName = view?.findViewById<EditText>(R.id.carName)?.text.toString()
                     tripSel.seats = seats
                     tripSel.price = price
                     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
                     var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
-                    date = date.split("/").map { it -> if (it.length < 2) "0"+it else it}.reduce { acc, s ->  acc+"/"+s}
+                    date = date.split("/").map { it -> if (it.length < 2) "0" + it else it }.reduce { acc, s -> acc + "/" + s }
                     tripSel.tripStartDate = LocalDate.parse(date, formatter)
                     tripSel.carPic = tripEditViewModel.tempCarDrawable.toString()
                     activity?.findNavController(R.id.nav_host_fragment_content_main)
                             ?.navigateUp()
                 }
-                catch (e: Exception) {
-                    Toast.makeText(context, "Fill all fields properly!", Toast.LENGTH_LONG).show()
-                }
-
             }
         }
     }
