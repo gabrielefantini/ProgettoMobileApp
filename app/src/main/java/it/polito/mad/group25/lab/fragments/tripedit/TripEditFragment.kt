@@ -1,5 +1,6 @@
 package it.polito.mad.group25.lab.fragments.tripedit
 
+import android.app.Activity
 import android.app.Application
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -79,6 +80,8 @@ abstract class TripEditFragment(
         val rv = view.findViewById<RecyclerView>(R.id.tripList)
         val additionalInfoChips = view.findViewById<ChipGroup>(R.id.additionalInfoChips)
         val depDate = view.findViewById<TextView>(R.id.departureDate)
+        val duration = view.findViewById<TextView>(R.id.durationText)
+
 
         sharedViewModel.tripSelected.observe(viewLifecycleOwner,{ tripId ->
             var trip = sharedViewModel.tripList.value?.get(tripId)
@@ -104,8 +107,17 @@ abstract class TripEditFragment(
                     chip.text = it
                     additionalInfoChips.addView(chip)
                 }
+
+                val tripSize = trip.locations.size
+                if (tripSize != 0) {
+                    val time1 = sharedViewModel.tripList.value?.get(idTrip)!!.locations[0].locationTime
+                    val time2 = sharedViewModel.tripList.value?.get(idTrip)!!.locations[tripSize-1].locationTime
+                    duration.text = getDurationFormatted(time1, time2)
+                }
+                else duration.text = "-"
             }
         })
+
 
         //da vedere gestione immagine
         tripEditViewModel.tempCarDrawable?.let {
@@ -154,14 +166,21 @@ abstract class TripEditFragment(
                 val location_stop = view.findViewById<EditText>(R.id.location_stop)
                 save_button.setOnClickListener {
                     if(location_stop.text.toString()!= "" && time_stop.text.toString()!="--:--") {
-                        sharedViewModel.tripList.value?.get(idTrip)?.addTripOrdered(location_stop.text.toString(), LocalTime.parse(time_stop.text.toString()))
+                        val trip = sharedViewModel.tripList.value?.get(idTrip)!!
+                        trip.addTripOrdered(location_stop.text.toString(), LocalTime.parse(time_stop.text.toString()))
+                        val tripSize = trip.locations.size
+                        if (tripSize != 0) {
+                            val time1 = sharedViewModel.tripList.value?.get(idTrip)!!.locations[0].locationTime
+                            val time2 = sharedViewModel.tripList.value?.get(idTrip)!!.locations[tripSize-1].locationTime
+                            duration.text = getDurationFormatted(time1, time2)
+                        }
                         location_stop.text.clear()
                         time_stop.text = "--:--"
                         layout.visibility = GONE
                         val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
                         rv_list.adapter?.notifyDataSetChanged()
                     }
-                    else Toast.makeText(context, "Fill all fields", Toast.LENGTH_LONG)
+                    else Toast.makeText(context, "Fill all fields!", Toast.LENGTH_LONG).show()
 
                 }
             }
@@ -202,8 +221,6 @@ abstract class TripEditFragment(
         return when (item.itemId) {
             R.id.saveProfileEdit -> {
                 saveEdits()
-                activity?.findNavController(R.id.nav_host_fragment_content_main)
-                    ?.navigateUp()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -215,14 +232,24 @@ abstract class TripEditFragment(
         if (idTrip != -1) {
             val tripSel = sharedViewModel.tripList.value?.get(idTrip)
             if (tripSel != null) {
-                tripSel.carName = view?.findViewById<EditText>(R.id.carName)?.text.toString()
-                tripSel.seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
-                tripSel.price = view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble()
-                val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
-                date = date.split("/").map { it -> if (it.length < 2) "0"+it else it}.reduce { acc, s ->  acc+"/"+s}
-                tripSel.tripStartDate = LocalDate.parse(date, formatter)
-                tripSel.carPic = tripEditViewModel.tempCarDrawable.toString()
+                try {
+                    val price = view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble()
+                    val seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
+                    tripSel.carName = view?.findViewById<EditText>(R.id.carName)?.text.toString()
+                    tripSel.seats = seats
+                    tripSel.price = price
+                    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                    var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
+                    date = date.split("/").map { it -> if (it.length < 2) "0"+it else it}.reduce { acc, s ->  acc+"/"+s}
+                    tripSel.tripStartDate = LocalDate.parse(date, formatter)
+                    tripSel.carPic = tripEditViewModel.tempCarDrawable.toString()
+                    activity?.findNavController(R.id.nav_host_fragment_content_main)
+                            ?.navigateUp()
+                }
+                catch (e: Exception) {
+                    Toast.makeText(context, "Fill all fields properly!", Toast.LENGTH_LONG).show()
+                }
+
             }
         }
     }
