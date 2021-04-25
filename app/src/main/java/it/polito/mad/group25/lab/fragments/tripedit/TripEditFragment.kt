@@ -68,6 +68,7 @@ abstract class TripEditFragment(
             }
     }
 
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
