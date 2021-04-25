@@ -252,6 +252,45 @@
 
             </com.google.android.material.chip.ChipGroup>
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/addDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:clickable="true"
+                android:src="@android:drawable/ic_menu_add"
+                app:backgroundTint="@color/purple_200"
+                app:fabSize="mini" />
+
+            <LinearLayout
+                android:id="@+id/addDetailLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/insertDetail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="5"
+                    android:hint="Insert detail"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+                <ImageButton
+                    android:id="@+id/addDetBut"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:src="@android:drawable/checkbox_on_background" />
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 

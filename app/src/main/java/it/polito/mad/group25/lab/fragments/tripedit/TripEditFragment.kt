@@ -186,6 +186,30 @@ abstract class TripEditFragment(
             }
         }
 
+        val addDetail = view.findViewById<FloatingActionButton>(R.id.addDetail)
+        addDetail.setOnClickListener {
+            val layout = view.findViewById<LinearLayout>(R.id.addDetailLayout)
+            if (layout.visibility == VISIBLE) layout.visibility = GONE
+            else {
+                layout.visibility = VISIBLE
+                val add_button = view.findViewById<ImageButton>(R.id.addDetBut)
+                val detText = view.findViewById<EditText>(R.id.insertDetail)
+                add_button.setOnClickListener {
+                    if (detText.text.toString() == "") Toast.makeText(context, "Insert a text!", Toast.LENGTH_LONG).show()
+                    else {
+                        val trip = sharedViewModel.tripList.value?.get(idTrip)!!
+                        trip.additionalInfo.add(detText.text.toString())
+                        layout.visibility = GONE
+                        var chip = Chip(context)
+                        chip.text = detText.text.toString()
+                        additionalInfoChips.addView(chip)
+                        detText.text.clear()
+
+                    }
+                }
+            }
+        }
+
     }
 
 
