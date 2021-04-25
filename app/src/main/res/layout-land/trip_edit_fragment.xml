@@ -135,6 +135,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/priceIcon"
                 app:layout_constraintStart_toEndOf="@+id/priceIcon"
                 app:layout_constraintTop_toTopOf="@+id/priceIcon" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
@@ -173,6 +174,53 @@
                 android:layout_weight="0.8">
 
             </androidx.recyclerview.widget.RecyclerView>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/addTripStop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:src="@android:drawable/ic_menu_add"
+                app:backgroundTint="@color/purple_200"
+                app:fabSize="mini" />
+
+            <LinearLayout
+                android:id="@+id/add_fields_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/time_stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.4"
+                    android:gravity="center"
+                    android:text="00:00"
+                    android:textSize="24sp" />
+
+                <EditText
+                    android:id="@+id/location_stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Location" />
+
+                <ImageButton
+                    android:id="@+id/save_stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3"
+                    android:src="@android:drawable/ic_menu_myplaces" />
+            </LinearLayout>
 
             <View
                 android:id="@+id/divider5"

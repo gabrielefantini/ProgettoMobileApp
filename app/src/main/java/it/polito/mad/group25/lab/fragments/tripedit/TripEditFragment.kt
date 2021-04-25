@@ -35,6 +35,7 @@ import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -152,18 +153,22 @@ abstract class TripEditFragment(
                 val save_button = view.findViewById<ImageButton>(R.id.save_stop)
                 val location_stop = view.findViewById<EditText>(R.id.location_stop)
                 save_button.setOnClickListener {
-                    sharedViewModel.tripList.value?.get(idTrip)?.addTripOrdered(location_stop.text.toString(), LocalTime.parse(time_stop.text.toString()))
-                    location_stop.text.clear()
-                    time_stop.text="00:00"
-                    layout.visibility = GONE
-                    val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
-                    rv_list.adapter?.notifyDataSetChanged()
+                    if(location_stop.text.toString()!= "" && time_stop.text.toString()!="--:--") {
+                        sharedViewModel.tripList.value?.get(idTrip)?.addTripOrdered(location_stop.text.toString(), LocalTime.parse(time_stop.text.toString()))
+                        location_stop.text.clear()
+                        time_stop.text = "--:--"
+                        layout.visibility = GONE
+                        val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
+                        rv_list.adapter?.notifyDataSetChanged()
+                    }
+                    else Toast.makeText(context, "Fill all fields", Toast.LENGTH_LONG)
 
                 }
             }
         }
 
     }
+
 
     override fun onCreateContextMenu(
         menu: ContextMenu,
