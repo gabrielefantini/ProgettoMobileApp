@@ -10,7 +10,7 @@ import it.polito.mad.group25.lab.utils.entities.TripLocation
 import java.lang.RuntimeException
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.time.LocalTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 class SharedViewModel: ViewModel(){
@@ -39,8 +39,8 @@ val trip = Trip(
         "panda",
         LocalDate.now(),
         mutableListOf(
-                TripLocation("loc1",LocalDateTime.now()),
-                TripLocation("loc2",LocalDateTime.now().plusMinutes(30))
+                TripLocation("loc1",LocalTime.now()),
+                TripLocation("loc2",LocalTime.now().plusMinutes(30))
         ),
         2,
         20.0,
@@ -53,9 +53,9 @@ val trip2 = Trip(
         "idea",
         LocalDate.now().plusDays(1),
         mutableListOf(
-                TripLocation("loc1",LocalDateTime.now()),
-                TripLocation("loc2",LocalDateTime.now().plusMinutes(30)),
-                TripLocation("loc2",LocalDateTime.now().plusMinutes(60))
+                TripLocation("loc1",LocalTime.now()),
+                TripLocation("loc2",LocalTime.now().plusMinutes(30)),
+                TripLocation("loc2",LocalTime.now().plusMinutes(60))
         ),
         3,
         100.0,

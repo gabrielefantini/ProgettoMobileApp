@@ -2,15 +2,15 @@ package it.polito.mad.group25.lab.fragments.tripedit
 
 import android.app.Application
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -23,13 +23,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.SharedViewModel
 import it.polito.mad.group25.lab.fragments.tripdetails.TripLocationAdapter
 import it.polito.mad.group25.lab.fragments.tripdetails.getDurationFormatted
+import it.polito.mad.group25.lab.utils.entities.TripLocation
+import it.polito.mad.group25.lab.utils.entities.addTripOrdered
 import it.polito.mad.group25.lab.utils.entities.startDateFormatted
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -76,7 +81,7 @@ abstract class TripEditFragment(
         sharedViewModel.tripSelected.observe(viewLifecycleOwner,{ tripId ->
             var trip = sharedViewModel.tripList.value?.get(tripId)
             if(trip != null){
-                idTrip = sharedViewModel.tripSelected.value!!
+                idTrip = tripId
 
                 view.findViewById<EditText>(R.id.carName).setText(trip.carName)
                 depDate.text = trip.startDateFormatted()
@@ -127,6 +132,36 @@ abstract class TripEditFragment(
             it.showContextMenu()
         }
 
+        val addButton = view.findViewById<FloatingActionButton>(R.id.addTripStop)
+        addButton.setOnClickListener {
+            val layout = view.findViewById<LinearLayout>(R.id.add_fields_layout)
+            if (layout.visibility == VISIBLE) layout.visibility = GONE
+            else {
+                layout.visibility = VISIBLE
+                val time_stop = view.findViewById<TextView>(R.id.time_stop)
+                time_stop.setOnClickListener {
+                    val cal = Calendar.getInstance()
+                    val timeSetListener = TimePickerDialog.OnTimeSetListener{timePicker:TimePicker, hour:Int, minute:Int ->
+                        cal.set(Calendar.HOUR_OF_DAY, hour)
+                        cal.set(Calendar.MINUTE, minute)
+                        time_stop.text = SimpleDateFormat("HH:mm").format(cal.time)
+                    }
+                    TimePickerDialog(context, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show()
+                }
+                val save_button = view.findViewById<ImageButton>(R.id.save_stop)
+                val location_stop = view.findViewById<EditText>(R.id.location_stop)
+                save_button.setOnClickListener {
+                    sharedViewModel.tripList.value?.get(idTrip)?.addTripOrdered(location_stop.text.toString(), LocalTime.parse(time_stop.text.toString()))
+                    location_stop.text.clear()
+                    time_stop.text="00:00"
+                    layout.visibility = GONE
+                    val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
+                    rv_list.adapter?.notifyDataSetChanged()
+
+                }
+            }
+        }
+
     }
 
     override fun onCreateContextMenu(
@@ -171,7 +206,6 @@ abstract class TripEditFragment(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun saveEdits() {
-        // TODO
         if (idTrip != -1) {
             val tripSel = sharedViewModel.tripList.value?.get(idTrip)
             if (tripSel != null) {

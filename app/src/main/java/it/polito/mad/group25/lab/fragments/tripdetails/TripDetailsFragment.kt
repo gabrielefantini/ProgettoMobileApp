@@ -1,36 +1,25 @@
 package it.polito.mad.group25.lab.fragments.tripdetails
 
-import android.app.Application
-import android.content.Context
 import android.os.Build
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.AndroidViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.SharedViewModel
-import it.polito.mad.group25.lab.utils.entities.Trip
 import it.polito.mad.group25.lab.utils.entities.TripLocation
 import it.polito.mad.group25.lab.utils.entities.startDateFormatted
 import it.polito.mad.group25.lab.utils.entities.timeFormatted
-import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import java.time.LocalTime
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 abstract class TripDetailsFragment(
     contentLayoutId: Int
@@ -83,7 +72,7 @@ abstract class TripDetailsFragment(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun getDurationFormatted(first:LocalDateTime, last:LocalDateTime): String{
+fun getDurationFormatted(first: LocalTime, last: LocalTime): String{
     val durationMin = ChronoUnit.MINUTES.between(first, last).toInt()
     val hours = durationMin/60
     val min = durationMin%60

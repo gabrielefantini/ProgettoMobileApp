@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".fragments.tripdetails.ShowTripDetailsFragment">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -38,8 +39,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:paddingRight="8dp"
             android:hint="nome macchina"
+            android:paddingRight="8dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <View
@@ -66,7 +67,59 @@
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addTripStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:clickable="true"
+            android:src="@android:drawable/ic_menu_add"
+            app:backgroundTint="@color/purple_200"
+            app:fabSize="mini" />
+
+        <LinearLayout
+            android:id="@+id/add_fields_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="#FFFFFF"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/time_stop"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.4"
+                android:gravity="center"
+                android:text="00:00"
+                android:textSize="24sp" />
+
+            <EditText
+                android:id="@+id/location_stop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Location" />
+
+            <ImageButton
+                android:id="@+id/save_stop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:src="@android:drawable/ic_menu_myplaces" />
+        </LinearLayout>
 
         <View
             android:id="@+id/divider"
@@ -82,12 +135,12 @@
                 android:id="@+id/durationIcon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:src="@drawable/ic_duration"
                 app:layout_constraintBottom_toTopOf="@+id/seatsIcon"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.042"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:src="@drawable/ic_duration" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/durationText"
@@ -105,12 +158,12 @@
                 android:id="@+id/seatsIcon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:src="@drawable/ic_seat"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.042"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/durationIcon"
-                android:src="@drawable/ic_seat" />
+                app:layout_constraintTop_toBottomOf="@+id/durationIcon" />
 
             <EditText
                 android:id="@+id/seatsText"
@@ -140,13 +193,13 @@
                 android:id="@+id/priceIcon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:src="@drawable/ic_price"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.62"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.245"
-                android:src="@drawable/ic_price" />
+                app:layout_constraintVertical_bias="0.245" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -172,6 +225,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"/>
+            android:layout_marginLeft="8dp" />
     </LinearLayout>
 </ScrollView>
