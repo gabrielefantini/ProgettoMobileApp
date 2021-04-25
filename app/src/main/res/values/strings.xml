@@ -22,5 +22,9 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="user_profile_title">User Profile</string>
     <string name="trip_list">Trip List</string>
+    <string name="fullNameHelper">Enter your full name</string>
+    <string name="nicknameHelper">Enter the username you want to associate with your account</string>
+    <string name="emailHelper">Enter your email address</string>
+    <string name="locationHelper">Enter your home address</string>
 
 </resources>
