@@ -6,20 +6,25 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 data class Trip (
-        var carPic: String,
-        var carName: String,
-        var tripStartDate: LocalDate,
-        val locations: MutableList<TripLocation>,
-        var seats: Int,
-        var price: Double,
-        val additionalInfo: MutableList<String>
+        var carPic: String = "",
+        var carName: String = "car name",
+        var tripStartDate: LocalDate = LocalDate.now(),
+        val locations: MutableList<TripLocation> = mutableListOf(),
+        var seats: Int = 0,
+        var price: Double = 0.0,
+        val additionalInfo: MutableList<String> = mutableListOf()
         )
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun Trip.startDateFormatted(): String = this.tripStartDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 
-data class TripLocation(var location: String,var locationTime: LocalDateTime)
+@RequiresApi(Build.VERSION_CODES.O)
+data class TripLocation (
+        var location: String = "loc name",
+        var locationTime: LocalDateTime = LocalDateTime.now()
+        )
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun TripLocation.timeFormatted(): String = this.locationTime.format(DateTimeFormatter.ofPattern("HH:mm"))
