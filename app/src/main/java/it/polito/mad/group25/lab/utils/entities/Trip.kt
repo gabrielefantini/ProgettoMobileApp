@@ -30,7 +30,7 @@ data class TripLocation (
 fun TripLocation.timeFormatted(): String = this.locationTime.format(DateTimeFormatter.ofPattern("HH:mm"))
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun Trip.addTripOrdered (location: String, locationTime: LocalTime) {
+fun Trip.addTripLocationOrdered (location: String, locationTime: LocalTime) {
         val trip = TripLocation(location, locationTime)
         locations.add(trip)
         locations.sortBy { it.locationTime }
