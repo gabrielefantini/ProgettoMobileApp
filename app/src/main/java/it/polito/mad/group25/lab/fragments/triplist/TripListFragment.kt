@@ -11,10 +11,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.SharedViewModel
 import it.polito.mad.group25.lab.utils.entities.Trip
@@ -45,20 +47,29 @@ class TripListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.trip_list_fragment, container, false)
-
+        val list = view.findViewById<RecyclerView>(R.id.list)
         //pass an observable to MyTripCarRecyclerViewAdapter
         sharedViewModel.tripList.observe( viewLifecycleOwner, { tripList ->
             // Set the adapter
-            if (view is RecyclerView) {
-                with(view) {
-                    layoutManager = when {
-                        columnCount <= 1 -> LinearLayoutManager(context)
-                        else -> GridLayoutManager(context, columnCount)
-                    }
-                    adapter = MyTripCardRecyclerViewAdapter(tripList)
+            with(list) {
+                layoutManager = when {
+                    columnCount <= 1 -> LinearLayoutManager(context)
+                    else -> GridLayoutManager(context, columnCount)
                 }
+                adapter = MyTripCardRecyclerViewAdapter(tripList)
             }
         })
+        val addNewTripButton = view.findViewById<FloatingActionButton>(R.id.addTrip)
+        addNewTripButton.setOnClickListener {
+            Toast.makeText(context,"aggiunta di un nuovo viagggio", Toast.LENGTH_SHORT).show()
+
+            //TODO aggiungere la navigazione verso il fragment per l'inserimento di un nuovo viaggio
+
+            /*  1-> aggiorna lo shardViewModel
+                2-> naviga verso il giusto fragment
+                view.findNavController().navigate(R.id.showTripEditFragment)
+            */
+        }
         return view
     }
 
