@@ -27,8 +27,8 @@ class ConcurrentPersistor<T>(private val default: T, private val onLoadedPersist
 
     override fun setValue(thisRef: PersistableContainer, property: KProperty<*>, value: T) {
         val writeLock = lock.writeLock()
+        writeLock.lock()
         try {
-            writeLock.lock()
             persist(
                 getStorage(thisRef),
                 extractId(property),
