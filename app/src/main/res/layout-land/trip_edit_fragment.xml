@@ -41,9 +41,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:paddingRight="8dp"
             android:hint="nome macchina"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+            android:paddingRight="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
         <View
             android:id="@+id/divider4"
@@ -150,7 +150,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3.5"
             android:orientation="vertical">
 
             <TextView

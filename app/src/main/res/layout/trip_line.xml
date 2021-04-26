@@ -40,15 +40,43 @@
         android:layout_weight="8"
         android:text="Torino"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/trip_icon"
         app:layout_constraintStart_toEndOf="@+id/trip_icon"
         app:layout_constraintTop_toTopOf="@+id/trip_icon" />
+
+    <EditText
+        android:id="@+id/trip_location_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_weight="8"
+        android:maxLength="30"
+        android:text="Torino"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/trip_icon"
+        app:layout_constraintStart_toEndOf="@+id/trip_icon"
+        app:layout_constraintTop_toTopOf="@+id/trip_icon" />
+
+    <ImageButton
+        android:id="@+id/save_location_edit"
+        android:layout_width="20dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="136dp"
+        android:layout_marginLeft="136dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/trip_location_edit"
+        app:layout_constraintStart_toEndOf="@+id/trip_location_edit"
+        app:layout_constraintTop_toTopOf="@+id/trip_location_edit"
+        app:srcCompat="@android:drawable/checkbox_on_background" />
 
     <ImageView
         android:id="@+id/linkDots1"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
         app:layout_constraintEnd_toEndOf="@+id/trip_icon"
         app:layout_constraintStart_toStartOf="@+id/trip_icon"
