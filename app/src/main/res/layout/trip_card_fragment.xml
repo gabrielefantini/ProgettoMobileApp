@@ -13,7 +13,6 @@
     android:layout_marginBottom="8dp"
     android:orientation="horizontal"
     android:paddingRight="4dp"
-    app:cardBackgroundColor="#FFFFFF"
     app:cardCornerRadius="4dp"
     app:cardElevation="2dp">
 
@@ -29,7 +28,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingTop="8dp"
-            android:text="nome macchina"
+            android:text="@string/car_name"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
         <LinearLayout
@@ -195,7 +194,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:isScrollContainer="false"
-                    android:text="edit"
+                    android:text="@string/edit"
                     android:textSize="10sp"
                     app:icon="@drawable/ic_edit_pencil"
                     app:iconTintMode="src_in" />
