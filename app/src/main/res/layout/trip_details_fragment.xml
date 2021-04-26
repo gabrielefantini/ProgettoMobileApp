@@ -26,7 +26,7 @@
             android:gravity="right"
             android:paddingRight="8dp"
             android:text="nome macchina"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
         <View
             android:id="@+id/divider2"

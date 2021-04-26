@@ -1,6 +1,5 @@
 package it.polito.mad.group25.lab.fragments.tripedit
 
-import android.app.Activity
 import android.app.Application
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -27,16 +26,15 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.SharedViewModel
-import it.polito.mad.group25.lab.fragments.tripdetails.TripLocationAdapter
 import it.polito.mad.group25.lab.fragments.tripdetails.getDurationFormatted
 import it.polito.mad.group25.lab.utils.entities.TripLocation
 import it.polito.mad.group25.lab.utils.entities.addTripOrdered
 import it.polito.mad.group25.lab.utils.entities.startDateFormatted
+import it.polito.mad.group25.lab.utils.entities.timeFormatted
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -97,7 +95,7 @@ abstract class TripEditFragment(
                 view.findViewById<TextView>(R.id.durationText).text = getDurationFormatted(trip.locations[0].locationTime,trip.locations[last].locationTime)
 
                 rv.layoutManager = LinearLayoutManager(context)
-                rv.adapter = TripLocationAdapter(trip.locations)
+                rv.adapter = TripAdapter(trip.locations, context)
 
                 if (additionalInfoChips.childCount != 0)
                     additionalInfoChips.removeAllViews()
@@ -274,6 +272,70 @@ abstract class TripEditFragment(
             }
         }
     }
+
+    class TripAdapter(var list: List<TripLocation>, val context: Context?) : RecyclerView.Adapter<TripAdapter.TripViewHolder>() {
+
+        class TripViewHolder(v: View, val context: Context?, var list: List<TripLocation>) : RecyclerView.ViewHolder(v) {
+            val location = v.findViewById<TextView>(R.id.trip_location)
+            val location_hidden = v.findViewById<EditText>(R.id.trip_location_edit)
+            val time = v.findViewById<TextView>(R.id.trip_time)
+            val save_button = v.findViewById<ImageButton>(R.id.save_location_edit)
+
+            @RequiresApi(Build.VERSION_CODES.O)
+            fun bind(t: TripLocation) {
+                location.text = t.location
+                time.text = t.timeFormatted()
+
+                time.setOnClickListener {
+                    val cal = Calendar.getInstance()
+                    val timeSetListener = TimePickerDialog.OnTimeSetListener{timePicker:TimePicker, hour:Int, minute:Int ->
+                        cal.set(Calendar.HOUR_OF_DAY, hour)
+                        cal.set(Calendar.MINUTE, minute)
+                        time.text = SimpleDateFormat("HH:mm").format(cal.time)
+                    }
+                    TimePickerDialog(context, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show()
+                    t.locationTime = LocalTime.parse(time.text.toString())
+                }
+
+                location.setOnClickListener {
+                    location.visibility = GONE
+                    location_hidden.hint = location.text.toString()
+                    location_hidden.visibility = VISIBLE
+                    save_button.visibility = VISIBLE
+                    save_button.setOnClickListener {
+                        location.text = location_hidden.text.toString()
+                        t.location = location.text.toString()
+                        location_hidden.visibility = GONE
+                        save_button.visibility = GONE
+                        location.visibility = VISIBLE
+                    }
+
+                }
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
+            val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
+            return TripViewHolder(layout, context)
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        override fun onBindViewHolder(holder: TripViewHolder, position: Int) {
+            holder.bind(list[position])
+            list = list.sortedBy { it.locationTime }
+        }
+
+        override fun getItemCount(): Int = list.size
+
+        override fun getItemViewType(position: Int): Int {
+            return when (position) {
+                0 -> R.layout.trip_departure_line
+                list.size - 1 -> R.layout.trip_destination_line
+                else -> R.layout.trip_line
+            }
+        }
+
+    }
 }
 
 class TripEditViewModel(application: Application) : AndroidViewModel(application),
@@ -285,42 +347,4 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
     var tempCarDrawable: Drawable? = null
 }
 
-/*data class Trip2
-    (
-    var location: String,
-    var time: String,
-)*/
 
-/*
-class TripAdapter(val list: List<Trip2>) : RecyclerView.Adapter<TripAdapter.TripViewHolder>() {
-
-    class TripViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        val location = v.findViewById<TextView>(R.id.trip_location)
-        val time = v.findViewById<TextView>(R.id.trip_time)
-
-        fun bind(t: Trip2) {
-            location.text = t.location
-            time.text = t.time
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
-        val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        return TripViewHolder(layout)
-    }
-
-    override fun onBindViewHolder(holder: TripViewHolder, position: Int) {
-        holder.bind(list[position])
-    }
-
-    override fun getItemCount(): Int = list.size
-
-    override fun getItemViewType(position: Int): Int {
-        return when (position) {
-            0 -> R.layout.trip_departure_line
-            list.size - 1 -> R.layout.trip_destination_line
-            else -> R.layout.trip_line
-        }
-    }
-
-}*/
