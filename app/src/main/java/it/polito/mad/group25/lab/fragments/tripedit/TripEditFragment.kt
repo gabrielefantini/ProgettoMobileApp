@@ -256,6 +256,7 @@ abstract class TripEditFragment(
                     TimePickerDialog(context, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show()
                 }
 
+
                 saveButton.setOnClickListener {
                     //qui modifichi la lista e poi aggiorni l'adapter
                     showError("trip updated!")
