@@ -12,7 +12,7 @@ interface PersistableContainer {
     fun getContext(): Context
 }
 
-class PersistOnChange<T>(private val default: T) :
+class Persistor<T>(private val default: T) :
     ReadWriteProperty<PersistableContainer, T> {
 
     private companion object {
@@ -44,9 +44,9 @@ class PersistOnChange<T>(private val default: T) :
         )
         loaded = true
 
-        return if (value == null)
-            default
-        else value as T
+        if (value == null)
+            value = default
+        return value as T
     }
 
     private fun getStorage(container: PersistableContainer) = container.getContext().let {

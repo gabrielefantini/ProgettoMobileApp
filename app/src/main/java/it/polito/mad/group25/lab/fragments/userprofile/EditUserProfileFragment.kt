@@ -3,25 +3,32 @@ package it.polito.mad.group25.lab.fragments.userprofile
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import com.google.android.material.textfield.TextInputLayout
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.utils.nullOnBlank
+import it.polito.mad.group25.lab.utils.fragment.showError
+import it.polito.mad.group25.lab.utils.views.isCompliant
+import it.polito.mad.group25.lab.utils.views.setConstraints
 import it.polito.mad.group25.lab.utils.views.toFile
 import java.io.File
 
 class EditUserProfileFragment :
-    GenericUserProfileFragment(false, R.layout.edit_user_profile_fragment) {
+    GenericUserProfileFragment(R.layout.edit_user_profile_fragment) {
 
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void>
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
     private lateinit var viewModel: EditUserProfileViewModel
+    private lateinit var fullNameTextInputLayout: TextInputLayout
+    private lateinit var usernameTextInputLayout: TextInputLayout
+    private lateinit var emailTextInputLayout: TextInputLayout
+    private lateinit var locationTextInputLayout: TextInputLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +65,42 @@ class EditUserProfileFragment :
         camera.setOnClickListener {
             it.showContextMenu()
         }
+
+        fullNameTextInputLayout =
+            requireView().findViewById<TextInputLayout>(R.id.fullNameTextLayout)
+                .apply {
+                    setConstraints(
+                        R.id.fullName,
+                        resources.getString(R.string.fullNameMissingError),
+                        CharSequence::isNotBlank
+                    )
+                }
+        usernameTextInputLayout =
+            requireView().findViewById<TextInputLayout>(R.id.nickNameTextLayout)
+                .apply {
+                    setConstraints(
+                        R.id.nickName,
+                        resources.getString(R.string.nickNameMissingError),
+                        CharSequence::isNotBlank
+                    )
+                }
+        emailTextInputLayout = requireView().findViewById<TextInputLayout>(R.id.emailTextLayout)
+            .apply {
+                setConstraints(
+                    R.id.email,
+                    resources.getString(R.string.emailMissingError),
+                    CharSequence::isNotBlank
+                )
+            }
+        locationTextInputLayout =
+            requireView().findViewById<TextInputLayout>(R.id.locationTextLayout)
+                .apply {
+                    setConstraints(
+                        R.id.location,
+                        resources.getString(R.string.locationMissingError),
+                        CharSequence::isNotBlank
+                    )
+                }
     }
 
     override fun onCreateContextMenu(
@@ -91,28 +134,42 @@ class EditUserProfileFragment :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.saveProfileEdit -> {
-                saveEdits()
-                activity?.findNavController(R.id.nav_host_fragment_content_main)
-                    ?.navigateUp()
+                if (saveEdits())
+                    activity?.findNavController(R.id.nav_host_fragment_content_main)
+                        ?.navigateUp()
+                else {
+                    showError(resources.getString(R.string.provideAllInfoError))
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun saveEdits() {
-        requireView().findViewById<EditText>(R.id.fullName).text.toString().nullOnBlank()
-            ?.also { userProfileViewModel.fullName = it }
-        requireView().findViewById<EditText>(R.id.nickName).text.toString().nullOnBlank()
-            ?.also { userProfileViewModel.nickName = it }
-        requireView().findViewById<EditText>(R.id.email).text.toString().nullOnBlank()
-            ?.also { userProfileViewModel.email = it }
-        requireView().findViewById<EditText>(R.id.location).text.toString().nullOnBlank()
-            ?.also { userProfileViewModel.location = it }
+    private fun saveEdits(): Boolean {
+        if (!(fullNameTextInputLayout.isCompliant()
+                    && usernameTextInputLayout.isCompliant()
+                    && emailTextInputLayout.isCompliant()
+                    && locationTextInputLayout.isCompliant())
+        ) return false
+
+        userProfileViewModel.fullName =
+            requireActivity().findViewById<TextView>(R.id.fullName).text.toString()
+
+        userProfileViewModel.nickName =
+            requireActivity().findViewById<TextView>(R.id.nickName).text.toString()
+
+        userProfileViewModel.email =
+            requireActivity().findViewById<TextView>(R.id.email).text.toString()
+
+        userProfileViewModel.location =
+            requireActivity().findViewById<TextView>(R.id.location).text.toString()
 
         requireView().findViewById<ImageView>(R.id.profilePic).toFile()
             ?.let { userProfileViewModel.userProfilePhotoFile = it }
+
         fireDataChanges()
+        return true
     }
 
     private fun fireDataChanges() {

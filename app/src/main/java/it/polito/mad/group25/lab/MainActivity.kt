@@ -77,13 +77,14 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
     private fun updateNavHeaderUserInfo(data: UserProfileData) {
         val parent = activityMainBinding.navView.getHeaderView(0)
         parent.findViewById<ImageView>(R.id.nav_header_user_profile_pic)
-            ?.run { data.imageProfile?.also{ fromFile(data.imageProfile) } }
+            ?.run { data.imageProfile?.also { fromFile(data.imageProfile) } }
 
         parent.findViewById<TextView>(R.id.nav_header_user_profile_nick)
-            ?.run { data.nickName?.also { text = it } }
-
+            ?.run {
+                text = data.nickName ?: resources.getString(R.string.guest)
+            }
         parent.findViewById<TextView>(R.id.nav_header_user_profile_email)
-            ?.run { data.email?.also { text = it } }
+            ?.run { text = data.email }
     }
 
 }

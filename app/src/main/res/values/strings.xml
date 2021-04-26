@@ -1,10 +1,8 @@
 <resources>
     <string name="app_name">Lab2Mobile</string>
     <string name="save_menu_option">Save</string>
-    <string name="fullName">Full Name</string>
-    <string name="nickname">Nickname</string>
-    <string name="email">email@address</string>
-    <string name="location">Location</string>
+    <string name="fullName">Guest</string>
+    <string name="subscriptionCaption">Edit your profile in order to inspire confidence to your passengers!</string>
     <string name="profile_pic_description">User profile picture</string>
     <string name="title_activity_main">Lab2Mobile</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -22,9 +20,16 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="user_profile_title">User Profile</string>
     <string name="trip_list">Trip List</string>
+
     <string name="fullNameHelper">Enter your full name</string>
     <string name="nicknameHelper">Enter the username you want to associate with your account</string>
     <string name="emailHelper">Enter your email address</string>
     <string name="locationHelper">Enter your home address</string>
 
+    <string name="fullNameMissingError">Full name is required</string>
+    <string name="nickNameMissingError">Username is required</string>
+    <string name="emailMissingError">Email is required</string>
+    <string name="locationMissingError">Location is required</string>
+    <string name="provideAllInfoError">Please provide all required informations</string>
+    <string name="guest">Guest</string>
 </resources>

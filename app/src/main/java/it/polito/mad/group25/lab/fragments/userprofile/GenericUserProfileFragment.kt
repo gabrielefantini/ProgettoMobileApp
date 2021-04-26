@@ -10,13 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.AndroidViewModel
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.utils.viewmodel.PersistOnChange
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
+import it.polito.mad.group25.lab.utils.viewmodel.Persistor
 import it.polito.mad.group25.lab.utils.views.fromFile
 import java.io.File
 
 abstract class GenericUserProfileFragment(
-    private val nullSafeAssignment: Boolean,
     contentLayoutId: Int
 ) : Fragment(contentLayoutId) {
 
@@ -30,23 +29,11 @@ abstract class GenericUserProfileFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (nullSafeAssignment) {
-            userProfileViewModel.fullName?.also {
-                view.findViewById<TextView>(R.id.fullName).text = it
-            }
-            userProfileViewModel.nickName?.also {
-                view.findViewById<TextView>(R.id.nickName).text = it
-            }
-            userProfileViewModel.email?.also { view.findViewById<TextView>(R.id.email).text = it }
-            userProfileViewModel.location?.also {
-                view.findViewById<TextView>(R.id.location).text = it
-            }
-        } else {
-            view.findViewById<TextView>(R.id.fullName).text = userProfileViewModel.fullName
-            view.findViewById<TextView>(R.id.nickName).text = userProfileViewModel.nickName
-            view.findViewById<TextView>(R.id.email).text = userProfileViewModel.email
-            view.findViewById<TextView>(R.id.location).text = userProfileViewModel.location
-        }
+        view.findViewById<TextView>(R.id.fullName).text = userProfileViewModel.fullName
+        view.findViewById<TextView>(R.id.nickName).text = userProfileViewModel.nickName
+        view.findViewById<TextView>(R.id.email).text = userProfileViewModel.email
+        view.findViewById<TextView>(R.id.location).text = userProfileViewModel.location
+
         view.findViewById<ImageView>(R.id.profilePic)
             .fromFile(userProfileViewModel.userProfilePhotoFile)
     }
@@ -55,11 +42,11 @@ abstract class GenericUserProfileFragment(
 class UserProfileViewModel(application: Application) : AndroidViewModel(application),
     PersistableContainer {
 
-    var fullName: String? by PersistOnChange(null)
-    var nickName: String? by PersistOnChange(null)
-    var email: String? by PersistOnChange(null)
-    var location: String? by PersistOnChange(null)
-    var userProfilePhotoFile: File by PersistOnChange(
+    var fullName: String? by Persistor(null)
+    var nickName: String? by Persistor(null)
+    var email: String? by Persistor(null)
+    var location: String? by Persistor(null)
+    var userProfilePhotoFile: File by Persistor(
         File(application.filesDir, "userProfilePicture")
     )
 
