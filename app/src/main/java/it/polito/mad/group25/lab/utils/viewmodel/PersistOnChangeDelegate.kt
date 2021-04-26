@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.fasterxml.jackson.databind.ObjectMapper
 import it.polito.mad.group25.lab.utils.type
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaField
@@ -12,41 +14,68 @@ interface PersistableContainer {
     fun getContext(): Context
 }
 
-class Persistor<T>(private val default: T) :
+class ConcurrentPersistor<T>(private val default: T, private val onLoadedPersistedValue: (T?) -> Unit = {}) :
     ReadWriteProperty<PersistableContainer, T> {
 
     private companion object {
         val objectMapper = ObjectMapper()
     }
 
-    private var loaded = false
+    private var loaded: AtomicBoolean = AtomicBoolean(false)
     private var value: T? = null
+    private val lock = ReentrantReadWriteLock()
 
     override fun setValue(thisRef: PersistableContainer, property: KProperty<*>, value: T) {
-        persist(
-            getStorage(thisRef),
-            extractId(property),
-            value
-        )
-        this.value = value
+        val writeLock = lock.writeLock()
+        writeLock.lock()
+        try {
+            persist(
+                getStorage(thisRef),
+                extractId(property),
+                value
+            )
+            this.value = value
+            this.loaded.set(true)
+        } finally {
+            writeLock.unlock()
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun getValue(thisRef: PersistableContainer, property: KProperty<*>): T {
-        if (loaded) {
-            return value as T
+        val readLock = lock.readLock()
+        readLock.lock()
+        try {
+            if (loaded.get()) {
+                return value as T
+            }
+        } finally {
+            readLock.unlock()
         }
 
-        value = loadPersistence(
-            getStorage(thisRef),
-            property.type().java as Class<T>,
-            extractId(property)
-        )
-        loaded = true
+        val writeLock = lock.writeLock()
+        writeLock.lock()
 
-        if (value == null)
-            value = default
-        return value as T
+        try {
+            if (loaded.get()) {
+                return value as T
+            }
+            value = loadPersistence(
+                getStorage(thisRef),
+                property.type().java as Class<T>,
+                extractId(property)
+            )
+            loaded.set(true)
+
+            if (value == null)
+                value = default
+            else onLoadedPersistedValue(value)
+
+            return value as T
+        } finally {
+            writeLock.unlock()
+        }
+
     }
 
     private fun getStorage(container: PersistableContainer) = container.getContext().let {

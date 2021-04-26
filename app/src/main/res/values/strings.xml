@@ -32,4 +32,6 @@
     <string name="locationMissingError">Location is required</string>
     <string name="provideAllInfoError">Please provide all required informations</string>
     <string name="guest">Guest</string>
+    <string name="car_name">Car name</string>
+    <string name="edit">Edit</string>
 </resources>
