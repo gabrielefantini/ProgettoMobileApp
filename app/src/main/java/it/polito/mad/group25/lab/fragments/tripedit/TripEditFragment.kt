@@ -49,6 +49,7 @@ abstract class TripEditFragment(
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
 
     private var idTrip: Int = -1
+    private var tripList: MutableList<TripLocation> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,7 +87,9 @@ abstract class TripEditFragment(
             var trip = sharedViewModel.tripList.value?.get(tripId)
             if(trip != null){
                 idTrip = tripId
-
+                trip.locations.forEach {
+                    tripList.add(it)
+                }
                 view.findViewById<EditText>(R.id.carName).setText(trip.carName)
                 depDate.text = trip.startDateFormatted()
                 view.findViewById<EditText>(R.id.seatsText).setText(trip.seats.toString())
@@ -96,7 +99,7 @@ abstract class TripEditFragment(
                 view.findViewById<TextView>(R.id.durationText).text = getDurationFormatted(trip.locations[0].locationTime,trip.locations[last].locationTime)
 
                 rv.layoutManager = LinearLayoutManager(context)
-                rv.adapter = TripAdapter(trip.locations, context)
+                rv.adapter = TripAdapter(tripList, context)
 
                 if (additionalInfoChips.childCount != 0)
                     additionalInfoChips.removeAllViews()
@@ -107,10 +110,10 @@ abstract class TripEditFragment(
                     additionalInfoChips.addView(chip)
                 }
 
-                val tripSize = trip.locations.size
+                val tripSize = tripList.size
                 if (tripSize != 0) {
-                    val time1 = sharedViewModel.tripList.value?.get(idTrip)!!.locations[0].locationTime
-                    val time2 = sharedViewModel.tripList.value?.get(idTrip)!!.locations[tripSize-1].locationTime
+                    val time1 = tripList[0].locationTime
+                    val time2 = tripList[tripSize-1].locationTime
                     duration.text = getDurationFormatted(time1, time2)
                 }
                 else duration.text = "-"
@@ -152,11 +155,15 @@ abstract class TripEditFragment(
                 view.findViewById<TextView>(R.id.time_stop).text = "--.--"
                 view.findViewById<EditText>(R.id.location_stop).text.clear()
                 layout.visibility = GONE
+                val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
+                deleteStop.visibility=GONE
             }
             else {
                 layout.visibility = VISIBLE
                 val time_stop = view.findViewById<TextView>(R.id.time_stop)
                 val save_button = view.findViewById<ImageButton>(R.id.save_stop)
+                val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
+                deleteStop.visibility=GONE
                 val location_stop = view.findViewById<EditText>(R.id.location_stop)
 
                 time_stop.text = "--.--"
@@ -176,7 +183,9 @@ abstract class TripEditFragment(
                 save_button.setOnClickListener {
                     if(location_stop.text.toString()!= "" && time_stop.text.toString()!="--:--") {
                         val trip = sharedViewModel.tripList.value?.get(idTrip)!!
-                        trip.addTripLocationOrdered(location_stop.text.toString(), LocalTime.parse(time_stop.text.toString()))
+                        val t = TripLocation(location_stop.text.toString(), LocalTime.parse(time_stop.text.toString()))
+                        tripList.add(t)
+                        tripList.sortBy { it.locationTime }
                         val tripSize = trip.locations.size
                         if (tripSize != 0) {
                             val time1 = sharedViewModel.tripList.value?.get(idTrip)!!.locations[0].locationTime
@@ -222,28 +231,57 @@ abstract class TripEditFragment(
         tripEditViewModel.selectedTripLocationId.observe(viewLifecycleOwner, { locationId ->
             if (locationId != null) {
                 val layout = view.findViewById<LinearLayout>(R.id.add_fields_layout)
-                val trip = sharedViewModel.tripList.value?.get(idTrip)!!
                 layout.visibility = VISIBLE
 
                 val tripLocationTime = view.findViewById<TextView>(R.id.time_stop)
                 val tripLocationName = view.findViewById<EditText>(R.id.location_stop)
                 val saveButton = view.findViewById<ImageButton>(R.id.save_stop)
+                val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
+                deleteStop.visibility = VISIBLE
 
+                val timeInit = tripList[locationId].locationTime
+                val locationInit = tripList[locationId].location
 
-                tripLocationTime.text = trip.locations[locationId].timeFormatted()
-                tripLocationName.setText(trip.locations[locationId].location)
+                tripLocationTime.text = tripList[locationId].timeFormatted()
+                tripLocationName.setText(tripList[locationId].location)
                 saveButton.tooltipText = "Update changes"
 
-                //da aggiungere logica timer
+                tripLocationTime.setOnClickListener {
+                    val cal = Calendar.getInstance()
+                    val timeSetListener = TimePickerDialog.OnTimeSetListener{timePicker:TimePicker, hour:Int, minute:Int ->
+                        cal.set(Calendar.HOUR_OF_DAY, hour)
+                        cal.set(Calendar.MINUTE, minute)
+                        tripLocationTime.text = SimpleDateFormat("HH:mm").format(cal.time)
+                    }
+                    TimePickerDialog(context, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show()
+                }
 
                 saveButton.setOnClickListener {
                     //qui modifichi la lista e poi aggiorni l'adapter
                     showError("trip updated!")
+                    val t = tripList.find {!(it.locationTime.isBefore(timeInit) ||  it.locationTime.isAfter(timeInit))
+                            && it.location.equals(locationInit)}
+                    tripList.remove(t)
+                    val trip = TripLocation(tripLocationName.text.toString(), LocalTime.parse(tripLocationTime.text.toString()))
+                    tripList.add(trip)
+                    tripList.sortBy { it.locationTime }
                     tripLocationTime.text = "--.--"
                     tripLocationName.text.clear()
                     layout.visibility = GONE
+                    val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
+                    rv_list.adapter?.notifyDataSetChanged()
                 }
-
+                deleteStop.setOnClickListener {
+                    val t = tripList.find {!(it.locationTime.isBefore(timeInit) ||  it.locationTime.isAfter(timeInit))
+                            && it.location.equals(locationInit)}
+                    tripList.remove(t)
+                    tripLocationTime.text = "--.--"
+                    tripLocationName.text.clear()
+                    layout.visibility = GONE
+                    deleteStop.visibility = GONE
+                    val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
+                    rv_list.adapter?.notifyDataSetChanged()
+                }
             }
         })
 
@@ -307,6 +345,10 @@ abstract class TripEditFragment(
                     tripSel.carPic = tripEditViewModel.tempCarDrawable.toString()
                     activity?.findNavController(R.id.nav_host_fragment_content_main)
                             ?.navigateUp()
+                    tripSel.locations = mutableListOf()
+                    tripList.forEach {
+                        tripSel.locations.add(it)
+                    }
                 }
             }
         }
@@ -358,7 +400,6 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
 
     private var _selectedTripLocationId = MutableLiveData<Int>(null)
     val selectedTripLocationId : LiveData<Int> = _selectedTripLocationId
-
     fun selectTripLocation(id: Int){
         _selectedTripLocationId.value = id
     }

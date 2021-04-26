@@ -117,6 +117,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.3"
                 android:src="@android:drawable/ic_menu_myplaces" />
+
+            <ImageButton
+                android:id="@+id/deleteStop"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.3"
+                android:src="@android:drawable/btn_dialog"
+                android:visibility="gone" />
         </LinearLayout>
 
         <View
@@ -268,6 +276,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
                 android:src="@android:drawable/checkbox_on_background" />
+
         </LinearLayout>
 
     </LinearLayout>
