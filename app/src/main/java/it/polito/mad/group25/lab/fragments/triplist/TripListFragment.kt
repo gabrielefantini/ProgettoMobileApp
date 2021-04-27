@@ -2,6 +2,7 @@ package it.polito.mad.group25.lab.fragments.triplist
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +23,7 @@ import it.polito.mad.group25.lab.SharedViewModel
 import it.polito.mad.group25.lab.utils.entities.Trip
 import it.polito.mad.group25.lab.utils.entities.startDateFormatted
 import it.polito.mad.group25.lab.utils.entities.timeFormatted
+import it.polito.mad.group25.lab.utils.fragment.showError
 
 
 class TripListFragment : Fragment() {
@@ -41,12 +43,16 @@ class TripListFragment : Fragment() {
         }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.trip_list_fragment, container, false)
+    ): View? = inflater.inflate(R.layout.trip_list_fragment, container, false)
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         val list = view.findViewById<RecyclerView>(R.id.list)
         //pass an observable to MyTripCarRecyclerViewAdapter
         sharedViewModel.tripList.observe( viewLifecycleOwner, { tripList ->
@@ -59,18 +65,14 @@ class TripListFragment : Fragment() {
                 adapter = MyTripCardRecyclerViewAdapter(tripList)
             }
         })
+
         val addNewTripButton = view.findViewById<FloatingActionButton>(R.id.addTrip)
         addNewTripButton.setOnClickListener {
-            Toast.makeText(context,"aggiunta di un nuovo viagggio", Toast.LENGTH_SHORT).show()
-
-            //TODO aggiungere la navigazione verso il fragment per l'inserimento di un nuovo viaggio
-
-            /*  1-> aggiorna lo shardViewModel
-                2-> naviga verso il giusto fragment
-                view.findNavController().navigate(R.id.showTripEditFragment)
-            */
+            var id = sharedViewModel.pushTrip(Trip())
+            sharedViewModel.selectTrip(id)
+            sharedViewModel.setNew(true)
+            view.findNavController().navigate(R.id.showTripEditFragment)
         }
-        return view
     }
 
     companion object {

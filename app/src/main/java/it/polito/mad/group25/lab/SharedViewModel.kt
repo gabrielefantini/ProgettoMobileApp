@@ -15,19 +15,30 @@ import java.time.LocalTime
 @RequiresApi(Build.VERSION_CODES.O)
 class SharedViewModel: ViewModel(){
     private var _tripSelected = MutableLiveData<Int>(0)
-    private var _tripList = MutableLiveData<MutableList<Trip>>(mutableListOf(trip,trip2,trip,trip2)) //togliere i trip d'esempio
+    private var _tripList = MutableLiveData<MutableList<Trip>>(mutableListOf(trip,trip2)) //togliere i trip d'esempio
+    private var _isNew = MutableLiveData<Boolean>(false)
 
     val tripSelected: LiveData<Int> = _tripSelected
     val tripList: LiveData<MutableList<Trip>> = _tripList
+    val isNew: LiveData<Boolean> = _isNew
 
-    fun addTrip(newTrip: Trip){
+    fun pushTrip(newTrip: Trip): Int{
         if(newTrip == null) throw RuntimeException("null trip") //TODO gestire meglio
         _tripList.value?.add(newTrip)
+        return _tripList.value?.lastIndex!!
+    }
+
+    fun popTrip(){
+        _tripList.value?.lastIndex?.let { _tripList.value?.removeAt(it) }
     }
 
     fun selectTrip(tripNumber: Int){
         if(tripNumber < 0 ) throw RuntimeException("invalid number") //TODO gestire meglio
         _tripSelected.value = tripNumber
+    }
+
+    fun setNew(b: Boolean){
+        _isNew.value = b
     }
 
 }
