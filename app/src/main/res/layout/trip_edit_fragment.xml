@@ -96,6 +96,16 @@
             android:visibility="gone">
 
             <TextView
+                android:id="@+id/dateStop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="0.8"
+                android:gravity="center_horizontal"
+                android:text="--/--/----"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+            <TextView
                 android:id="@+id/time_stop"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"

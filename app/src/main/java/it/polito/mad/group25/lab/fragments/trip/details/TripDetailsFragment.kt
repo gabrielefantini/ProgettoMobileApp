@@ -21,7 +21,7 @@ import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
 import it.polito.mad.group25.lab.utils.views.fromFile
 import java.io.File
-import java.time.LocalTime
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
 abstract class TripDetailsFragment(
@@ -73,7 +73,7 @@ abstract class TripDetailsFragment(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun getDurationFormatted(first: LocalTime, last: LocalTime): String {
+fun getDurationFormatted(first: LocalDateTime, last: LocalDateTime): String {
     val durationMin = ChronoUnit.MINUTES.between(first, last).toInt()
     val hours = durationMin / 60
     val min = durationMin % 60

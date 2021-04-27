@@ -39,6 +39,7 @@ import it.polito.mad.group25.lab.utils.views.toFile
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -166,14 +167,32 @@ abstract class TripEditFragment(
             } else {
                 layout.visibility = VISIBLE
                 val time_stop = view.findViewById<TextView>(R.id.time_stop)
+                val date_stop = view.findViewById<TextView>(R.id.dateStop)
                 val save_button = view.findViewById<ImageButton>(R.id.save_stop)
                 val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
                 deleteStop.visibility = GONE
                 val location_stop = view.findViewById<EditText>(R.id.location_stop)
 
+                date_stop.text = "--/--/----"
                 time_stop.text = "--:--"
                 location_stop.text.clear()
                 save_button.tooltipText = ""
+
+                date_stop.setOnClickListener {
+                    val calendar = Calendar.getInstance()
+                    val day = calendar.get(Calendar.DAY_OF_MONTH)
+                    val month = calendar.get(Calendar.MONTH)
+                    val year = calendar.get(Calendar.YEAR)
+                    var datePickerDialog = DatePickerDialog(
+                            this.requireActivity(),
+                            DatePickerDialog.OnDateSetListener { view, year, month, day ->
+                                // Display Selected date in TextView
+                                date_stop.text = ("$day/${month + 1}/$year")
+                            },
+                            year, month, day
+                    )
+                    datePickerDialog.show()
+                }
 
                 time_stop.setOnClickListener {
                     val cal = Calendar.getInstance()
@@ -193,11 +212,13 @@ abstract class TripEditFragment(
                 }
 
                 save_button.setOnClickListener {
-                    if (location_stop.text.toString() != "" && time_stop.text.toString() != "--:--") {
+                    if (location_stop.text.toString() != "" && time_stop.text.toString() != "--:--" && date_stop.text.toString() != "--/--/----") {
                         System.out.println(time_stop.text.toString())
+                        val dateStop = date_stop.text.toString().split("/").map { it -> if (it.length < 2) "0" + it else it }.reduce { acc, s -> "$acc/$s" }
+                        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
                         val t = TripLocation(
                             location_stop.text.toString(),
-                            LocalTime.parse(time_stop.text.toString())
+                            LocalDateTime.parse(dateStop+" "+time_stop.text.toString(), formatter)
                         )
                         tripStepList.add(t)
                         tripStepList.sortBy { it.locationTime }
@@ -290,9 +311,10 @@ abstract class TripEditFragment(
                                     && it.location.equals(locationInit)
                         }
                         tripStepList.remove(t)
+                        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
                         val trip = TripLocation(
                             tripLocationName.text.toString(),
-                            LocalTime.parse(tripLocationTime.text.toString())
+                            LocalDateTime.parse(tripLocationTime.text.toString(), formatter)
                         )
                         tripStepList.add(trip)
                         tripStepList.sortBy { it.locationTime }

@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import java.io.File
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.properties.Delegates
@@ -16,7 +17,7 @@ class Trip {
     var tripStartDate: LocalDate = LocalDate.now()
     val locations: MutableList<TripLocation> = mutableListOf(
         TripLocation(),
-        TripLocation(locationTime = LocalTime.now().plusMinutes(30))
+        TripLocation(locationTime = LocalDateTime.now().plusMinutes(30))
     )
     var seats: Int = 0
     var price: Double = 0.0
@@ -30,7 +31,7 @@ fun Trip.startDateFormatted(): String =
 @RequiresApi(Build.VERSION_CODES.O)
 data class TripLocation(
     var location: String = "loc name",
-    var locationTime: LocalTime = LocalTime.now()
+    var locationTime: LocalDateTime = LocalDateTime.now()
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -38,7 +39,7 @@ fun TripLocation.timeFormatted(): String =
     this.locationTime.format(DateTimeFormatter.ofPattern("HH:mm"))
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun Trip.addTripLocationOrdered(location: String, locationTime: LocalTime) {
+fun Trip.addTripLocationOrdered(location: String, locationTime: LocalDateTime) {
     val trip = TripLocation(location, locationTime)
     locations.add(trip)
     locations.sortBy { it.locationTime }
