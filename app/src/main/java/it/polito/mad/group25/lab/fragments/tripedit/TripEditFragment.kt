@@ -55,6 +55,7 @@ abstract class TripEditFragment(
     private var isModified: Boolean = false
     private var tripList: MutableList<TripLocation> = mutableListOf()
     private var tripDet: MutableList<String> = mutableListOf()
+    private var carImage: Drawable? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,13 +67,13 @@ abstract class TripEditFragment(
             registerForActivityResult(ActivityResultContracts.TakePicturePreview()) {
                 val carPic = requireView().findViewById<ImageView>(R.id.carImage)
                 carPic.setImageBitmap(it)
-                carPic.drawable?.let { d -> tripEditViewModel.tempCarDrawable = d }
+                carPic.drawable?.let { d -> carImage = d }
             }
         pickPictureLauncher =
             registerForActivityResult(ActivityResultContracts.GetContent()) {
                 val carPic = requireView().findViewById<ImageView>(R.id.carImage)
                 carPic.setImageURI(it)
-                carPic.drawable?.let { d -> tripEditViewModel.tempCarDrawable = d }
+                carPic.drawable?.let { d -> carImage = d }
             }
     }
 
@@ -127,13 +128,13 @@ abstract class TripEditFragment(
                 }
                 else duration.text = "-"
             }
+            //da vedere gestione immagine
+            carImage = sharedViewModel.tripList.value?.get(idTrip)?.carPic
+            carImage?.let {
+                view.findViewById<ImageView>(R.id.carImage).setImageDrawable(it)
+            }
         })
 
-
-        //da vedere gestione immagine
-        tripEditViewModel.tempCarDrawable?.let {
-            view.findViewById<ImageView>(R.id.carImage).setImageDrawable(it)
-        }
 
         depDate.setOnClickListener {
             val calendar = Calendar.getInstance()
@@ -359,6 +360,13 @@ abstract class TripEditFragment(
                         }
                     }
 
+                    view?.findViewById<ImageView>(R.id.carImage)?.drawable.also {
+                        if(tripSel.carPic != it){
+                            isModified = true
+                            tripSel.carPic = it
+                        }
+                    }
+
                     seats.also {
                         if(tripSel.seats != it){
                             isModified = true
@@ -383,8 +391,6 @@ abstract class TripEditFragment(
                         }
                     }
 
-                    //da fare
-                    tripSel.carPic = tripEditViewModel.tempCarDrawable.toString()
 
                     tripList.also {
                         if(tripSel.locations != tripList){
@@ -481,8 +487,6 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
 
     override fun getContext(): Context = getApplication()
 
-    //da vedere gestione immagine
-    var tempCarDrawable: Drawable? = null
 }
 
 

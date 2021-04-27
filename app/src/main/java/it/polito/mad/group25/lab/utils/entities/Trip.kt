@@ -1,5 +1,6 @@
 package it.polito.mad.group25.lab.utils.entities
 
+import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.LocalDate
@@ -8,7 +9,7 @@ import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 data class Trip (
-        var carPic: String = "",
+        var carPic: Drawable? = null,
         var carName: String = "car name",
         var tripStartDate: LocalDate = LocalDate.now(),
         val locations: MutableList<TripLocation> = mutableListOf(TripLocation(), TripLocation(locationTime = LocalTime.now().plusMinutes(30))),

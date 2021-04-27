@@ -46,7 +46,7 @@ class SharedViewModel: ViewModel(){
 ///trip d'esempio (temporanei) *************
 @RequiresApi(Build.VERSION_CODES.O)
 val trip = Trip(
-        "bitmap",
+        null,
         "panda",
         LocalDate.now(),
         mutableListOf(
@@ -60,7 +60,7 @@ val trip = Trip(
 
 @RequiresApi(Build.VERSION_CODES.O)
 val trip2 = Trip(
-        "bitmap",
+        null,
         "idea",
         LocalDate.now().plusDays(1),
         mutableListOf(
