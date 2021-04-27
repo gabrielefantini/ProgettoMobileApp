@@ -24,7 +24,7 @@
     </fragment>
     <fragment
         android:id="@+id/showTripDetailsFragment"
-        android:name="it.polito.mad.group25.lab.fragments.tripdetails.ShowTripDetailsFragment"
+        android:name="it.polito.mad.group25.lab.fragments.trip.details.ShowTripDetailsFragment"
         android:label="Trip Details"
         tools:layout="@layout/trip_details_fragment"
         >
@@ -35,7 +35,7 @@
 
     <fragment
         android:id="@+id/showTripEditFragment"
-        android:name="it.polito.mad.group25.lab.fragments.tripedit.ShowTripEditFragment"
+        android:name="it.polito.mad.group25.lab.fragments.trip.edit.ShowTripEditFragment"
         android:label="Trip Edit"
         tools:layout="@layout/trip_edit_fragment"
         >
@@ -45,7 +45,7 @@
     </fragment>
     <fragment
         android:id="@+id/TripListFragment"
-        android:name="it.polito.mad.group25.lab.fragments.triplist.TripListFragment"
+        android:name="it.polito.mad.group25.lab.fragments.trip.list.TripListFragment"
         android:label="Trip List"
         tools:layout="@layout/trip_list_fragment"
         >

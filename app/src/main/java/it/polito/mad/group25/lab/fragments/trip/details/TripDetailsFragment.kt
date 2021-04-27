@@ -1,4 +1,4 @@
-package it.polito.mad.group25.lab.fragments.tripdetails
+package it.polito.mad.group25.lab.fragments.trip.details
 
 import android.os.Build
 import android.os.Bundle
@@ -15,9 +15,9 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.SharedViewModel
-import it.polito.mad.group25.lab.utils.entities.TripLocation
-import it.polito.mad.group25.lab.utils.entities.startDateFormatted
-import it.polito.mad.group25.lab.utils.entities.timeFormatted
+import it.polito.mad.group25.lab.fragments.trip.TripLocation
+import it.polito.mad.group25.lab.fragments.trip.TripViewModel
+import it.polito.mad.group25.lab.fragments.trip.timeFormatted
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
@@ -25,7 +25,7 @@ abstract class TripDetailsFragment(
     contentLayoutId: Int
 ) : Fragment(contentLayoutId) {
 
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val tripViewModel: TripViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +87,7 @@ class TripLocationAdapter(private val list:List<TripLocation>): RecyclerView.Ada
         private val time: TextView = v.findViewById(R.id.trip_time)
 
         @RequiresApi(Build.VERSION_CODES.O)
-        fun bind(t:TripLocation){
+        fun bind(t: TripLocation){
             location.text = t.location
             time.text = t.timeFormatted()
         }

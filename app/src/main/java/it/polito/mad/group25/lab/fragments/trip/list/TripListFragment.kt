@@ -1,8 +1,7 @@
-package it.polito.mad.group25.lab.fragments.triplist
+package it.polito.mad.group25.lab.fragments.trip.list
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,28 +11,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.SharedViewModel
-import it.polito.mad.group25.lab.utils.entities.Trip
-import it.polito.mad.group25.lab.utils.entities.startDateFormatted
-import it.polito.mad.group25.lab.utils.entities.timeFormatted
-import it.polito.mad.group25.lab.utils.fragment.showError
+import it.polito.mad.group25.lab.fragments.trip.Trip
+import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
+import it.polito.mad.group25.lab.fragments.trip.timeFormatted
 
 
 class TripListFragment : Fragment() {
 
     //Initializing sharedViewModel
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val tripListViewModel: TripListViewModel by activityViewModels()
 
 
     private var columnCount = 1
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +50,7 @@ class TripListFragment : Fragment() {
 
         val list = view.findViewById<RecyclerView>(R.id.list)
         //pass an observable to MyTripCarRecyclerViewAdapter
-        sharedViewModel.tripList.observe( viewLifecycleOwner, { tripList ->
+        tripListViewModel.trips.observe( viewLifecycleOwner, { tripList ->
             // Set the adapter
             with(list) {
                 layoutManager = when {
@@ -68,9 +63,8 @@ class TripListFragment : Fragment() {
 
         val addNewTripButton = view.findViewById<FloatingActionButton>(R.id.addTrip)
         addNewTripButton.setOnClickListener {
-            var id = sharedViewModel.pushTrip(Trip())
-            sharedViewModel.selectTrip(id)
-            sharedViewModel.setNew(true)
+            var id = tripListViewModel.addTrip(Trip())
+
             view.findNavController().navigate(R.id.showTripEditFragment)
         }
     }
@@ -112,11 +106,11 @@ class TripListFragment : Fragment() {
             holder.seats.text = item.seats.toString()
             holder.price.text = item.price.toString()
             holder.editButton.setOnClickListener { view ->
-                sharedViewModel.selectTrip(position)
+                tripListViewModel.selectTrip(position)
                 view.findNavController().navigate(R.id.showTripEditFragment)
             }
             holder.card.setOnClickListener{ view ->
-                sharedViewModel.selectTrip(position)
+                tripListViewModel.selectTrip(position)
                 view.findNavController().navigate(R.id.showTripDetailsFragment)
             }
         }

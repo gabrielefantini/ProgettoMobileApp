@@ -1,17 +1,15 @@
 package it.polito.mad.group25.lab.fragments.userprofile
 
 import android.app.Application
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.AndroidViewModel
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.utils.viewmodel.PersistableContainer
-import it.polito.mad.group25.lab.utils.viewmodel.ConcurrentPersistor
+import it.polito.mad.group25.lab.utils.persistence.ConcurrentPersistor
+import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 import it.polito.mad.group25.lab.utils.views.fromFile
 import java.io.File
 
@@ -39,8 +37,7 @@ abstract class GenericUserProfileFragment(
     }
 }
 
-class UserProfileViewModel(application: Application) : AndroidViewModel(application),
-    PersistableContainer {
+class UserProfileViewModel(application: Application) : PersistableViewModel(application) {
 
     var fullName: String? by ConcurrentPersistor(null)
     var nickName: String? by ConcurrentPersistor(null)
@@ -49,8 +46,6 @@ class UserProfileViewModel(application: Application) : AndroidViewModel(applicat
     var userProfilePhotoFile: File by ConcurrentPersistor(
         File(application.filesDir, "userProfilePicture")
     )
-
-    override fun getContext(): Context = getApplication()
 
 }
 
