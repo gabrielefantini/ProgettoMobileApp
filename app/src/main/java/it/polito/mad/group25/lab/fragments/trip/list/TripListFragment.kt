@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
@@ -21,6 +22,7 @@ import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
+import it.polito.mad.group25.lab.utils.views.fromFile
 
 
 class TripListFragment : Fragment() {
@@ -65,7 +67,7 @@ class TripListFragment : Fragment() {
 
         val addNewTripButton = view.findViewById<FloatingActionButton>(R.id.addTrip)
         addNewTripButton.setOnClickListener {
-            tripViewModel.trip = Trip()
+            tripViewModel.trip = tripListViewModel.createNewTrip()
             view.findNavController().navigate(R.id.showTripEditFragment)
         }
     }
@@ -115,6 +117,7 @@ class TripListFragment : Fragment() {
                 tripViewModel.trip = item
                 view.findNavController().navigate(R.id.showTripDetailsFragment)
             }
+            tripList[position].carPic?.let { holder.image.fromFile(it) }
         }
 
         override fun getItemCount(): Int = tripList.size
@@ -130,6 +133,7 @@ class TripListFragment : Fragment() {
             val price: TextView = view.findViewById(R.id.card_price_text)
             val editButton: Button = view.findViewById(R.id.editTrip)
             val card: CardView = view.findViewById(R.id.card)
+            val image: ImageView = view.findViewById(R.id.card_car_image)
         }
     }
 }

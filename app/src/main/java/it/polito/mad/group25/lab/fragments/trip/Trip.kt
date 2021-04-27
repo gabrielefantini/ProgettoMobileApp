@@ -2,29 +2,25 @@ package it.polito.mad.group25.lab.fragments.trip
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import java.io.File
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import kotlin.properties.Delegates
 
 @RequiresApi(Build.VERSION_CODES.O)
-data class Trip(
-    var carPic: String = "",
-    var carName: String = "car name",
-    var tripStartDate: LocalDate = LocalDate.now(),
+class Trip {
+    var id by Delegates.notNull<Int>()
+    var carPic: File? = null
+    var carName: String = "car name"
+    var tripStartDate: LocalDate = LocalDate.now()
     val locations: MutableList<TripLocation> = mutableListOf(
         TripLocation(),
         TripLocation(locationTime = LocalTime.now().plusMinutes(30))
-    ),
-    var seats: Int = 0,
-    var price: Double = 0.0,
+    )
+    var seats: Int = 0
+    var price: Double = 0.0
     val additionalInfo: MutableList<String> = mutableListOf()
-) {
-    companion object IdIndex {
-        var index: Int = 0
-    }
-
-    val id: Int = index++
-
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

@@ -186,8 +186,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_weight="1"
                 android:clickable="true"
-                android:src="@android:drawable/ic_menu_add"
-                app:backgroundTint="@color/purple_200"
+                android:src="@android:drawable/ic_input_add"
                 app:fabSize="mini" />
 
             <LinearLayout
@@ -195,7 +194,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="#FFFFFF"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
@@ -219,8 +217,16 @@
                     android:id="@+id/save_stop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
+                    android:layout_weight="0.2"
                     android:src="@android:drawable/ic_menu_myplaces" />
+
+                <ImageButton
+                    android:id="@+id/deleteStop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.2"
+                    android:src="@android:drawable/btn_dialog"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <View
@@ -257,8 +263,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:clickable="true"
-                android:src="@android:drawable/ic_menu_add"
-                app:backgroundTint="@color/purple_200"
+                android:src="@android:drawable/ic_input_add"
                 app:fabSize="mini" />
 
             <LinearLayout

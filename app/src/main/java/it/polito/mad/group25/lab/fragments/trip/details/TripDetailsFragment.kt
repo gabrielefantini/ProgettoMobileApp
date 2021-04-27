@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -18,6 +19,8 @@ import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
+import it.polito.mad.group25.lab.utils.views.fromFile
+import java.io.File
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
@@ -41,7 +44,6 @@ abstract class TripDetailsFragment(
         val rv = view.findViewById<RecyclerView>(R.id.tripList)
         val additionalInfoChips = view.findViewById<ChipGroup>(R.id.additionalInfoChips)
 
-
         val trip = tripViewModel.trip
 
         view.findViewById<TextView>(R.id.carName).text = trip.carName
@@ -50,10 +52,8 @@ abstract class TripDetailsFragment(
         view.findViewById<TextView>(R.id.priceText).text = trip.price.toString()
 
         val last = trip.locations.lastIndex
-        view.findViewById<TextView>(R.id.durationText).text = getDurationFormatted(
-            trip.locations[0].locationTime,
-            trip.locations[last].locationTime
-        )
+        view.findViewById<TextView>(R.id.durationText).text =
+            getDurationFormatted(trip.locations[0].locationTime, trip.locations[last].locationTime)
 
         rv.layoutManager = LinearLayoutManager(context)
         rv.adapter = TripLocationAdapter(trip.locations)
@@ -66,7 +66,8 @@ abstract class TripDetailsFragment(
             chip.text = it
             additionalInfoChips.addView(chip)
         }
-
+        view.findViewById<ImageView>(R.id.carImage)
+            .fromFile(trip.carPic ?: File(requireActivity().dataDir, trip.id.toString()))
 
     }
 }
