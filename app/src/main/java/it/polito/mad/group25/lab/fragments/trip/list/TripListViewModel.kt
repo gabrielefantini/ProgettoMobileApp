@@ -22,7 +22,11 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createNewTrip(): Trip = Trip().apply { id = index++ }
+    fun createNewTrip(): Trip {
+        if (trips.value!!.isNotEmpty() && index == 0)
+            index = trips.value!!.keys.maxOf { it } + 1
+        return Trip().apply { id = index++ }
+    }
 
     fun addTrip(newTrip: Trip) {
         if (newTrip.id > index) index = newTrip.id + 1
