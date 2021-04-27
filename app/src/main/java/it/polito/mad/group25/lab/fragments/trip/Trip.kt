@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 data class Trip(
-    val id: Int,
     var carPic: String = "",
     var carName: String = "car name",
     var tripStartDate: LocalDate = LocalDate.now(),
@@ -19,7 +18,14 @@ data class Trip(
     var seats: Int = 0,
     var price: Double = 0.0,
     val additionalInfo: MutableList<String> = mutableListOf()
-)
+) {
+    companion object IdIndex {
+        var index: Int = 0
+    }
+
+    val id: Int = index++
+
+}
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun Trip.startDateFormatted(): String =

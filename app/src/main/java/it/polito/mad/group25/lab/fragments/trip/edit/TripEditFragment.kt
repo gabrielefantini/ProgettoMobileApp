@@ -51,7 +51,6 @@ abstract class TripEditFragment(
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void>
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
 
-    private var idTrip: Int = -1
     private var isModified: Boolean = false
     private var tripStepList: MutableList<TripLocation> = mutableListOf()
 
@@ -356,63 +355,62 @@ abstract class TripEditFragment(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun saveEdits() {
-        if (idTrip != -1) {
-            val tripSel = tripViewModel.trip
-            val seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
-            if (seats < 0 || seats > 7) Toast.makeText(
-                context,
-                "The number of seats must be between 0 and 7",
-                Toast.LENGTH_LONG
-            ).show()
-            else {
-                view?.findViewById<EditText>(R.id.carName)?.text.toString().also {
-                    if (tripSel.carName != it) {
-                        isModified = true
-                        tripSel.carName = it
-                    }
+        val tripSel = tripViewModel.trip
+        val seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
+        if (seats < 0 || seats > 7) Toast.makeText(
+            context,
+            "The number of seats must be between 0 and 7",
+            Toast.LENGTH_LONG
+        ).show()
+        else {
+            view?.findViewById<EditText>(R.id.carName)?.text.toString().also {
+                if (tripSel.carName != it) {
+                    isModified = true
+                    tripSel.carName = it
                 }
-
-                seats.also {
-                    if (tripSel.seats != it) {
-                        isModified = true
-                        tripSel.seats = it
-                    }
-                }
-
-                view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble().also {
-                    if (tripSel.price != it) {
-                        isModified = true
-                        tripSel.price = it
-                    }
-                }
-
-                val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
-                date = date.split("/").map { it -> if (it.length < 2) "0" + it else it }
-                    .reduce { acc, s -> "$acc/$s" }
-                LocalDate.parse(date, formatter).also {
-                    if (tripSel.tripStartDate != it) {
-                        isModified = true
-                        tripSel.tripStartDate = it
-                    }
-                }
-
-                //da fare
-                tripSel.carPic = tripEditViewModel.tempCarDrawable.toString()
-
-                tripStepList.also {
-                    if (tripSel.locations != tripStepList) {
-                        isModified = true
-                        tripSel.locations.clear()
-                        tripStepList.forEach { tl -> tripSel.locations.add(tl) }
-                    }
-                }
-
-                tripListViewModel.updateTrip(tripViewModel.trip)
-                activity?.findNavController(R.id.nav_host_fragment_content_main)
-                    ?.navigateUp()
             }
+
+            seats.also {
+                if (tripSel.seats != it) {
+                    isModified = true
+                    tripSel.seats = it
+                }
+            }
+
+            view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble().also {
+                if (tripSel.price != it) {
+                    isModified = true
+                    tripSel.price = it
+                }
+            }
+
+            val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
+            date = date.split("/").map { it -> if (it.length < 2) "0" + it else it }
+                .reduce { acc, s -> "$acc/$s" }
+            LocalDate.parse(date, formatter).also {
+                if (tripSel.tripStartDate != it) {
+                    isModified = true
+                    tripSel.tripStartDate = it
+                }
+            }
+
+            //da fare
+            tripSel.carPic = tripEditViewModel.tempCarDrawable.toString()
+
+            tripStepList.also {
+                if (tripSel.locations != tripStepList) {
+                    isModified = true
+                    tripSel.locations.clear()
+                    tripStepList.forEach { tl -> tripSel.locations.add(tl) }
+                }
+            }
+
+            tripListViewModel.updateTrip(tripViewModel.trip)
+            activity?.findNavController(R.id.nav_host_fragment_content_main)
+                ?.navigateUp()
         }
+
     }
 
     inner class TripAdapter(var list: List<TripLocation>, val context: Context?) :
