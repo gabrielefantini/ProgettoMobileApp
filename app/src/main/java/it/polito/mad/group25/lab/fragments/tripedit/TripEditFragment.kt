@@ -297,7 +297,7 @@ abstract class TripEditFragment(
                         val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
                         rv_list.adapter?.notifyDataSetChanged()
                     } else
-                        Toast.makeText(context, "Can't delete a location - 2 stops minimum needed.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Can't delete a location\nTwo stops minimum needed.", Toast.LENGTH_LONG).show()
                 }
             }
         })
