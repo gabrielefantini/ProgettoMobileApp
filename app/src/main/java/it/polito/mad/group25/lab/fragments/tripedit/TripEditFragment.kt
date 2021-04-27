@@ -256,7 +256,7 @@ abstract class TripEditFragment(
 
                 tripLocationTime.setOnClickListener {
                     val cal = Calendar.getInstance()
-                    val timeSetListener = TimePickerDialog.OnTimeSetListener{timePicker:TimePicker, hour:Int, minute:Int ->
+                    val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker: TimePicker, hour: Int, minute: Int ->
                         cal.set(Calendar.HOUR_OF_DAY, hour)
                         cal.set(Calendar.MINUTE, minute)
                         tripLocationTime.text = SimpleDateFormat("HH:mm").format(cal.time)
@@ -267,8 +267,10 @@ abstract class TripEditFragment(
 
                 saveButton.setOnClickListener {
                     //qui modifichi la lista e poi aggiorni l'adapter
-                    val t = tripList.find {!(it.locationTime.isBefore(timeInit) ||  it.locationTime.isAfter(timeInit))
-                            && it.location.equals(locationInit)}
+                    val t = tripList.find {
+                        !(it.locationTime.isBefore(timeInit) || it.locationTime.isAfter(timeInit))
+                                && it.location.equals(locationInit)
+                    }
                     tripList.remove(t)
                     val trip = TripLocation(tripLocationName.text.toString(), LocalTime.parse(tripLocationTime.text.toString()))
                     tripList.add(trip)
@@ -280,10 +282,13 @@ abstract class TripEditFragment(
                     rv_list.adapter?.notifyDataSetChanged()
                 }
 
-                if(tripList.size > 2)
-                    deleteStop.setOnClickListener {
-                        val t = tripList.find {!(it.locationTime.isBefore(timeInit) ||  it.locationTime.isAfter(timeInit))
-                                && it.location.equals(locationInit)}
+
+                deleteStop.setOnClickListener {
+                    if (tripList.size > 2) {
+                        val t = tripList.find {
+                            !(it.locationTime.isBefore(timeInit) || it.locationTime.isAfter(timeInit))
+                                    && it.location.equals(locationInit)
+                        }
                         tripList.remove(t)
                         tripLocationTime.text = "--.--"
                         tripLocationName.text.clear()
@@ -291,9 +296,9 @@ abstract class TripEditFragment(
                         deleteStop.visibility = GONE
                         val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
                         rv_list.adapter?.notifyDataSetChanged()
-                    }
-                else
-                    deleteStop.isEnabled = false
+                    } else
+                        Toast.makeText(context, "Can't delete a location - 2 stops minimum needed.", Toast.LENGTH_LONG).show()
+                }
             }
         })
 
@@ -443,10 +448,24 @@ abstract class TripEditFragment(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onDestroyView() {
         super.onDestroyView()
-        if(sharedViewModel.isNew.value == true && !isModified){
-            sharedViewModel.setNew(false)
-            sharedViewModel.popTrip()
-        }
+        if(sharedViewModel.isNew.value == true) //TripEditFragment -> TripListFragment
+            if(!isModified) {
+                //modifiche annullate -> trip cancellato
+                sharedViewModel.setNew(false)
+                sharedViewModel.popTrip()
+                Toast.makeText(context, "Trip not created", Toast.LENGTH_LONG).show()
+            }else{
+                //modifiche confermate -> trip creato
+                Toast.makeText(context, "New trip created successfully!", Toast.LENGTH_LONG).show()
+            }
+        else   //TripEditFragment -> TripDetailsFragment
+            if(!isModified){
+                //modifiche annullate -> trip invariato
+                Toast.makeText(context, "Trip not modified", Toast.LENGTH_LONG).show()
+            }else{
+                //modifiche confermate -> trip modificato
+                Toast.makeText(context, "Trip modified successfully!", Toast.LENGTH_LONG).show()
+            }
     }
 }
 
