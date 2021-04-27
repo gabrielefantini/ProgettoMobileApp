@@ -11,7 +11,7 @@ data class Trip (
         var carPic: String = "",
         var carName: String = "car name",
         var tripStartDate: LocalDate = LocalDate.now(),
-        var locations: MutableList<TripLocation> = mutableListOf(),
+        val locations: MutableList<TripLocation> = mutableListOf(TripLocation(), TripLocation(locationTime = LocalTime.now().plusMinutes(30))),
         var seats: Int = 0,
         var price: Double = 0.0,
         val additionalInfo: MutableList<String> = mutableListOf()
@@ -28,3 +28,10 @@ data class TripLocation (
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun TripLocation.timeFormatted(): String = this.locationTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun Trip.addTripLocationOrdered (location: String, locationTime: LocalTime) {
+        val trip = TripLocation(location, locationTime)
+        locations.add(trip)
+        locations.sortBy { it.locationTime }
+}
