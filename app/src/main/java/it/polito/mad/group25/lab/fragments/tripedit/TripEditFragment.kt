@@ -161,7 +161,7 @@ abstract class TripEditFragment(
         addButton.setOnClickListener {
             val layout = view.findViewById<LinearLayout>(R.id.add_fields_layout)
             if (layout.visibility == VISIBLE) {
-                view.findViewById<TextView>(R.id.time_stop).text = "--.--"
+                view.findViewById<TextView>(R.id.time_stop).text = "--:--"
                 view.findViewById<EditText>(R.id.location_stop).text.clear()
                 layout.visibility = GONE
                 val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
@@ -175,7 +175,7 @@ abstract class TripEditFragment(
                 deleteStop.visibility=GONE
                 val location_stop = view.findViewById<EditText>(R.id.location_stop)
 
-                time_stop.text = "--.--"
+                time_stop.text = "--:--"
                 location_stop.text.clear()
                 save_button.tooltipText = ""
 
@@ -191,6 +191,7 @@ abstract class TripEditFragment(
 
                 save_button.setOnClickListener {
                     if(location_stop.text.toString()!= "" && time_stop.text.toString()!="--:--") {
+                        System.out.println(time_stop.text.toString())
                         val trip = sharedViewModel.tripList.value?.get(idTrip)!!
                         val t = TripLocation(location_stop.text.toString(), LocalTime.parse(time_stop.text.toString()))
                         tripList.add(t)
@@ -275,7 +276,7 @@ abstract class TripEditFragment(
                     val trip = TripLocation(tripLocationName.text.toString(), LocalTime.parse(tripLocationTime.text.toString()))
                     tripList.add(trip)
                     tripList.sortBy { it.locationTime }
-                    tripLocationTime.text = "--.--"
+                    tripLocationTime.text = "--:--"
                     tripLocationName.text.clear()
                     layout.visibility = GONE
                     val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
@@ -290,7 +291,7 @@ abstract class TripEditFragment(
                                     && it.location.equals(locationInit)
                         }
                         tripList.remove(t)
-                        tripLocationTime.text = "--.--"
+                        tripLocationTime.text = "--:--"
                         tripLocationName.text.clear()
                         layout.visibility = GONE
                         deleteStop.visibility = GONE
