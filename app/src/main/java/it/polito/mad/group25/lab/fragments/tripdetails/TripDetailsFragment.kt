@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.activityViewModels
@@ -64,6 +65,7 @@ abstract class TripDetailsFragment(
                     chip.text = it
                     additionalInfoChips.addView(chip)
                 }
+                view.findViewById<ImageView>(R.id.carImage).setImageDrawable(trip.carPic)
 
             }
         })

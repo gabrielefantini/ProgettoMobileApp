@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -119,6 +120,8 @@ class TripListFragment : Fragment() {
                 sharedViewModel.selectTrip(position)
                 view.findNavController().navigate(R.id.showTripDetailsFragment)
             }
+            if (tripList[position].carPic != null)
+                holder.image.setImageDrawable(tripList[position].carPic)
         }
 
         override fun getItemCount(): Int = tripList.size
@@ -134,6 +137,7 @@ class TripListFragment : Fragment() {
             val price: TextView = view.findViewById(R.id.card_price_text)
             val editButton: Button = view.findViewById(R.id.editTrip)
             val card: CardView = view.findViewById(R.id.card)
+            val image: ImageView = view.findViewById(R.id.card_car_image)
         }
     }
 }
