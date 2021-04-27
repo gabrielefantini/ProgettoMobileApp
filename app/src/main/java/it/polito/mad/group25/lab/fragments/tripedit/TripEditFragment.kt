@@ -54,6 +54,7 @@ abstract class TripEditFragment(
     private var idTrip: Int = -1
     private var isModified: Boolean = false
     private var tripList: MutableList<TripLocation> = mutableListOf()
+    private var tripDet: MutableList<String> = mutableListOf()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,6 +111,9 @@ abstract class TripEditFragment(
                     additionalInfoChips.removeAllViews()
 
                 trip.additionalInfo.forEach {
+                    tripDet.add(it)
+                }
+                tripDet.forEach {
                     var chip = Chip(context)
                     chip.text = it
                     additionalInfoChips.addView(chip)
@@ -220,8 +224,7 @@ abstract class TripEditFragment(
                 add_button.setOnClickListener {
                     if (detText.text.toString() == "") Toast.makeText(context, "Insert a text!", Toast.LENGTH_LONG).show()
                     else {
-                        val trip = sharedViewModel.tripList.value?.get(idTrip)!!
-                        trip.additionalInfo.add(detText.text.toString())
+                        tripDet.add(detText.text.toString())
                         layout.visibility = GONE
                         var chip = Chip(context)
                         chip.text = detText.text.toString()
@@ -383,6 +386,11 @@ abstract class TripEditFragment(
                             tripSel.locations.clear()
                             tripList.forEach { tl -> tripSel.locations.add(tl) }
                         }
+                    }
+
+                    tripSel.additionalInfo.clear()
+                    tripDet.forEach {
+                        tripSel.additionalInfo.add(it)
                     }
 
                     activity?.findNavController(R.id.nav_host_fragment_content_main)
