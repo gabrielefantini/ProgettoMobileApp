@@ -1,5 +1,6 @@
 package it.polito.mad.group25.lab.fragments.trip.edit
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -204,7 +205,7 @@ abstract class TripEditFragment(
                     if (locationStop.text.toString() != "" && timeStop.text.toString() != "--:--" && dateStop.text.toString() != "--/--/----") {
                         //System.out.println(time_stop.text.toString())
                         val date = dateStop.text.toString().split("/")
-                            .map { it -> if (it.length < 2) "0$it" else it }
+                            .map { if (it.length < 2) "0$it" else it }
                             .reduce { acc, s -> "$acc/$s" }
                         val formatter: DateTimeFormatter =
                             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
@@ -292,7 +293,7 @@ abstract class TripEditFragment(
                         val formatter: DateTimeFormatter =
                             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
                         val date = dateStop.text.toString().split("/")
-                                .map { it -> if (it.length < 2) "0$it" else it }
+                                .map { if (it.length < 2) "0$it" else it }
                                 .reduce { acc, s -> "$acc/$s" }
 
                         tripStepList.add(
@@ -523,7 +524,7 @@ abstract class TripEditFragment(
             val year = calendar.get(Calendar.YEAR)
             val datePickerDialog = DatePickerDialog(
                     this.requireActivity(),
-                    { _, year, month, day ->
+                    { _, _, _, _ ->
                         // Display Selected date in TextView
                         tv.text = ("$day/${month + 1}/$year")
                     },
@@ -534,6 +535,7 @@ abstract class TripEditFragment(
 
     }
 
+    @SuppressLint("SimpleDateFormat")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun openTimePicker(initTime: LocalDateTime? = null, tv: TextView){
         val cal = Calendar.getInstance()
@@ -541,7 +543,7 @@ abstract class TripEditFragment(
             cal.time = Date.from(initTime.toInstant(ZoneOffset.UTC))
         }
         val timeSetListener =
-                TimePickerDialog.OnTimeSetListener { timePicker: TimePicker, hour: Int, minute: Int ->
+                TimePickerDialog.OnTimeSetListener { _, hour: Int, minute: Int ->
                     cal.set(Calendar.HOUR_OF_DAY, hour)
                     cal.set(Calendar.MINUTE, minute)
                     tv.text = SimpleDateFormat("HH:mm").format(cal.time)
