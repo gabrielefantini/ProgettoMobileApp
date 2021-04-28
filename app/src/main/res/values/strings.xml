@@ -43,5 +43,6 @@
     <string name="date_text">--/--/----</string>
     <string name="time_text">--:--</string>
     <string name="_h_est">3h est.</string>
+    <string name="n_h">n h</string>
     <string name="other_infos">Other infos</string>
 </resources>
