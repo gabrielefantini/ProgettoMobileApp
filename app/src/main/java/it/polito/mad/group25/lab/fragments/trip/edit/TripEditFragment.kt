@@ -396,7 +396,7 @@ abstract class TripEditFragment(
         val tripSel = tripViewModel.trip
 
 
-        if(tripSel.locations.minByOrNull { l->l.locationTime }?.locationTime?.isBefore(
+        if(tripStepList.minByOrNull { l->l.locationTime }?.locationTime?.isBefore(
                 ChronoLocalDateTime.from(LocalDateTime.now())) == true){
             showError("Please provide a valid departure which is after the current time!")
             return false
