@@ -22,7 +22,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:layout_weight="0.5"
-            android:contentDescription="@null"
+            android:contentDescription="@string/null_value"
             app:srcCompat="@android:drawable/ic_menu_camera" />
 
         <ImageView
@@ -37,7 +37,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="8dp"
             android:layout_weight="1"
-            android:contentDescription="@null"
+            android:contentDescription="@string/null_value"
             android:src="@drawable/ic_car" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -75,7 +75,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"
-                android:contentDescription="@null"
+                android:contentDescription="@string/null_value"
                 android:src="@drawable/ic_duration"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +87,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginTop="16dp"
-                android:contentDescription="@null"
+                android:contentDescription="@string/null_value"
                 android:src="@drawable/ic_seat"
                 app:layout_constraintEnd_toEndOf="@+id/durationIcon"
                 app:layout_constraintStart_toStartOf="@+id/durationIcon"
@@ -136,7 +136,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"
-                android:contentDescription="@null"
+                android:contentDescription="@string/null_value"
                 android:src="@drawable/ic_price"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -224,7 +224,7 @@
                 android:layout_marginBottom="8dp"
                 android:layout_weight="1"
                 android:clickable="true"
-                android:contentDescription="@null"
+                android:contentDescription="@string/null_value"
                 android:focusable="true"
                 android:src="@android:drawable/ic_input_add"
                 app:fabSize="mini" />
@@ -395,7 +395,7 @@
                     android:layout_marginRight="8dp"
                     android:layout_marginBottom="16dp"
                     android:clickable="true"
-                    android:contentDescription="@null"
+                    android:contentDescription="@string/null_value"
                     android:focusable="true"
                     android:src="@android:drawable/ic_input_add"
                     app:fabSize="mini" />
