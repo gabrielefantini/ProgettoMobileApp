@@ -7,9 +7,9 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.view.*
-import android.view.View.GONE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,6 +44,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -90,9 +91,10 @@ abstract class TripEditFragment(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        carNameLayout = requireActivity().findViewById(R.id.carNameLayout)
-        priceLayout = requireActivity().findViewById(R.id.priceTextLayout)
-        seatsLayout = requireActivity().findViewById(R.id.seatsTextLayout)
+        //con requireActivity() crasha dopo la rotazione
+        carNameLayout = view.findViewById(R.id.carNameLayout)
+        priceLayout = view.findViewById(R.id.priceTextLayout)
+        seatsLayout = view.findViewById(R.id.seatsTextLayout)
 
 
         carNameLayout.setConstraints(
@@ -118,22 +120,18 @@ abstract class TripEditFragment(
         val rv = view.findViewById<RecyclerView>(R.id.tripList)
         val additionalInfoChips = view.findViewById<ChipGroup>(R.id.additionalInfoChips)
         val depDate = view.findViewById<TextView>(R.id.departureDate)
-        val duration = view.findViewById<TextView>(R.id.durationText)
 
         val trip = tripViewModel.trip
         trip.locations.forEach {
             tripStepList.add(it)
         }
+        updateDuration(view)
+
         view.findViewById<EditText>(R.id.carName).setText(trip.carName)
         depDate.text = trip.startDateFormatted()
         view.findViewById<EditText>(R.id.seatsText).setText(trip.seats.toString())
         view.findViewById<EditText>(R.id.priceText).setText(trip.price.toString())
 
-        val last = trip.locations.lastIndex
-        view.findViewById<TextView>(R.id.durationText).text = getDurationFormatted(
-            trip.locations[0].locationTime,
-            trip.locations[last].locationTime
-        )
 
         rv.layoutManager = LinearLayoutManager(context)
         rv.adapter = TripAdapter(tripStepList, context)
@@ -145,17 +143,8 @@ abstract class TripEditFragment(
             tripDet.add(it)
         }
         tripDet.forEach {
-            var chip = Chip(context)
-            chip.text = it
-            additionalInfoChips.addView(chip)
+            additionalInfoChips.addView(getChip(additionalInfoChips,it))
         }
-
-        val tripSize = tripStepList.size
-        if (tripSize != 0) {
-            val time1 = tripStepList[0].locationTime
-            val time2 = tripStepList[tripSize - 1].locationTime
-            duration.text = getDurationFormatted(time1, time2)
-        } else duration.text = "-"
 
         view.findViewById<ImageView>(R.id.carImage)
             .fromFile(File(requireActivity().dataDir, "tripPhoto" + tripViewModel.trip.id))
@@ -165,19 +154,7 @@ abstract class TripEditFragment(
         }
 
         depDate.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val month = calendar.get(Calendar.MONTH)
-            val year = calendar.get(Calendar.YEAR)
-            var datePickerDialog = DatePickerDialog(
-                this.requireActivity(),
-                DatePickerDialog.OnDateSetListener { view, year, month, day ->
-                    // Display Selected date in TextView
-                    depDate.text = ("$day/${month + 1}/$year")
-                },
-                year, month, day
-            )
-            datePickerDialog.show()
+            openDatePicker(tv = depDate)
         }
 
         val imageButton = view.findViewById<ImageButton>(R.id.changeCarPicButton)
@@ -186,100 +163,81 @@ abstract class TripEditFragment(
             it.showContextMenu()
         }
 
+        //aggiunta nuova TripLocation ***************************************
+
+        val dateStop = view.findViewById<TextView>(R.id.dateStop)
+        val timeStop = view.findViewById<TextView>(R.id.time_stop)
+        val locationStop = view.findViewById<EditText>(R.id.location_stop)
+
+        val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
+        val saveButton = view.findViewById<ImageButton>(R.id.save_stop)
+
         val addButton = view.findViewById<FloatingActionButton>(R.id.addTripStop)
         addButton.setOnClickListener {
             val layout = view.findViewById<LinearLayout>(R.id.add_fields_layout)
             if (layout.visibility == VISIBLE) {
-                view.findViewById<TextView>(R.id.time_stop).text = "--:--"
-                view.findViewById<EditText>(R.id.location_stop).text.clear()
+
+                dateStop.text = "--/--/----"
+                timeStop.text = "--:--"
+                locationStop.text.clear()
+
                 layout.visibility = GONE
-                val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
                 deleteStop.visibility = GONE
             } else {
                 layout.visibility = VISIBLE
-                val time_stop = view.findViewById<TextView>(R.id.time_stop)
-                val date_stop = view.findViewById<TextView>(R.id.dateStop)
-                val save_button = view.findViewById<ImageButton>(R.id.save_stop)
-                val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
                 deleteStop.visibility = GONE
-                val location_stop = view.findViewById<EditText>(R.id.location_stop)
 
-                date_stop.text = "--/--/----"
-                time_stop.text = "--:--"
-                location_stop.text.clear()
-                save_button.tooltipText = ""
 
-                date_stop.setOnClickListener {
-                    val calendar = Calendar.getInstance()
-                    val day = calendar.get(Calendar.DAY_OF_MONTH)
-                    val month = calendar.get(Calendar.MONTH)
-                    val year = calendar.get(Calendar.YEAR)
-                    var datePickerDialog = DatePickerDialog(
-                        this.requireActivity(),
-                        DatePickerDialog.OnDateSetListener { view, year, month, day ->
-                            // Display Selected date in TextView
-                            date_stop.text = ("$day/${month + 1}/$year")
-                        },
-                        year, month, day
-                    )
-                    datePickerDialog.show()
+                dateStop.text = "--/--/----"
+                timeStop.text = "--:--"
+                locationStop.text.clear()
+
+                dateStop.setOnClickListener {
+                    openDatePicker(tv = dateStop)
                 }
 
-                time_stop.setOnClickListener {
-                    val cal = Calendar.getInstance()
-                    val timeSetListener =
-                        TimePickerDialog.OnTimeSetListener { timePicker: TimePicker, hour: Int, minute: Int ->
-                            cal.set(Calendar.HOUR_OF_DAY, hour)
-                            cal.set(Calendar.MINUTE, minute)
-                            time_stop.text = SimpleDateFormat("HH:mm").format(cal.time)
-                        }
-                    TimePickerDialog(
-                        context,
-                        timeSetListener,
-                        cal.get(Calendar.HOUR_OF_DAY),
-                        cal.get(Calendar.MINUTE),
-                        true
-                    ).show()
+                timeStop.setOnClickListener {
+                    openTimePicker(tv = timeStop)
                 }
 
-                save_button.setOnClickListener {
-                    if (location_stop.text.toString() != "" && time_stop.text.toString() != "--:--" && date_stop.text.toString() != "--/--/----") {
-                        System.out.println(time_stop.text.toString())
-                        val dateStop = date_stop.text.toString().split("/")
-                            .map { it -> if (it.length < 2) "0" + it else it }
+                saveButton.setOnClickListener {
+                    if (locationStop.text.toString() != "" && timeStop.text.toString() != "--:--" && dateStop.text.toString() != "--/--/----") {
+                        //System.out.println(time_stop.text.toString())
+                        val date = dateStop.text.toString().split("/")
+                            .map { it -> if (it.length < 2) "0$it" else it }
                             .reduce { acc, s -> "$acc/$s" }
                         val formatter: DateTimeFormatter =
                             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
                         val t = TripLocation(
-                            location_stop.text.toString(),
+                            locationStop.text.toString(),
                             LocalDateTime.parse(
-                                dateStop + " " + time_stop.text.toString(),
+                                date + " " + timeStop.text.toString(),
                                 formatter
                             )
                         )
                         tripStepList.add(t)
                         tripStepList.sortBy { it.locationTime }
-                        val tripSize = trip.locations.size
-                        if (tripSize != 0) {
-                            val time1 = trip.locations[0].locationTime
-                            val time2 = trip.locations[tripSize - 1].locationTime
-                            duration.text = getDurationFormatted(time1, time2)
-                        }
-                        location_stop.text.clear()
-                        time_stop.text = "--:--"
+
+                        updateDuration(view)
+
+                        dateStop.text = "--/--/----"
+                        timeStop.text = "--:--"
+                        locationStop.text.clear()
                         layout.visibility = GONE
-                        val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
-                        rv_list.adapter?.notifyDataSetChanged()
+
+                        rv.adapter?.notifyDataSetChanged()
                     } else Toast.makeText(context, "Fill all fields!", Toast.LENGTH_LONG).show()
 
                 }
             }
         }
 
+        //*****************************************************************************
+
         val addDetail = view.findViewById<FloatingActionButton>(R.id.addDetail)
         addDetail.setOnClickListener {
             val layout = view.findViewById<LinearLayout>(R.id.addDetailLayout)
-            if (layout.visibility == VISIBLE) layout.visibility = GONE
+            if (layout.visibility == VISIBLE) layout.visibility = INVISIBLE
             else {
                 layout.visibility = VISIBLE
                 val add_button = view.findViewById<ImageButton>(R.id.addDetBut)
@@ -293,10 +251,9 @@ abstract class TripEditFragment(
                     else {
                         tripDet.add(detText.text.toString())
                         trip.additionalInfo.add(detText.text.toString())
-                        layout.visibility = GONE
-                        var chip = Chip(context)
-                        chip.text = detText.text.toString()
-                        additionalInfoChips.addView(chip)
+                        layout.visibility = INVISIBLE
+
+                        additionalInfoChips.addView(getChip(additionalInfoChips,detText.text.toString()))
                         detText.text.clear()
 
                     }
@@ -309,58 +266,52 @@ abstract class TripEditFragment(
                 if (locationId != null) {
                     val layout = view.findViewById<LinearLayout>(R.id.add_fields_layout)
                     layout.visibility = VISIBLE
-
-                    val tripLocationTime = view.findViewById<TextView>(R.id.time_stop)
-                    val tripLocationName = view.findViewById<EditText>(R.id.location_stop)
-                    val saveButton = view.findViewById<ImageButton>(R.id.save_stop)
-                    val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
                     deleteStop.visibility = VISIBLE
 
                     val timeInit = tripStepList[locationId].locationTime
                     val locationInit = tripStepList[locationId].location
 
-                    tripLocationTime.text = tripStepList[locationId].timeFormatted()
-                    tripLocationName.setText(tripStepList[locationId].location)
-                    saveButton.tooltipText = "Update changes"
+                    dateStop.text = tripStepList[locationId].locationTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    timeStop.text = tripStepList[locationId].timeFormatted()
+                    locationStop.setText(tripStepList[locationId].location)
 
-                    tripLocationTime.setOnClickListener {
-                        val cal = Calendar.getInstance()
-                        val timeSetListener =
-                            TimePickerDialog.OnTimeSetListener { timePicker: TimePicker, hour: Int, minute: Int ->
-                                cal.set(Calendar.HOUR_OF_DAY, hour)
-                                cal.set(Calendar.MINUTE, minute)
-                                tripLocationTime.text = SimpleDateFormat("HH:mm").format(cal.time)
-                            }
-                        TimePickerDialog(
-                            context,
-                            timeSetListener,
-                            cal.get(Calendar.HOUR_OF_DAY),
-                            cal.get(Calendar.MINUTE),
-                            true
-                        ).show()
+                    dateStop.setOnClickListener {
+                        openDatePicker(timeInit,dateStop)
                     }
 
+                    timeStop.setOnClickListener {
+                        openTimePicker(timeInit,timeStop)
+                    }
 
                     saveButton.setOnClickListener {
-                        //qui modifichi la lista e poi aggiorni l'adapter
                         val t = tripStepList.find {
                             !(it.locationTime.isBefore(timeInit) || it.locationTime.isAfter(timeInit))
-                                    && it.location.equals(locationInit)
+                                    && it.location == locationInit
                         }
                         tripStepList.remove(t)
                         val formatter: DateTimeFormatter =
                             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-                        val trip = TripLocation(
-                            tripLocationName.text.toString(),
-                            LocalDateTime.parse(tripLocationTime.text.toString(), formatter)
+                        val date = dateStop.text.toString().split("/")
+                                .map { it -> if (it.length < 2) "0$it" else it }
+                                .reduce { acc, s -> "$acc/$s" }
+
+                        tripStepList.add(
+                                TripLocation(
+                                        locationStop.text.toString(),
+                                        LocalDateTime.parse(date+" "+timeStop.text.toString(), formatter)
+                                )
                         )
-                        tripStepList.add(trip)
+
                         tripStepList.sortBy { it.locationTime }
-                        tripLocationTime.text = "--:--"
-                        tripLocationName.text.clear()
+
+                        updateDuration(view)
+
+                        dateStop.text = "--/--/----"
+                        timeStop.text = "--:--"
+                        locationStop.text.clear()
+
                         layout.visibility = GONE
-                        val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
-                        rv_list.adapter?.notifyDataSetChanged()
+                        rv.adapter?.notifyDataSetChanged()
                     }
 
 
@@ -373,12 +324,16 @@ abstract class TripEditFragment(
                                         && it.location.equals(locationInit)
                             }
                             tripStepList.remove(t)
-                            tripLocationTime.text = "--:--"
-                            tripLocationName.text.clear()
+
+                            updateDuration(view)
+
+                            dateStop.text = "--/--/----"
+                            timeStop.text = "--:--"
+                            locationStop.text.clear()
+
                             layout.visibility = GONE
                             deleteStop.visibility = GONE
-                            val rv_list = view.findViewById<RecyclerView>(R.id.tripList)
-                            rv_list.adapter?.notifyDataSetChanged()
+                            rv.adapter?.notifyDataSetChanged()
                         } else
                             Toast.makeText(
                                 context,
@@ -453,31 +408,27 @@ abstract class TripEditFragment(
 
         seats.also {
             if (tripSel.seats != it) {
-
                 tripSel.seats = it
             }
         }
         seats.also {
             if (tripSel.seats != it) {
-
                 tripSel.seats = it
             }
         }
 
         view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble().also {
             if (tripSel.price != it) {
-
                 tripSel.price = it
             }
         }
 
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
-        date = date.split("/").map { it -> if (it.length < 2) "0" + it else it }
+        date = date.split("/").map { it -> if (it.length < 2) "0$it" else it }
             .reduce { acc, s -> "$acc/$s" }
         LocalDate.parse(date, formatter).also {
             if (tripSel.tripStartDate != it) {
-
                 tripSel.tripStartDate = it
             }
         }
@@ -485,15 +436,16 @@ abstract class TripEditFragment(
 
         tripStepList.also {
             if (tripSel.locations != tripStepList) {
-
                 tripSel.locations.clear()
                 tripStepList.forEach { tl -> tripSel.locations.add(tl) }
             }
         }
 
-        tripSel.additionalInfo.clear()
-        tripDet.forEach {
-            tripSel.additionalInfo.add(it)
+        tripDet.also {
+            if(tripSel.additionalInfo != it){
+                tripSel.additionalInfo.clear()
+                it.forEach { td -> tripSel.additionalInfo.add(td) }
+            }
         }
 
         tripListViewModel.putTrip(tripSel)
@@ -506,8 +458,8 @@ abstract class TripEditFragment(
         RecyclerView.Adapter<TripAdapter.TripViewHolder>() {
 
         inner class TripViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-            val location = v.findViewById<TextView>(R.id.trip_location)
-            val time = v.findViewById<TextView>(R.id.trip_time)
+            val location: TextView = v.findViewById<TextView>(R.id.trip_location)
+            val time : TextView = v.findViewById<TextView>(R.id.trip_time)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
@@ -541,6 +493,77 @@ abstract class TripEditFragment(
             }
         }
 
+    }
+
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    private fun getChip(chipGroup: ChipGroup, chipText: String): Chip{
+        val chip = Chip(context)
+        chip.text = chipText
+
+        chip.isClickable = false //test
+        chip.isCheckable = false
+
+        chip.isCloseIconVisible = true
+        chip.setOnCloseIconClickListener {
+            TransitionManager.beginDelayedTransition(chipGroup)
+            tripDet.remove(chipText)
+            chipGroup.removeView(chip)
+        }
+        return chip
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun openDatePicker(initTime: LocalDateTime? = null,tv: TextView){
+            val calendar = Calendar.getInstance()
+            initTime?.also {
+                calendar.time = Date.from(initTime.toInstant(ZoneOffset.UTC))
+            }
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+            val month = calendar.get(Calendar.MONTH)
+            val year = calendar.get(Calendar.YEAR)
+            val datePickerDialog = DatePickerDialog(
+                    this.requireActivity(),
+                    { _, year, month, day ->
+                        // Display Selected date in TextView
+                        tv.text = ("$day/${month + 1}/$year")
+                    },
+                    year, month, day
+            )
+            datePickerDialog.datePicker.minDate = System.currentTimeMillis()
+            datePickerDialog.show()
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun openTimePicker(initTime: LocalDateTime? = null, tv: TextView){
+        val cal = Calendar.getInstance()
+        initTime?.also {
+            cal.time = Date.from(initTime.toInstant(ZoneOffset.UTC))
+        }
+        val timeSetListener =
+                TimePickerDialog.OnTimeSetListener { timePicker: TimePicker, hour: Int, minute: Int ->
+                    cal.set(Calendar.HOUR_OF_DAY, hour)
+                    cal.set(Calendar.MINUTE, minute)
+                    tv.text = SimpleDateFormat("HH:mm").format(cal.time)
+                }
+        TimePickerDialog(
+                context,
+                timeSetListener,
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
+                true
+        ).show()
+
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateDuration(view: View){
+        val last = tripStepList.lastIndex
+        view.findViewById<TextView>(R.id.durationText).text = getDurationFormatted(
+                tripStepList[0].locationTime,
+                tripStepList[last].locationTime
+        )
     }
 
 }

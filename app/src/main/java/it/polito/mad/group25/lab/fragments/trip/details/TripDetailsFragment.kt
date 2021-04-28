@@ -75,10 +75,14 @@ abstract class TripDetailsFragment(
 @RequiresApi(Build.VERSION_CODES.O)
 fun getDurationFormatted(first: LocalDateTime, last: LocalDateTime): String {
     val durationMin = ChronoUnit.MINUTES.between(first, last).toInt()
-    val hours = durationMin / 60
+    var hours = durationMin / 60
     val min = durationMin % 60
 
-    return "${if (hours != 0) "$hours h" else ""} ${if (min != 0) "$min min" else ""}"
+    val days = hours/24
+    if(days != 0)
+        hours -= 24
+
+    return "${if(days != 0) "${days}d" else ""} ${if (hours != 0) "${hours}h" else ""} ${if (min != 0) "${min}min" else ""}"
 }
 
 class TripLocationAdapter(private val list: List<TripLocation>) :

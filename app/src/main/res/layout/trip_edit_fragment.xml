@@ -49,6 +49,10 @@
                 android:id="@+id/carName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
                 android:gravity="center" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -121,7 +125,7 @@
                 android:layout_weight="0.4"
                 android:gravity="center"
                 android:text="--:--"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"  />
+                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/location_stopLayout"
@@ -129,6 +133,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="center"
                 android:hint="@string/locationName"
                 app:endIconMode="clear_text"
                 app:errorEnabled="true"
@@ -139,6 +144,8 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
                     app:endIconMode="clear_text"
                     app:errorEnabled="true"
                     app:helperTextEnabled="true" />
@@ -148,13 +155,15 @@
                 android:id="@+id/save_stop"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_weight="0.3"
                 android:src="@android:drawable/ic_menu_myplaces" />
 
             <ImageButton
                 android:id="@+id/deleteStop"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_weight="0.3"
                 android:src="@android:drawable/btn_dialog"
                 android:visibility="gone" />
@@ -312,7 +321,7 @@
             android:layout_marginBottom="16dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:visibility="gone">
+            android:visibility="invisible">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/insertDetailLayout"
