@@ -39,14 +39,15 @@
     <string name="hintNumberSeats">Seats</string>
     <string name="priceHint">Price</string>
     <string name="OtherInfoHint">Insert detail</string>
+    <string name="gg_mm_yyyy">gg/mm/yyyy</string>
     <string name="date_text">--/--/----</string>
     <string name="time_text">--:--</string>
     <string name="_h_est">3h est.</string>
     <string name="n_h">n h</string>
     <string name="emptyDuration">-</string>
     <string name="nome_macchina">nome macchina</string>
-    <string name="gg_mm_yyyy">gg/mm/yyyy</string>
     <string name="other_infos">Other infos</string>
+    <string name = "null_value">"null"</string>
     <string name="EmptyDuration">-</string>
     <string name="EmptyPrice">0.0</string>
     <string name="EmptySeats">0</string>
