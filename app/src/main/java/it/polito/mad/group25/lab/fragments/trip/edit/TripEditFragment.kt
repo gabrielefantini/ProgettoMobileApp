@@ -68,7 +68,6 @@ abstract class TripEditFragment(
     private lateinit var priceLayout: TextInputLayout
     private lateinit var seatsLayout: TextInputLayout
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         tripEditViewModel = ViewModelProvider(this).get(TripEditViewModel::class.java)
