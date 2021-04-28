@@ -238,7 +238,10 @@ abstract class TripEditFragment(
         val addDetail = view.findViewById<FloatingActionButton>(R.id.addDetail)
         addDetail.setOnClickListener {
             val layout = view.findViewById<LinearLayout>(R.id.addDetailLayout)
-            if (layout.visibility == VISIBLE) layout.visibility = INVISIBLE
+            if (layout.visibility == VISIBLE) {
+                view.findViewById<EditText>(R.id.insertDetail).text.clear()
+                layout.visibility = INVISIBLE
+            }
             else {
                 layout.visibility = VISIBLE
                 val add_button = view.findViewById<ImageButton>(R.id.addDetBut)
@@ -252,6 +255,7 @@ abstract class TripEditFragment(
                     else {
                         tripEditViewModel.tripDet.add(detText.text.toString())
                         trip.additionalInfo.add(detText.text.toString())
+                        detText.text.clear()
                         layout.visibility = INVISIBLE
 
                         additionalInfoChips.addView(getChip(additionalInfoChips,detText.text.toString()))
