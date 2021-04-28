@@ -27,8 +27,7 @@
             android:id="@+id/carName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
-            android:paddingRight="8dp"
+            android:gravity="center"
             android:text="nome macchina"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 

@@ -72,7 +72,7 @@ class EditUserProfileFragment :
                     setConstraints(
                         R.id.fullName,
                         resources.getString(R.string.fullNameMissingError),
-                        CharSequence::isNotBlank
+                        checker = CharSequence::isNotBlank
                     )
                 }
         usernameTextInputLayout =
@@ -81,7 +81,7 @@ class EditUserProfileFragment :
                     setConstraints(
                         R.id.nickName,
                         resources.getString(R.string.nickNameMissingError),
-                        CharSequence::isNotBlank
+                        checker = CharSequence::isNotBlank
                     )
                 }
         emailTextInputLayout = requireView().findViewById<TextInputLayout>(R.id.emailTextLayout)
@@ -89,7 +89,7 @@ class EditUserProfileFragment :
                 setConstraints(
                     R.id.email,
                     resources.getString(R.string.emailMissingError),
-                    CharSequence::isNotBlank
+                    checker = CharSequence::isNotBlank
                 )
             }
         locationTextInputLayout =
@@ -98,7 +98,7 @@ class EditUserProfileFragment :
                     setConstraints(
                         R.id.location,
                         resources.getString(R.string.locationMissingError),
-                        CharSequence::isNotBlank
+                        checker = CharSequence::isNotBlank
                     )
                 }
     }

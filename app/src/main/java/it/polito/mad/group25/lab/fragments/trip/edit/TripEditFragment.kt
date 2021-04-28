@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputLayout
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
@@ -33,14 +34,16 @@ import it.polito.mad.group25.lab.fragments.trip.details.getDurationFormatted
 import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
 import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
+import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.persistence.PersistableContainer
 import it.polito.mad.group25.lab.utils.views.fromFile
+import it.polito.mad.group25.lab.utils.views.isCompliant
+import it.polito.mad.group25.lab.utils.views.setConstraints
 import it.polito.mad.group25.lab.utils.views.toFile
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -58,9 +61,15 @@ abstract class TripEditFragment(
     private var tripDet: MutableList<String> = mutableListOf()
     private var tripStepList: MutableList<TripLocation> = mutableListOf()
 
+    private lateinit var carNameLayout: TextInputLayout
+    private lateinit var priceLayout: TextInputLayout
+    private lateinit var seatsLayout: TextInputLayout
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         tripEditViewModel = ViewModelProvider(this).get(TripEditViewModel::class.java)
+
         setHasOptionsMenu(true)
 
         takePictureLauncher =
@@ -80,8 +89,30 @@ abstract class TripEditFragment(
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         super.onViewCreated(view, savedInstanceState)
+        carNameLayout = requireActivity().findViewById(R.id.carNameLayout)
+        priceLayout = requireActivity().findViewById(R.id.priceTextLayout)
+        seatsLayout = requireActivity().findViewById(R.id.seatsTextLayout)
+
+
+        carNameLayout.setConstraints(
+            R.id.carName,
+            "Please provide car name",
+            checker = CharSequence::isNotBlank
+        )
+        priceLayout.setConstraints(
+            R.id.priceText,
+            "Please provide trip price",
+            true,
+            CharSequence::isNotBlank
+        )
+        seatsLayout.setConstraints(
+            R.id.seatsText,
+            "Please provide valid seats between 1 and 7",
+            true
+        ) { it.isNotBlank() && it.toString().toInt().let { s -> s in 1..7 } }
+
+
         val context = this.context
 
         val rv = view.findViewById<RecyclerView>(R.id.tripList)
@@ -127,7 +158,7 @@ abstract class TripEditFragment(
         } else duration.text = "-"
 
         view.findViewById<ImageView>(R.id.carImage)
-            .fromFile(File(requireActivity().dataDir, "tripPhoto"+tripViewModel.trip.id))
+            .fromFile(File(requireActivity().dataDir, "tripPhoto" + tripViewModel.trip.id))
 
         tripEditViewModel.tempProfileDrawable?.let {
             view.findViewById<ImageView>(R.id.carImage).setImageDrawable(it)
@@ -184,12 +215,12 @@ abstract class TripEditFragment(
                     val month = calendar.get(Calendar.MONTH)
                     val year = calendar.get(Calendar.YEAR)
                     var datePickerDialog = DatePickerDialog(
-                            this.requireActivity(),
-                            DatePickerDialog.OnDateSetListener { view, year, month, day ->
-                                // Display Selected date in TextView
-                                date_stop.text = ("$day/${month + 1}/$year")
-                            },
-                            year, month, day
+                        this.requireActivity(),
+                        DatePickerDialog.OnDateSetListener { view, year, month, day ->
+                            // Display Selected date in TextView
+                            date_stop.text = ("$day/${month + 1}/$year")
+                        },
+                        year, month, day
                     )
                     datePickerDialog.show()
                 }
@@ -214,11 +245,17 @@ abstract class TripEditFragment(
                 save_button.setOnClickListener {
                     if (location_stop.text.toString() != "" && time_stop.text.toString() != "--:--" && date_stop.text.toString() != "--/--/----") {
                         System.out.println(time_stop.text.toString())
-                        val dateStop = date_stop.text.toString().split("/").map { it -> if (it.length < 2) "0" + it else it }.reduce { acc, s -> "$acc/$s" }
-                        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                        val dateStop = date_stop.text.toString().split("/")
+                            .map { it -> if (it.length < 2) "0" + it else it }
+                            .reduce { acc, s -> "$acc/$s" }
+                        val formatter: DateTimeFormatter =
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
                         val t = TripLocation(
                             location_stop.text.toString(),
-                            LocalDateTime.parse(dateStop+" "+time_stop.text.toString(), formatter)
+                            LocalDateTime.parse(
+                                dateStop + " " + time_stop.text.toString(),
+                                formatter
+                            )
                         )
                         tripStepList.add(t)
                         tripStepList.sortBy { it.locationTime }
@@ -311,7 +348,8 @@ abstract class TripEditFragment(
                                     && it.location.equals(locationInit)
                         }
                         tripStepList.remove(t)
-                        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                        val formatter: DateTimeFormatter =
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
                         val trip = TripLocation(
                             tripLocationName.text.toString(),
                             LocalDateTime.parse(tripLocationTime.text.toString(), formatter)
@@ -385,7 +423,10 @@ abstract class TripEditFragment(
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.saveProfileEdit -> {
-                saveEdits()
+                if (saveEdits())
+                    activity?.findNavController(R.id.nav_host_fragment_content_main)
+                        ?.navigateUp()
+                else showError("Please provide all required info")
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -393,75 +434,71 @@ abstract class TripEditFragment(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun saveEdits() {
+    private fun saveEdits(): Boolean {
+        if (!(carNameLayout.isCompliant() && priceLayout.isCompliant() && seatsLayout.isCompliant()))
+            return false
+
         val tripSel = tripViewModel.trip
         val seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
-        if (seats < 1 || seats > 7) Toast.makeText(
-            context,
-            "The number of seats must be between 1 and 7",
-            Toast.LENGTH_LONG
-        ).show()
-        else {
-            view?.findViewById<EditText>(R.id.carName)?.text.toString().also {
-                if (tripSel.carName != it) {
-                    tripSel.carName = it
-                }
+
+        view?.findViewById<EditText>(R.id.carName)?.text.toString().also {
+            if (tripSel.carName != it) {
+                tripSel.carName = it
             }
-
-            view?.findViewById<ImageView>(R.id.carImage)?.also {
-                tripSel.carPic = it.toFile()!!
-            }
-
-            seats.also {
-                if (tripSel.seats != it) {
-
-                    tripSel.seats = it
-                }
-            }
-            seats.also {
-                if (tripSel.seats != it) {
-
-                    tripSel.seats = it
-                }
-            }
-
-            view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble().also {
-                if (tripSel.price != it) {
-
-                    tripSel.price = it
-                }
-            }
-
-            val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-            var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
-            date = date.split("/").map { it -> if (it.length < 2) "0" + it else it }
-                .reduce { acc, s -> "$acc/$s" }
-            LocalDate.parse(date, formatter).also {
-                if (tripSel.tripStartDate != it) {
-
-                    tripSel.tripStartDate = it
-                }
-            }
-
-
-            tripStepList.also {
-                if (tripSel.locations != tripStepList) {
-
-                    tripSel.locations.clear()
-                    tripStepList.forEach { tl -> tripSel.locations.add(tl) }
-                }
-            }
-
-            tripSel.additionalInfo.clear()
-            tripDet.forEach {
-                tripSel.additionalInfo.add(it)
-            }
-
-            tripListViewModel.updateTrip(tripSel)
-
-            activity?.findNavController(R.id.nav_host_fragment_content_main)
-                ?.navigateUp()
         }
+
+        view?.findViewById<ImageView>(R.id.carImage)?.also {
+            tripSel.carPic = it.toFile()!!
+        }
+
+        seats.also {
+            if (tripSel.seats != it) {
+
+                tripSel.seats = it
+            }
+        }
+        seats.also {
+            if (tripSel.seats != it) {
+
+                tripSel.seats = it
+            }
+        }
+
+        view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble().also {
+            if (tripSel.price != it) {
+
+                tripSel.price = it
+            }
+        }
+
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
+        date = date.split("/").map { it -> if (it.length < 2) "0" + it else it }
+            .reduce { acc, s -> "$acc/$s" }
+        LocalDate.parse(date, formatter).also {
+            if (tripSel.tripStartDate != it) {
+
+                tripSel.tripStartDate = it
+            }
+        }
+
+
+        tripStepList.also {
+            if (tripSel.locations != tripStepList) {
+
+                tripSel.locations.clear()
+                tripStepList.forEach { tl -> tripSel.locations.add(tl) }
+            }
+        }
+
+        tripSel.additionalInfo.clear()
+        tripDet.forEach {
+            tripSel.additionalInfo.add(it)
+        }
+
+        tripListViewModel.putTrip(tripSel)
+
+        return true
     }
 
 

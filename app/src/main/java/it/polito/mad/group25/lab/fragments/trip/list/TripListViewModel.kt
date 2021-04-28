@@ -28,16 +28,13 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
         return Trip().apply { id = index++ }
     }
 
-    fun addTrip(newTrip: Trip) {
-        if (newTrip.id > index) index = newTrip.id + 1
-        trips.value?.put(newTrip.id, newTrip)
-    }
 
     fun removeTrip(trip: Trip) {
         trips.value?.remove(trip.id)
     }
 
-    fun updateTrip(trip: Trip) {
+    fun putTrip(trip: Trip) {
+        if (trip.id > index) index = trip.id + 1
         trips.value?.put(trip.id, trip)
     }
 

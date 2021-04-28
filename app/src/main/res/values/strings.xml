@@ -34,4 +34,9 @@
     <string name="guest">Guest</string>
     <string name="car_name">Car name</string>
     <string name="edit">Edit</string>
+    <string name="car_model">Enter the model of your car</string>
+    <string name="locationName">Location Name</string>
+    <string name="hintNumberSeats">Seats</string>
+    <string name="priceHint">Price</string>
+    <string name="OtherInfoHint">Insert detail</string>
 </resources>

@@ -36,14 +36,23 @@
             android:layout_weight="1"
             android:src="@drawable/ic_car" />
 
-        <EditText
-            android:id="@+id/carName"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/carNameLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
-            android:hint="nome macchina"
-            android:paddingRight="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+            android:gravity="center"
+            android:hint="@string/car_model"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:helperTextEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/carName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <View
             android:id="@+id/divider4"
@@ -90,18 +99,29 @@
                 app:layout_constraintStart_toEndOf="@+id/durationIcon"
                 app:layout_constraintTop_toTopOf="@+id/durationIcon" />
 
-            <EditText
-                android:id="@+id/seatsText"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/seatsTextLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:hint="n"
-                android:inputType="number"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:layout_marginTop="24dp"
+                android:hint="@string/hintNumberSeats"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:helperTextEnabled="true"
                 app:layout_constraintBottom_toBottomOf="@+id/seatsIcon"
                 app:layout_constraintStart_toEndOf="@+id/seatsIcon"
-                app:layout_constraintTop_toTopOf="@+id/seatsIcon" />
+                app:layout_constraintTop_toTopOf="@+id/seatsIcon">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/seatsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
 
             <ImageView
                 android:id="@+id/priceIcon"
@@ -125,18 +145,28 @@
                 app:layout_constraintGuide_begin="174dp"
                 app:layout_constraintGuide_percent="0.5" />
 
-            <EditText
-                android:id="@+id/priceText"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/priceTextLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:hint="nn.n"
-                android:inputType="numberDecimal"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:layout_marginTop="24dp"
+                android:hint="@string/priceHint"
+                app:endIconMode="clear_text"
+                app:errorEnabled="true"
+                app:helperTextEnabled="true"
                 app:layout_constraintBottom_toBottomOf="@+id/priceIcon"
                 app:layout_constraintStart_toEndOf="@+id/priceIcon"
-                app:layout_constraintTop_toTopOf="@+id/priceIcon" />
+                app:layout_constraintTop_toTopOf="@+id/priceIcon">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/priceText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -202,7 +232,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_weight="2"
+                    android:layout_weight="1"
                     android:gravity="center_horizontal"
                     android:text="--/--/----"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small" />
@@ -214,14 +244,28 @@
                     android:layout_weight="0.4"
                     android:gravity="center"
                     android:text="--:--"
-                    android:textSize="24sp" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-                <EditText
-                    android:id="@+id/location_stop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/location_stopLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:hint="Location" />
+                    android:hint="@string/locationName"
+                    app:endIconMode="clear_text"
+                    app:errorEnabled="true"
+                    app:helperTextEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/location_stop"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:endIconMode="clear_text"
+                        app:errorEnabled="true"
+                        app:helperTextEnabled="true" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
                     android:id="@+id/save_stop"
@@ -289,13 +333,23 @@
                 android:orientation="horizontal"
                 android:visibility="gone">
 
-                <EditText
-                    android:id="@+id/insertDetail"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/insertDetailLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="5"
-                    android:hint="Insert detail"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                    android:hint="@string/OtherInfoHint"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    app:endIconMode="clear_text"
+                    app:errorEnabled="true"
+                    app:helperTextEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/insertDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
                     android:id="@+id/addDetBut"

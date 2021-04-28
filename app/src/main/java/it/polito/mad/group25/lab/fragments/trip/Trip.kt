@@ -5,7 +5,6 @@ import androidx.annotation.RequiresApi
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.properties.Delegates
 
@@ -13,7 +12,7 @@ import kotlin.properties.Delegates
 class Trip {
     var id by Delegates.notNull<Int>()
     var carPic: File? = null
-    var carName: String = "car name"
+    var carName: String? = null
     var tripStartDate: LocalDate = LocalDate.now()
     val locations: MutableList<TripLocation> = mutableListOf(
         TripLocation(),
