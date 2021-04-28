@@ -125,6 +125,7 @@
                     android:id="@+id/seatsText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxLength="1"
                     android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -151,7 +152,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:layout_constraintGuide_begin="174dp"
-                app:layout_constraintGuide_percent="0.5" />
+                app:layout_constraintGuide_percent="0.4" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/priceTextLayout"
@@ -171,8 +172,9 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/priceText"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:maxLength="8"
                     android:inputType="numberDecimal" />
             </com.google.android.material.textfield.TextInputLayout>
 
