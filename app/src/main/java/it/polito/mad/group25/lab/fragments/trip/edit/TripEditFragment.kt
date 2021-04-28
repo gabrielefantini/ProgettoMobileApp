@@ -255,7 +255,6 @@ abstract class TripEditFragment(
                     else {
                         tripEditViewModel.tripDet.add(detText.text.toString())
                         trip.additionalInfo.add(detText.text.toString())
-                        detText.text.clear()
                         layout.visibility = INVISIBLE
 
                         additionalInfoChips.addView(getChip(additionalInfoChips,detText.text.toString()))
