@@ -46,6 +46,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.chrono.ChronoLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -66,7 +67,6 @@ abstract class TripEditFragment(
     private lateinit var carNameLayout: TextInputLayout
     private lateinit var priceLayout: TextInputLayout
     private lateinit var seatsLayout: TextInputLayout
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -394,6 +394,26 @@ abstract class TripEditFragment(
             return false
 
         val tripSel = tripViewModel.trip
+
+
+        if(tripSel.locations.minByOrNull { l->l.locationTime }?.locationTime?.isBefore(
+                ChronoLocalDateTime.from(LocalDateTime.now())) == true){
+            showError("Please provide a valid departure which is after the current time!")
+            return false
+        }
+
+        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
+        date = date.split("/").map { it -> if (it.length < 2) "0$it" else it }
+            .reduce { acc, s -> "$acc/$s" }
+        LocalDate.parse(date, formatter).also {
+            if (tripSel.tripStartDate != it) {
+                tripSel.tripStartDate = it
+            }
+        }
+
+
+
         val seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
 
         view?.findViewById<EditText>(R.id.carName)?.text.toString().also {
@@ -420,16 +440,6 @@ abstract class TripEditFragment(
         view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble().also {
             if (tripSel.price != it) {
                 tripSel.price = it
-            }
-        }
-
-        val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-        var date = view?.findViewById<TextView>(R.id.departureDate)?.text.toString()
-        date = date.split("/").map { it -> if (it.length < 2) "0$it" else it }
-            .reduce { acc, s -> "$acc/$s" }
-        LocalDate.parse(date, formatter).also {
-            if (tripSel.tripStartDate != it) {
-                tripSel.tripStartDate = it
             }
         }
 

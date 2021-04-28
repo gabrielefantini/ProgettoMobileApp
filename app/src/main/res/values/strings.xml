@@ -42,6 +42,7 @@
     <string name="date_text">--/--/----</string>
     <string name="time_text">--:--</string>
     <string name="_h_est">3h est.</string>
+    <string name="n_h">n h</string>
     <string name="emptyDuration">-</string>
     <string name="nome_macchina">nome macchina</string>
     <string name="gg_mm_yyyy">gg/mm/yyyy</string>

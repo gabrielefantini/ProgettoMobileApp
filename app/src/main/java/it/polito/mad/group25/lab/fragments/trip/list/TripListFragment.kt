@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
@@ -56,12 +57,19 @@ class TripListFragment : Fragment() {
         //pass an observable to MyTripCarRecyclerViewAdapter
         tripListViewModel.trips.observe(viewLifecycleOwner, { tripMap ->
             // Set the adapter
-            with(list) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
+            if(tripMap.size == 0){
+                view.findViewById<ConstraintLayout>(R.id.constraintEmpty).visibility = View.VISIBLE
+                view.findViewById<ConstraintLayout>(R.id.constraintContent).visibility = View.GONE
+            } else {
+                view.findViewById<ConstraintLayout>(R.id.constraintEmpty).visibility = View.GONE
+                view.findViewById<ConstraintLayout>(R.id.constraintContent).visibility = View.VISIBLE
+                with(list) {
+                    layoutManager = when {
+                        columnCount <= 1 -> LinearLayoutManager(context)
+                        else -> GridLayoutManager(context, columnCount)
+                    }
+                    adapter = MyTripCardRecyclerViewAdapter(tripMap.values.toList())
                 }
-                adapter = MyTripCardRecyclerViewAdapter(tripMap.values.toList())
             }
         })
 
