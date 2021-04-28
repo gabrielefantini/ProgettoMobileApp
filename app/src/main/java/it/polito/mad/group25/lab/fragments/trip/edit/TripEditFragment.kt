@@ -256,7 +256,6 @@ abstract class TripEditFragment(
 
                         additionalInfoChips.addView(getChip(additionalInfoChips,detText.text.toString()))
                         detText.text.clear()
-
                     }
                 }
             }
