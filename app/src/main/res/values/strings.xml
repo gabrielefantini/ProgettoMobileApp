@@ -39,4 +39,9 @@
     <string name="hintNumberSeats">Seats</string>
     <string name="priceHint">Price</string>
     <string name="OtherInfoHint">Insert detail</string>
+    <string name="gg_mm_yyyy">gg/mm/yyyy</string>
+    <string name="date_text">--/--/----</string>
+    <string name="time_text">--:--</string>
+    <string name="_h_est">3h est.</string>
+    <string name="other_infos">Other infos</string>
 </resources>
