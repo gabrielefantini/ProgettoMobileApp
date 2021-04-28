@@ -20,6 +20,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
+            android:contentDescription="@null"
             app:srcCompat="@android:drawable/ic_menu_camera" />
 
         <ImageView
@@ -32,6 +33,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="8dp"
+            android:contentDescription="@null"
             android:src="@drawable/ic_car" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -93,9 +95,10 @@
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@null"
+            android:focusable="true"
             android:src="@android:drawable/ic_input_add"
-            app:fabSize="mini"
-            android:focusable="true" />
+            app:fabSize="mini" />
 
         <LinearLayout
             android:id="@+id/add_fields_layout"
@@ -158,6 +161,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="0.3"
+                android:contentDescription="@null"
                 android:src="@android:drawable/ic_menu_myplaces" />
 
             <ImageButton
@@ -166,6 +170,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="0.3"
+                android:contentDescription="@null"
                 android:src="@android:drawable/btn_dialog"
                 android:visibility="gone" />
         </LinearLayout>
@@ -184,6 +189,7 @@
                 android:id="@+id/durationIcon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:contentDescription="@null"
                 android:src="@drawable/ic_duration"
                 app:layout_constraintBottom_toTopOf="@+id/seatsIcon"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -207,6 +213,7 @@
                 android:id="@+id/seatsIcon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:contentDescription="@null"
                 android:src="@drawable/ic_seat"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -263,6 +270,7 @@
                 android:id="@+id/priceIcon"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:contentDescription="@null"
                 android:src="@drawable/ic_price"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -303,14 +311,15 @@
             android:id="@+id/addDetail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="right"
+            android:layout_gravity="end"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:clickable="true"
+            android:contentDescription="@null"
+            android:focusable="true"
             android:src="@android:drawable/ic_input_add"
-            app:fabSize="mini"
-            android:focusable="true" />
+            app:fabSize="mini" />
 
         <LinearLayout
             android:id="@+id/addDetailLayout"
@@ -348,6 +357,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
+                android:contentDescription="@null"
                 android:src="@android:drawable/checkbox_on_background" />
 
         </LinearLayout>
