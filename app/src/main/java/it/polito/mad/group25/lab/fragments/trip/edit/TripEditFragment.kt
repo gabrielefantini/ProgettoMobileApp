@@ -61,9 +61,6 @@ abstract class TripEditFragment(
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void>
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
 
-    private var tripDet: MutableList<String> = mutableListOf()
-    private var tripStepList: MutableList<TripLocation> = mutableListOf()
-
     private lateinit var carNameLayout: TextInputLayout
     private lateinit var priceLayout: TextInputLayout
     private lateinit var seatsLayout: TextInputLayout
@@ -122,28 +119,33 @@ abstract class TripEditFragment(
         val additionalInfoChips = view.findViewById<ChipGroup>(R.id.additionalInfoChips)
         val depDate = view.findViewById<TextView>(R.id.departureDate)
 
+
         val trip = tripViewModel.trip
-        trip.locations.forEach {
-            tripStepList.add(it)
-        }
+
+        if(tripEditViewModel.tripStepList.isEmpty())
+            trip.locations.forEach {
+                tripEditViewModel.tripStepList.add(it)
+            }
         updateDuration(view)
 
         view.findViewById<EditText>(R.id.carName).setText(trip.carName)
-        depDate.text = trip.startDateFormatted()
+        depDate.text = tripEditViewModel.tripStepList[0].locationTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
         view.findViewById<EditText>(R.id.seatsText).setText(trip.seats.toString())
         view.findViewById<EditText>(R.id.priceText).setText(trip.price.toString())
 
 
         rv.layoutManager = LinearLayoutManager(context)
-        rv.adapter = TripAdapter(tripStepList, context)
+        rv.adapter = TripAdapter(tripEditViewModel.tripStepList, context)
 
         if (additionalInfoChips.childCount != 0)
             additionalInfoChips.removeAllViews()
 
-        trip.additionalInfo.forEach {
-            tripDet.add(it)
-        }
-        tripDet.forEach {
+        if(tripEditViewModel.tripDet.isEmpty())
+            trip.additionalInfo.forEach {
+                tripEditViewModel.tripDet.add(it)
+            }
+
+        tripEditViewModel.tripDet.forEach {
             additionalInfoChips.addView(getChip(additionalInfoChips,it))
         }
 
@@ -154,9 +156,6 @@ abstract class TripEditFragment(
             view.findViewById<ImageView>(R.id.carImage).setImageDrawable(it)
         }
 
-        depDate.setOnClickListener {
-            openDatePicker(tv = depDate)
-        }
 
         val imageButton = view.findViewById<ImageButton>(R.id.changeCarPicButton)
         registerForContextMenu(imageButton)
@@ -216,8 +215,8 @@ abstract class TripEditFragment(
                                 formatter
                             )
                         )
-                        tripStepList.add(t)
-                        tripStepList.sortBy { it.locationTime }
+                        tripEditViewModel.tripStepList.add(t)
+                        tripEditViewModel.tripStepList.sortBy { it.locationTime }
 
                         updateDuration(view)
 
@@ -226,6 +225,7 @@ abstract class TripEditFragment(
                         locationStop.text.clear()
                         layout.visibility = GONE
 
+                        depDate.text = tripEditViewModel.tripStepList[0].locationTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         rv.adapter?.notifyDataSetChanged()
                     } else Toast.makeText(context, "Fill all fields!", Toast.LENGTH_LONG).show()
 
@@ -250,7 +250,7 @@ abstract class TripEditFragment(
                         Toast.LENGTH_LONG
                     ).show()
                     else {
-                        tripDet.add(detText.text.toString())
+                        tripEditViewModel.tripDet.add(detText.text.toString())
                         trip.additionalInfo.add(detText.text.toString())
                         layout.visibility = INVISIBLE
 
@@ -268,12 +268,12 @@ abstract class TripEditFragment(
                     layout.visibility = VISIBLE
                     deleteStop.visibility = VISIBLE
 
-                    val timeInit = tripStepList[locationId].locationTime
-                    val locationInit = tripStepList[locationId].location
+                    val timeInit = tripEditViewModel.tripStepList[locationId].locationTime
+                    val locationInit = tripEditViewModel.tripStepList[locationId].location
 
-                    dateStop.text = tripStepList[locationId].locationTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                    timeStop.text = tripStepList[locationId].timeFormatted()
-                    locationStop.setText(tripStepList[locationId].location)
+                    dateStop.text = tripEditViewModel.tripStepList[locationId].locationTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    timeStop.text = tripEditViewModel.tripStepList[locationId].timeFormatted()
+                    locationStop.setText(tripEditViewModel.tripStepList[locationId].location)
 
                     dateStop.setOnClickListener {
                         openDatePicker(timeInit,dateStop)
@@ -284,25 +284,25 @@ abstract class TripEditFragment(
                     }
 
                     saveButton.setOnClickListener {
-                        val t = tripStepList.find {
+                        val t = tripEditViewModel.tripStepList.find {
                             !(it.locationTime.isBefore(timeInit) || it.locationTime.isAfter(timeInit))
                                     && it.location == locationInit
                         }
-                        tripStepList.remove(t)
+                        tripEditViewModel.tripStepList.remove(t)
                         val formatter: DateTimeFormatter =
                             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
                         val date = dateStop.text.toString().split("/")
                                 .map { if (it.length < 2) "0$it" else it }
                                 .reduce { acc, s -> "$acc/$s" }
 
-                        tripStepList.add(
+                        tripEditViewModel.tripStepList.add(
                                 TripLocation(
                                         locationStop.text.toString(),
                                         LocalDateTime.parse(date+" "+timeStop.text.toString(), formatter)
                                 )
                         )
 
-                        tripStepList.sortBy { it.locationTime }
+                        tripEditViewModel.tripStepList.sortBy { it.locationTime }
 
                         updateDuration(view)
 
@@ -311,19 +311,20 @@ abstract class TripEditFragment(
                         locationStop.text.clear()
 
                         layout.visibility = GONE
+                        depDate.text = tripEditViewModel.tripStepList[0].locationTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         rv.adapter?.notifyDataSetChanged()
                     }
 
 
                     deleteStop.setOnClickListener {
-                        if (tripStepList.size > 2) {
-                            val t = tripStepList.find {
+                        if (tripEditViewModel.tripStepList.size > 2) {
+                            val t = tripEditViewModel.tripStepList.find {
                                 !(it.locationTime.isBefore(timeInit) || it.locationTime.isAfter(
                                     timeInit
                                 ))
                                         && it.location.equals(locationInit)
                             }
-                            tripStepList.remove(t)
+                            tripEditViewModel.tripStepList.remove(t)
 
                             updateDuration(view)
 
@@ -396,7 +397,7 @@ abstract class TripEditFragment(
         val tripSel = tripViewModel.trip
 
 
-        if(tripSel.locations.minByOrNull { l->l.locationTime }?.locationTime?.isBefore(
+        if(tripEditViewModel.tripStepList.minByOrNull { l->l.locationTime }?.locationTime?.isBefore(
                 ChronoLocalDateTime.from(LocalDateTime.now())) == true){
             showError("Please provide a valid departure which is after the current time!")
             return false
@@ -444,14 +445,14 @@ abstract class TripEditFragment(
         }
 
 
-        tripStepList.also {
-            if (tripSel.locations != tripStepList) {
+        tripEditViewModel.tripStepList.also {
+            if (tripSel.locations != tripEditViewModel.tripStepList) {
                 tripSel.locations.clear()
-                tripStepList.forEach { tl -> tripSel.locations.add(tl) }
+                tripEditViewModel.tripStepList.forEach { tl -> tripSel.locations.add(tl) }
             }
         }
 
-        tripDet.also {
+        tripEditViewModel.tripDet.also {
             if(tripSel.additionalInfo != it){
                 tripSel.additionalInfo.clear()
                 it.forEach { td -> tripSel.additionalInfo.add(td) }
@@ -516,7 +517,7 @@ abstract class TripEditFragment(
         chip.isCloseIconVisible = true
         chip.setOnCloseIconClickListener {
             TransitionManager.beginDelayedTransition(chipGroup)
-            tripDet.remove(chipText)
+            tripEditViewModel.tripDet.remove(chipText)
             chipGroup.removeView(chip)
         }
         return chip
@@ -570,10 +571,10 @@ abstract class TripEditFragment(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updateDuration(view: View){
-        val last = tripStepList.lastIndex
+        val last = tripEditViewModel.tripStepList.lastIndex
         view.findViewById<TextView>(R.id.durationText).text = getDurationFormatted(
-                tripStepList[0].locationTime,
-                tripStepList[last].locationTime
+                tripEditViewModel.tripStepList[0].locationTime,
+                tripEditViewModel.tripStepList[last].locationTime
         )
     }
 
@@ -587,6 +588,9 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
     fun selectTripLocation(id: Int) {
         _selectedTripLocationId.value = id
     }
+
+    var tripDet: MutableList<String> = mutableListOf()
+    var tripStepList: MutableList<TripLocation> = mutableListOf()
 
     var tempProfileDrawable: Drawable? = null
 

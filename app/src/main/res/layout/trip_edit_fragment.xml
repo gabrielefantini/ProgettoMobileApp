@@ -307,58 +307,67 @@
 
         </com.google.android.material.chip.ChipGroup>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/addDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:contentDescription="@null"
-            android:focusable="true"
-            android:src="@android:drawable/ic_input_add"
-            app:fabSize="mini" />
-
         <LinearLayout
-            android:id="@+id/addDetailLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="16dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:visibility="invisible">
+            android:orientation="horizontal">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/insertDetailLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <LinearLayout
+                android:id="@+id/addDetailLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="5"
-                android:hint="@string/OtherInfoHint"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:endIconMode="clear_text"
-                app:errorEnabled="true"
-                app:helperTextEnabled="true">
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="16dp"
+                android:layout_weight="8"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="invisible">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/insertDetail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/insertDetailLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="5"
+                    android:hint="@string/OtherInfoHint"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    app:endIconMode="clear_text"
+                    app:errorEnabled="true"
+                    app:helperTextEnabled="true">
 
-            <ImageButton
-                android:id="@+id/addDetBut"
-                android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/insertDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/addDetBut"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="0.5"
+                    android:contentDescription="@null"
+                    android:src="@android:drawable/checkbox_on_background" />
+
+            </LinearLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/addDetail"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
                 android:contentDescription="@null"
-                android:src="@android:drawable/checkbox_on_background" />
+                android:focusable="true"
+                android:src="@android:drawable/ic_input_add"
+                app:fabSize="mini" />
 
         </LinearLayout>
 
