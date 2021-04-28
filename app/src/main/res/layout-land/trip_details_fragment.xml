@@ -21,6 +21,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:layout_weight="1"
+            android:contentDescription="@null"
             android:src="@drawable/ic_car" />
 
         <TextView
@@ -28,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="nome macchina"
+            android:text="@string/nome_macchina"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
         <View
@@ -48,6 +49,7 @@
                 android:layout_height="32dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
+                android:contentDescription="@null"
                 android:src="@drawable/ic_duration"
                 app:layout_constraintBottom_toTopOf="@+id/seatsIcon"
                 app:layout_constraintStart_toStartOf="parent"
@@ -59,6 +61,7 @@
                 android:layout_height="32dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
+                android:contentDescription="@null"
                 android:src="@drawable/ic_seat"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -70,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:text="n h "
+                android:text="@string/emptyDuration"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintBottom_toBottomOf="@+id/durationIcon"
                 app:layout_constraintStart_toEndOf="@+id/durationIcon"
@@ -82,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:text="n"
+                android:text="@string/EmptySeats"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintBottom_toBottomOf="@+id/seatsIcon"
                 app:layout_constraintStart_toEndOf="@+id/seatsIcon"
@@ -94,6 +97,7 @@
                 android:layout_height="32dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
+                android:contentDescription="@null"
                 android:src="@drawable/ic_price"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -116,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:text="nn.n"
+                android:text="@string/EmptyPrice"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintBottom_toBottomOf="@+id/priceIcon"
                 app:layout_constraintStart_toEndOf="@+id/priceIcon"
@@ -125,6 +129,12 @@
 
     </LinearLayout>
 
+    <View
+        android:id="@+id/divider6"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="?android:attr/listDivider" />
+
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -132,7 +142,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
@@ -142,7 +152,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="16dp"
-                android:text="gg/mm/yyyy"
+                android:text="@string/gg_mm_yyyy"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -167,7 +177,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginBottom="8dp"
-                android:text="Other infos"
+                android:text="@string/other_infos"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textStyle="bold" />
 

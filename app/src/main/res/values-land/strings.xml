@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nome_macchina">nome macchina</string>
+    <string name="gg_mm_yyyy">gg/mm/yyyy</string>
+    <string name="other_infos">Other infos</string>
+    <string name="emptyDuration">-</string>
+    <string name="EmptyPrice">0.0</string>
+</resources>

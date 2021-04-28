@@ -518,16 +518,16 @@ abstract class TripEditFragment(
             initTime?.also {
                 calendar.time = Date.from(initTime.toInstant(ZoneOffset.UTC))
             }
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val month = calendar.get(Calendar.MONTH)
-            val year = calendar.get(Calendar.YEAR)
+            val sDay = calendar.get(Calendar.DAY_OF_MONTH)
+            val sMonth = calendar.get(Calendar.MONTH)
+            val sYear = calendar.get(Calendar.YEAR)
             val datePickerDialog = DatePickerDialog(
                     this.requireActivity(),
-                    { _, _, _, _ ->
+                    { _, year, month, day ->
                         // Display Selected date in TextView
-                        tv.text = ("$day/${month + 1}/$year")
+                        tv.text = "$day/${month +1}/$year"
                     },
-                    year, month, day
+                    sYear, sMonth, sDay
             )
             datePickerDialog.datePicker.minDate = System.currentTimeMillis()
             datePickerDialog.show()
