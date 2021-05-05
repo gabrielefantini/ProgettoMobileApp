@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/TripListFragment">
+    app:startDestination="@id/LoginFragment">
     <fragment
         android:id="@+id/showUserProfileFragment"
         android:name="it.polito.mad.group25.lab.fragments.userprofile.ShowUserProfileFragment"
@@ -55,5 +55,13 @@
         <action
             android:id="@+id/action_TripListFragment_to_showTripDetailsFragment"
             app:destination="@id/showTripDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/LoginFragment"
+        android:name="it.polito.mad.group25.lab.fragments.login.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/login_fragment"
+        >
+
     </fragment>
 </navigation>
