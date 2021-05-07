@@ -1,4 +1,4 @@
-package it.polito.mad.group25.lab.utils.persistence.impl
+package it.polito.mad.group25.lab.utils.persistence.awareds
 
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
 

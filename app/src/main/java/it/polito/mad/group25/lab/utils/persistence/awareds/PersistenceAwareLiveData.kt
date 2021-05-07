@@ -1,4 +1,4 @@
-package it.polito.mad.group25.lab.utils.persistence.impl
+package it.polito.mad.group25.lab.utils.persistence.awareds
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

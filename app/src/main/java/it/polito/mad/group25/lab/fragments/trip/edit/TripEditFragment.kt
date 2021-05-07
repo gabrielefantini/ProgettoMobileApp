@@ -33,10 +33,9 @@ import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.details.getDurationFormatted
 import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
-import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
 import it.polito.mad.group25.lab.utils.fragment.showError
-import it.polito.mad.group25.lab.utils.persistence.PersistableContainer
+import it.polito.mad.group25.lab.utils.persistence.impl.PersistableContainer
 import it.polito.mad.group25.lab.utils.views.fromFile
 import it.polito.mad.group25.lab.utils.views.isCompliant
 import it.polito.mad.group25.lab.utils.views.setConstraints

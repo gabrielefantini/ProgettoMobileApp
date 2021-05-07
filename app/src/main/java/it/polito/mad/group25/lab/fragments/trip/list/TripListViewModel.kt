@@ -5,14 +5,14 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.fasterxml.jackson.core.type.TypeReference
 import it.polito.mad.group25.lab.fragments.trip.Trip
-import it.polito.mad.group25.lab.utils.persistence.ConcurrentPersistor
-import it.polito.mad.group25.lab.utils.persistence.impl.PersistenceAwareLiveData
-import it.polito.mad.group25.lab.utils.persistence.impl.PersistenceAwareMutableMap
-import it.polito.mad.group25.lab.utils.persistence.impl.persistenceAwareMutableMapOf
+import it.polito.mad.group25.lab.utils.persistence.Persistors
+import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareLiveData
+import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareMutableMap
+import it.polito.mad.group25.lab.utils.persistence.awareds.persistenceAwareMutableMapOf
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 
 class TripListViewModel(application: Application) : PersistableViewModel(application) {
-    val trips: PersistenceAwareLiveData<PersistenceAwareMutableMap<Int, Trip>> by ConcurrentPersistor(
+    val trips: PersistenceAwareLiveData<PersistenceAwareMutableMap<Int, Trip>> by Persistors.sharedPreferences(
         PersistenceAwareLiveData(persistenceAwareMutableMapOf()),
         object : TypeReference<PersistenceAwareLiveData<PersistenceAwareMutableMap<Int, Trip>>>() {}
     )

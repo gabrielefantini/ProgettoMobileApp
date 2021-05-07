@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.utils.persistence.ConcurrentPersistor
+import it.polito.mad.group25.lab.utils.persistence.Persistors
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 import it.polito.mad.group25.lab.utils.views.fromFile
 import java.io.File
@@ -39,11 +39,11 @@ abstract class GenericUserProfileFragment(
 
 class UserProfileViewModel(application: Application) : PersistableViewModel(application) {
 
-    var fullName: String? by ConcurrentPersistor(null)
-    var nickName: String? by ConcurrentPersistor(null)
-    var email: String? by ConcurrentPersistor(null)
-    var location: String? by ConcurrentPersistor(null)
-    var userProfilePhotoFile: File by ConcurrentPersistor(
+    var fullName: String? by Persistors.sharedPreferences(null)
+    var nickName: String? by Persistors.sharedPreferences(null)
+    var email: String? by Persistors.sharedPreferences(null)
+    var location: String? by Persistors.sharedPreferences(null)
+    var userProfilePhotoFile: File by Persistors.sharedPreferences(
         File(application.filesDir, "userProfilePicture")
     )
 
