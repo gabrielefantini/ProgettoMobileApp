@@ -1,6 +1,6 @@
 package it.polito.mad.group25.lab.utils.persistence.awareds
 
-import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
+import it.polito.mad.group25.lab.utils.persistence.impl.AbstractPersistenceAware
 
 fun <T> persistenceAwareMutableListOf(vararg elements: T): PersistenceAwareMutableList<T> =
     PersistenceAwareMutableList<T>().apply { addAll(elements) }

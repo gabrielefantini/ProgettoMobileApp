@@ -35,7 +35,7 @@ import it.polito.mad.group25.lab.fragments.trip.details.getDurationFormatted
 import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
 import it.polito.mad.group25.lab.utils.fragment.showError
-import it.polito.mad.group25.lab.utils.persistence.impl.PersistableContainer
+import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistableContainer
 import it.polito.mad.group25.lab.utils.views.fromFile
 import it.polito.mad.group25.lab.utils.views.isCompliant
 import it.polito.mad.group25.lab.utils.views.setConstraints
@@ -583,7 +583,7 @@ abstract class TripEditFragment(
 }
 
 class TripEditViewModel(application: Application) : AndroidViewModel(application),
-    PersistableContainer {
+    SharedPreferencesPersistableContainer {
 
     private var _selectedTripLocationId = MutableLiveData<Int>(null)
     val selectedTripLocationId: LiveData<Int> = _selectedTripLocationId

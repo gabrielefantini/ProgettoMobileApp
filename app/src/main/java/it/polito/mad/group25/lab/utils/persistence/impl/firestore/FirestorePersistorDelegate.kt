@@ -1,7 +1,9 @@
 package it.polito.mad.group25.lab.utils.persistence.impl.firestore
 
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import it.polito.mad.group25.lab.AuthenticationContext
+import it.polito.mad.group25.lab.utils.persistence.PersistencyObserver
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
 import kotlin.reflect.KProperty
 
@@ -12,17 +14,20 @@ open class FirestorePersistorDelegate<T, C>(
     protected val collection: String? = null,
     protected val document: String? = null,
     default: T,
-    onValueChanges: (T) -> Unit = {},
-    onLoadedPersistedValue: (T) -> Unit = {},
+    observer: PersistencyObserver<T> = object : PersistencyObserver<T>() {}
 ) : SimplePersistor<T, C>(
     thisRef,
     property,
     default,
-    onValueChanges,
-    onLoadedPersistedValue
+    observer
 ) {
 
 
+    protected val NULL_VALUE = "null"
+
+    // Prendo la collection data oppure il l'id del field in questione
+    // Prendo il documento dato oppure quello che appartiene all'utente selezionato.
+    // Esempio pratico per gli utenti: Collection di utenti in cui l'oggetto che mi interessa è quello dell'utente x.
     protected val store = FirebaseFirestore.getInstance()
         .collection(collection ?: id)
         .document(
@@ -33,12 +38,21 @@ open class FirestorePersistorDelegate<T, C>(
             )
         )
 
-    override fun persist(value: T) {
-        store.set(value ?: "null")
+    override fun doPersist(value: T) = doPersistNullableValue(value)
+
+    override fun doLoadPersistence(): T? = doLoadNullableValue(targetClass, store.get().result)
+
+
+    // perchè i figli possano riutilizzare questa strategia senza avere il binding sul tipo del padre.
+    protected fun <Q> doLoadNullableValue(clazz: Class<Q>, doc: DocumentSnapshot?): Q? {
+        return doc?.let {
+            if (it.toString() != NULL_VALUE) it.toObject(clazz) as Q else null
+        }
     }
 
-    override fun loadPersistence(): T? {
-        return store.get().result?.toObject(targetClass) as T
+    // perchè i figli possano riutilizzare questa strategia senza avere il binding sul tipo del padre.
+    protected fun <Q> doPersistNullableValue(value: Q) {
+        store.set(value ?: NULL_VALUE)
     }
 
 }

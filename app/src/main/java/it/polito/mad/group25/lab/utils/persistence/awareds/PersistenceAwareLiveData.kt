@@ -2,9 +2,9 @@ package it.polito.mad.group25.lab.utils.persistence.awareds
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import it.polito.mad.group25.lab.utils.persistence.PersistenceAware
-import it.polito.mad.group25.lab.utils.persistence.PersistenceAwareWrapper
-import it.polito.mad.group25.lab.utils.persistence.PersistenceContext
+import it.polito.mad.group25.lab.utils.persistence.impl.PersistenceAware
+import it.polito.mad.group25.lab.utils.persistence.impl.PersistenceAwareWrapper
+import it.polito.mad.group25.lab.utils.persistence.impl.PersistenceContext
 
 class PersistenceAwareLiveData<T : PersistenceAware> : LiveData<T>,
     PersistenceAwareWrapper<T> {
