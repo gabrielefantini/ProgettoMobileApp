@@ -4,10 +4,9 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
 import it.polito.mad.group25.lab.utils.persistence.PersistencyObserver
-import kotlin.reflect.KProperty
 
 abstract class FirestoreLivePersistencyObserver<Q, T : MutableLiveData<Q>> :
-    PersistencyObserver<T>() {
+    PersistencyObserver<T> {
 
     /**
      * Intercepts an async value receiving. Has to handle the eventual error or to interrupt the processing.
@@ -32,15 +31,15 @@ abstract class FirestoreLivePersistencyObserver<Q, T : MutableLiveData<Q>> :
 class FirestoreLivePersistorDelegate<Q, T : MutableLiveData<Q>, C>(
     innerTargetType: Class<Q>,
     thisRef: C,
-    property: KProperty<*>,
+    id: String,
     collection: String? = null,
     document: String? = null,
     default: T,
     observer: FirestoreLivePersistencyObserver<Q, T> = object :
         FirestoreLivePersistencyObserver<Q, T>() {}
-) : FirestorePersistorDelegate<T, C>(
+) : AbstractFirestorePersistorDelegate<T, C>(
     thisRef,
-    property,
+    id,
     collection,
     document,
     default,

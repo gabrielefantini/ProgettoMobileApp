@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import it.polito.mad.group25.lab.utils.persistence.ConcurrentPersistor
 import it.polito.mad.group25.lab.utils.persistence.PersistencyObserver
-import kotlin.reflect.KProperty
 
 
 interface SharedPreferencesPersistableContainer {
@@ -18,14 +17,15 @@ interface SharedPreferencesPersistableContainer {
 }
 
 class SharedPreferencesPersistorDelegate<T>(
+    thisRef: SharedPreferencesPersistableContainer,
+    id: String,
+    private val targetClass: Class<T>,
     default: T,
     private val typeReference: TypeReference<T>? = null,
-    thisRef: SharedPreferencesPersistableContainer,
-    property: KProperty<*>,
-    observer: PersistencyObserver<T> = object : PersistencyObserver<T>() {}
+    observer: PersistencyObserver<T> = object : PersistencyObserver<T> {}
 ) : ConcurrentPersistor<T, SharedPreferencesPersistableContainer>(
     thisRef,
-    property,
+    id,
     default,
     observer
 ) {

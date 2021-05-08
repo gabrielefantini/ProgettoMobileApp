@@ -1,50 +1,50 @@
 package it.polito.mad.group25.lab.utils.persistence.impl
 
-import androidx.lifecycle.MutableLiveData
-import it.polito.mad.group25.lab.utils.persistence.PersistencyObserver
+import androidx.lifecycle.LiveData
+import it.polito.mad.group25.lab.utils.BidirectionalMapper
+import it.polito.mad.group25.lab.utils.persistence.DelegatingPersistencyObserver
+import it.polito.mad.group25.lab.utils.persistence.DelegatingPersistor
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
 import kotlin.reflect.KProperty
 
-
-abstract class LivePersistencyObserver<Q, T : MutableLiveData<Q>> :
-    PersistencyObserver<T>() {
-
-    /**
-     * Intercepts the instant before the live data assignment. Has to return the value to be assigned.
-     */
-    open fun beforeLiveDataUpdate(oldValue: Q?, newValue: Q): Q? = newValue
-
-    /**
-     * Intercepts the instant after the live data assignment.
-     */
-    open fun afterLiveDataUpdate(value: Q?) {}
-
+class LiveDataMapper<Q> : BidirectionalMapper<LiveData<Q>, Q> {
+    override fun directMap(a: LiveData<Q>): Q? = a.value
+    override fun reverseMap(b: Q): LiveData<Q> = object : LiveData<Q>(b) {}
 }
 
 /**
  * A Persistor Wrapper which purpose is only to subscribe the wrapped persistor to the value changes.
  */
-class LiveDataPersistorSubscriber<Q, T : MutableLiveData<Q>, C>(
-    thisRef: C,
-    property: KProperty<*>,
-    private val wrapped: SimplePersistor<Q, C>,
-    default: T,
-    observer: LivePersistencyObserver<Q, T> = object : LivePersistencyObserver<Q, T>() {}
-) : SimplePersistor<T, C>(thisRef, property, default, observer) {
+class LiveDataPersistorSubscriber<Q, C>(
+    wrapped: SimplePersistor<Q, C>,
+    default: LiveData<Q>,
+    property: KProperty<*>
+) : DelegatingPersistor<LiveData<Q>, Q, C>(
+    wrapped,
+    LiveDataMapper(),
+    default
+) {
 
     init {
-        this.observer = object : PersistencyObserver<T>() { //TODO INGLOBA L'ALTRO
-            override fun afterValueChanges(value: T) {
-                super.afterValueChanges(value)
-                value.observeForever { v -> wrapped.persist(v) }
+        this.observer =
+            object : DelegatingPersistencyObserver<LiveData<Q>, Q>(
+                wrapped.observer,
+                LiveDataMapper()
+            ) {
+                // qui e non nell'after per capire se il LiveData è davvero cambiato e non fare sottoscrizioni doppie!
+                override fun beforeValueChanges(
+                    oldValue: LiveData<Q>,
+                    newValue: LiveData<Q>
+                ): LiveData<Q>? {
+                    return super.beforeValueChanges(oldValue, newValue)?.apply {
+                        if (this !== oldValue)
+                            observeForever { v -> wrapped.setValue(thisRef, property, v) }
+                    }
+                }
             }
-        }
     }
 
-    override fun doLoadPersistence(): T = MutableLiveData(wrapped.doLoadPersistence()) as T
-
-    override fun doPersist(value: T) {
-        value.value?.let { wrapped.doPersist(it) }
-    }
 
 }
+
+

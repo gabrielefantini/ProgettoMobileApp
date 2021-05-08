@@ -1,9 +1,10 @@
 package it.polito.mad.group25.lab.utils.persistence.impl
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import it.polito.mad.group25.lab.utils.persistence.PersistencyObserver
+import it.polito.mad.group25.lab.utils.BidirectionalMapper
+import it.polito.mad.group25.lab.utils.persistence.DelegatingPersistencyObserver
+import it.polito.mad.group25.lab.utils.persistence.DelegatingPersistor
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
-import kotlin.reflect.KProperty
 
 data class PersistenceContext(private val persistenceExecutor: () -> Unit) {
     fun persist() = persistenceExecutor()
@@ -38,27 +39,27 @@ interface PersistenceAwareWrapper<T : PersistenceAware> : PersistenceAware {
 /**
  * A Persistor Wrapper which purpose is only to inject the persistence context to the PersistenceAware beans.
  */
-class PersistenceAwareContextInjector<T : PersistenceAware, C>(
-    thisRef: C,
-    property: KProperty<*>,
-    private val wrapped: SimplePersistor<T, C>,
-    default: T,
-    observer: PersistencyObserver<T> = object : PersistencyObserver<T>() {}
-) : SimplePersistor<T, C>(thisRef, property, default, observer) {
+class PersistenceAwarePersistor<T : PersistenceAware, C>(
+    wrapped: SimplePersistor<T, C>,
+) : DelegatingPersistor<T, T, C>(
+    wrapped,
+    BidirectionalMapper.identity(),
+    wrapped.default,
+) {
 
     init {
-        val persistorRef = this
-        this.observer = object : PersistencyObserver<T>() { //TODO INGLOBA L'ALTRO
-            override fun afterValueChanges(value: T) {
-                super.afterValueChanges(value)
-                value.persistenceContext = PersistenceContext { persistorRef.persist(value) }
+        this.observer =
+            object :
+                DelegatingPersistencyObserver<T, T>(
+                    wrapped.observer,
+                    BidirectionalMapper.identity()
+                ) {
+                override fun afterValueChanges(value: T) {
+                    super.afterValueChanges(value)
+                    value.persistenceContext = PersistenceContext { persist(value) }
+                }
             }
-        }
     }
-
-    override fun doLoadPersistence(): T? = wrapped.doLoadPersistence()
-
-    override fun doPersist(value: T) = wrapped.doPersist(value)
 
 }
 

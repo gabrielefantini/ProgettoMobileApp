@@ -1,25 +1,25 @@
 package it.polito.mad.group25.lab.utils.persistence
 
-import it.polito.mad.group25.lab.utils.type
+import it.polito.mad.group25.lab.utils.BidirectionalMapper
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
 import kotlin.reflect.KProperty
-import kotlin.reflect.jvm.javaField
 
 
-abstract class PersistencyObserver<T> {
+interface PersistencyObserver<T> {
 
     /**
      * intercepts the loading of the persisted value, has to return a boolean which is true if the loading can proceed
      */
-    open fun beforeLoadingPersistedValue(): Boolean = true
+    fun beforeLoadingPersistedValue(): Boolean = true
 
     /**
      * intercepts the loading of the persisted value and can override it by returning a new one.
      * If an exception was thrown during the loading attempt it is received by the observer which can handle it or rethrow it.
+     * If a null value is returned the default provided to the persistor will be assigned.
      */
-    open fun afterLoadingPersistedValue(value: T?, ex: Exception?): T? {
+    fun afterLoadingPersistedValue(value: T?, ex: Exception?): T? {
         if (ex != null)
             throw ex
         return value
@@ -27,25 +27,26 @@ abstract class PersistencyObserver<T> {
 
     /**
      * intercepts the changing attempt. Can override the new value by changing the return value.
-     * Can also deny the value changing by throwing an exception
+     * If a null value is returned the assignment will not take place.
      */
-    open fun beforeValueChanges(oldValue: T, newValue: T): T = newValue
+    fun beforeValueChanges(oldValue: T, newValue: T): T? = newValue
 
     /**
-     * intercepts the moment after the value has been changed.
+     * intercepts the instant after the value has been changed.
      */
-    open fun afterValueChanges(value: T) {}
+    fun afterValueChanges(value: T) {}
 
     /**
      * intercepts the attempt to performing persistency of a value and can override it by returning a new one.
+     * If a null value is returned the persistency will not take place.
      */
-    open fun beforePerformingPersistency(value: T): T = value
+    fun beforePerformingPersistency(value: T): T? = value
 
     /**
-     * intercepts the moment after a persistency attempt was made.
+     * intercepts the instant after a persistency attempt was made.
      * If an exception was thrown during the persistency attempt it is received by the observer which can handle it or rethrow it.
      */
-    open fun afterPerformingPersistency(value: T, ex: Exception?) {
+    fun afterPerformingPersistency(value: T, ex: Exception?) {
         if (ex != null) throw ex
     }
 
@@ -53,15 +54,13 @@ abstract class PersistencyObserver<T> {
 
 @Suppress("UNCHECKED_CAST")
 abstract class SimplePersistor<T, C> : Persistor<T, C> {
+    var observer: PersistencyObserver<T>
     protected val thisRef: C
-    protected val property: KProperty<*>
-    protected val default: T
-    protected var observer: PersistencyObserver<T>
-    protected val id: String
-    protected val targetClass: Class<T>
+    val default: T
+    val id: String
     protected var value: T
         set(value) {
-            field = observer.beforeValueChanges(field, value)
+            field = observer.beforeValueChanges(field, value) ?: return
             observer.afterValueChanges(field)
         }
 
@@ -69,18 +68,35 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
     // Does not work as primary constructor! Asks for value assignment
     constructor(
         thisRef: C,
-        property: KProperty<*>,
+        id: String,
         default: T,
-        observer: PersistencyObserver<T> = object : PersistencyObserver<T>() {}
+        observer: PersistencyObserver<T> = object : PersistencyObserver<T> {}
     ) {
         this.default = default
-        this.property = property
         this.thisRef = thisRef
         this.observer = observer
-        this.id = property.javaField!!.let { "${it.declaringClass.canonicalName}.${it.name}" }
-        this.targetClass = property.type().java as Class<T>
+        this.id = id
         value = loadPersistence() ?: default
     }
+
+    constructor(other: SimplePersistor<T, C>) : this(
+        other.thisRef,
+        other.id,
+        other.default,
+        other.observer
+    )
+
+    constructor(
+        other: SimplePersistor<*, C>,
+        default: T,
+        observer: PersistencyObserver<T> = object : PersistencyObserver<T> {}
+    ) : this(
+        other.thisRef,
+        other.id,
+        default,
+        observer
+    )
+
 
     override fun setValue(thisRef: C, property: KProperty<*>, value: T) {
         persist(value)
@@ -94,7 +110,7 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         var ex: Exception? = null
         var toPersist: T? = null
         try {
-            toPersist = observer.beforePerformingPersistency(value)
+            toPersist = observer.beforePerformingPersistency(value) ?: return
             doPersist(toPersist)
         } catch (e: Exception) {
             ex = e
@@ -123,10 +139,10 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
 
 abstract class ConcurrentPersistor<T, C>(
     thisRef: C,
-    property: KProperty<*>,
+    id: String,
     default: T,
-    observer: PersistencyObserver<T> = object : PersistencyObserver<T>() {}
-) : SimplePersistor<T, C>(thisRef, property, default, observer) {
+    observer: PersistencyObserver<T> = object : PersistencyObserver<T> {}
+) : SimplePersistor<T, C>(thisRef, id, default, observer) {
 
 
     private val lock = ReentrantReadWriteLock()
@@ -136,6 +152,67 @@ abstract class ConcurrentPersistor<T, C>(
 
     override fun getValue(thisRef: C, property: KProperty<*>): T =
         lock.read { super.getValue(thisRef, property) }
+
+}
+
+/**
+ * Persistency Observer which wraps another one and can customize its logic.
+ */
+open class DelegatingPersistencyObserver<A, B>(
+    private val delegate: PersistencyObserver<B>,
+    private val mapper: BidirectionalMapper<A, B>
+) : PersistencyObserver<A> {
+
+    override fun afterLoadingPersistedValue(value: A?, ex: Exception?): A? {
+        return delegate.afterLoadingPersistedValue(value?.let { mapper.directMap(it) }, ex)
+            ?.let { mapper.reverseMap(it) }
+    }
+
+    override fun afterPerformingPersistency(value: A, ex: Exception?) {
+        mapper.directMap(value)?.let { delegate.afterPerformingPersistency(it, ex) }
+    }
+
+    override fun afterValueChanges(value: A) {
+        mapper.directMap(value)?.let { delegate.afterValueChanges(it) }
+    }
+
+    override fun beforeLoadingPersistedValue(): Boolean {
+        return delegate.beforeLoadingPersistedValue()
+    }
+
+    override fun beforePerformingPersistency(value: A): A? {
+        return mapper.directMap(value)?.let {
+            delegate.beforePerformingPersistency(it)?.let { it1 -> mapper.reverseMap(it1) }
+        }
+    }
+
+    override fun beforeValueChanges(oldValue: A, newValue: A): A? {
+        val oldMapped = mapper.directMap(oldValue)
+        val newMapped = mapper.directMap(newValue)
+        return if (oldMapped != null && newMapped != null)
+            delegate.beforeValueChanges(oldMapped, newMapped)?.let { mapper.reverseMap(it) }
+        else null
+    }
+}
+
+/**
+ * Wrapper which acts as a persistor of A but delegates, through mappers, to a persistor of B.
+ * Created for all those classes which are only a wrapper of another class which is the one to be persisted, example LiveData.
+ */
+open class DelegatingPersistor<A, B, C>(
+    protected val wrapped: SimplePersistor<B, C>,
+    protected val mapper: BidirectionalMapper<A, B>,
+    default: A,
+    observer: DelegatingPersistencyObserver<A, B> =
+        DelegatingPersistencyObserver(wrapped.observer, mapper)
+) : SimplePersistor<A, C>(wrapped, default, observer) {
+
+    override fun doLoadPersistence(): A? =
+        wrapped.doLoadPersistence()?.let { mapper.reverseMap(it) }
+
+    override fun doPersist(value: A) {
+        mapper.directMap(value)?.let { wrapped.doPersist(it) }
+    }
 
 }
 
