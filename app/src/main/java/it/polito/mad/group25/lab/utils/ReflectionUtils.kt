@@ -1,7 +1,10 @@
 package it.polito.mad.group25.lab.utils
 
 import android.os.Build
+import androidx.annotation.RequiresApi
+import com.fasterxml.jackson.core.type.TypeReference
 import java.lang.reflect.Field
+import java.lang.reflect.Type
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.reflect.KClass
@@ -81,3 +84,27 @@ fun <T : Any> Class<T>.distanceFrom(sourceClass: Class<*>): Int? {
 
 fun <T : Any> KClass<T>.distanceFrom(sourceClass: KClass<*>): Int? =
     java.distanceFrom(sourceClass.java)
+
+@RequiresApi(Build.VERSION_CODES.P)
+fun <T> TypeReference<T>.genericType(): Class<*> {
+    if (!this.type.isGeneric())
+        throw IllegalArgumentException("Given type is not a generic one!")
+    return this.type.extractGenericType()
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+fun <T> Class<T>.genericType(): Class<*> {
+    val genericSuperClass = this.genericSuperclass
+    if (genericSuperClass == null || !genericSuperClass.isGeneric())
+        throw IllegalArgumentException("Given type is not a generic one")
+    return genericSuperClass.extractGenericType()
+}
+
+
+@RequiresApi(Build.VERSION_CODES.P)
+fun Type.extractGenericType(): Class<*> = Class.forName(
+    this.typeName.let { it.substring(it.indexOf("<" + 1), it.indexOf(">")) }
+)
+
+@RequiresApi(Build.VERSION_CODES.P)
+fun Type.isGeneric() = this.typeName.let { it.contains(">") && it.contains("<") }

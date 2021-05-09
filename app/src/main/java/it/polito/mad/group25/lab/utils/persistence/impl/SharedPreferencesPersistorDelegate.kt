@@ -5,8 +5,9 @@ import android.content.SharedPreferences
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.ConcurrentPersistor
-import it.polito.mad.group25.lab.utils.persistence.PersistencyObserver
+import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 
 
 interface SharedPreferencesPersistableContainer {
@@ -19,30 +20,30 @@ interface SharedPreferencesPersistableContainer {
 class SharedPreferencesPersistorDelegate<T>(
     thisRef: SharedPreferencesPersistableContainer,
     id: String,
-    private val targetClass: Class<T>,
+    targetClass: Class<T>,
     default: T,
-    private val typeReference: TypeReference<T>? = null,
-    observer: PersistencyObserver<T> = object : PersistencyObserver<T> {}
+    observer: PersistenceObserver<T>,
+    handler: AbstractPersistenceHandler<T, *>?
 ) : ConcurrentPersistor<T, SharedPreferencesPersistableContainer>(
     thisRef,
     id,
+    targetClass,
     default,
-    observer
+    observer,
+    handler
 ) {
 
     private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
     private val storage = thisRef.getStorage()
 
-    override fun doPersist(value: T) {
+    override fun <R> doPersist(value: R) {
         val storageEditor = storage.edit()
         storageEditor.putString(id, objectMapper.writeValueAsString(value))
         storageEditor.apply()
     }
 
-    override fun doLoadPersistence(): T? {
-        return if (typeReference != null)
-            storage.getString(id, null)?.let { objectMapper.readValue(it, typeReference) }
-        else storage.getString(id, null)?.let { objectMapper.readValue(it, targetClass) }
-    }
+    override fun <R> doLoadPersistence(targetClass: Class<R>): R? = storage.getString(id, null)
+        ?.let { objectMapper.readValue(it, object : TypeReference<R>() {}) }
+
 
 }

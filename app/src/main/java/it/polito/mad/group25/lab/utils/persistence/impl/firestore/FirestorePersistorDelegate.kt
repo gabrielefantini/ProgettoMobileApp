@@ -1,20 +1,27 @@
 package it.polito.mad.group25.lab.utils.persistence.impl.firestore
 
-import it.polito.mad.group25.lab.utils.persistence.PersistencyObserver
+import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
+import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 
 class FirestorePersistorDelegate<T, C>(
     thisRef: C,
     id: String,
     collection: String? = null,
     document: String? = null,
+    targetClass: Class<T>,
     default: T,
-    protected val targetClass: Class<T>,
-    observer: PersistencyObserver<T> = object : PersistencyObserver<T> {}
-) : AbstractFirestorePersistorDelegate<T, C>(thisRef, id, collection, document, default, observer) {
+    observer: PersistenceObserver<T>,
+    handler: AbstractPersistenceHandler<T, *>?
+) : AbstractFirestorePersistorDelegate<T, C>(
+    thisRef, id, collection, document,
+    targetClass, default, observer, handler
+) {
 
-    override fun doPersist(value: T) = doPersistNullableValue(value)
 
-    override fun doLoadPersistence(): T? = doLoadNullableValue(targetClass, store.get().result)
+    override fun <R> doLoadPersistence(targetClass: Class<R>): R? =
+        parseNullableValue(targetClass, store.get().result)
+
+    override fun <R> doPersist(value: R) = doPersistNullableValue(value)
 
 }
 
@@ -22,22 +29,19 @@ class FirestoreCollectionPersistorDelegate<Q, T : MutableCollection<Q>, C>(
     thisRef: C,
     id: String,
     collection: String? = null,
+    targetClass: Class<T>,
     default: T,
-    protected val collectionCreator: () -> T = { default::class.java.constructors[0].newInstance() as T },
-    protected val innerClass: Class<Q>,
-    observer: PersistencyObserver<T> = object : PersistencyObserver<T> {}
-) : AbstractFirestoreCollectionPersistorDelegate<Q, T, C>(
-    thisRef,
-    id,
-    collection,
-    default,
-    observer
+    observer: PersistenceObserver<T>,
+    handler: AbstractPersistenceHandler<T, *>?
+) : AbstractFirestoreCollectionPersistorDelegate<T, C>(
+    thisRef, id, collection, targetClass,
+    default, observer, handler
 ) {
 
-    override fun doPersist(value: T) = doPersistValues(value)
+    override fun <R> doPersist(value: R) = doPersistValues(value as Collection<*>)
 
-    override fun doLoadPersistence(): T? =
-        doLoadValues(collectionCreator, innerClass, store.get().result)
+    override fun <R> doLoadPersistence(targetClass: Class<R>): R? =
+        parseValues(targetClass as Class<MutableCollection<Any?>>, store.get().result) as R
 
 
 }
