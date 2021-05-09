@@ -2,8 +2,11 @@ package it.polito.mad.group25.lab.utils.persistence.impl
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.ConcurrentPersistor
@@ -20,6 +23,7 @@ interface SharedPreferencesPersistableContainer {
 class SharedPreferencesPersistorDelegate<T>(
     thisRef: SharedPreferencesPersistableContainer,
     id: String,
+    private val typeReference: TypeReference<T>,
     targetClass: Class<T>,
     default: T,
     observer: PersistenceObserver<T>,
@@ -33,17 +37,69 @@ class SharedPreferencesPersistorDelegate<T>(
     handler
 ) {
 
-    private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
+    companion object {
+        private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
+    }
+
     private val storage = thisRef.getStorage()
 
+    init {
+        initialized()
+    }
+
     override fun <R> doPersist(value: R) {
-        val storageEditor = storage.edit()
+        val storageEditor = thisRef.getStorage().edit()
         storageEditor.putString(id, objectMapper.writeValueAsString(value))
         storageEditor.apply()
     }
 
-    override fun <R> doLoadPersistence(targetClass: Class<R>): R? = storage.getString(id, null)
-        ?.let { objectMapper.readValue(it, object : TypeReference<R>() {}) }
+    override fun <R> doLoadPersistence(targetClass: Class<R>): R? {
+        val computedTypeReference = try {
+            findSubJavaType(
+                TypeFactory.defaultInstance().constructType(typeReference),
+                targetClass
+            )
+        } catch (_: Throwable) {
+            Log.e(
+                LOG_TAG,
+                "Couldn't compute type reference for $id from ${typeReference.type.typeName}." +
+                        " Will use raw target type ${targetClass.canonicalName} "
+            )
+            null
+        }
+
+        return storage.getString(id, null)
+            ?.let { v ->
+                val toRet: R = if (computedTypeReference != null)
+                    objectMapper.readValue(v, computedTypeReference) as R
+                else objectMapper.readValue(v, targetClass)
+                toRet
+                /*computedTypeReference?.let { objectMapper.readValue(v, it) as R }
+                    ?: objectMapper.readValue(v, targetClass)*/
+            }
+    }
+
+
+    /**
+     * Find the generic sub type reference starting from the first one provided.
+     */
+    // La funzione doLoadPersistence deve essere indipendente dal tipo, ma a jackson non basta il
+    // target type a causa della type erasure!! Esploro quindi il type reference iniziale alla ricerca
+    // di un sottotipo (perchè di solito al doLoadPersistence arrivano sottotipi del tipo generico,
+    // esempio: se ho LiveData<List<String>> mi arriva List<String>) alla ricerca del JavaType
+    // corrispondete a quello della classe di cui bisogna fare il caricamento.
+    private fun <R> findSubJavaType(levelJavaType: JavaType, targetClass: Class<R>): JavaType? {
+        if (levelJavaType.rawClass == targetClass) return levelJavaType
+        for (type in levelJavaType.bindings.typeParameters) {
+            if (type.rawClass == targetClass) return type
+            else {
+                val nextType = findSubJavaType(type, targetClass)
+                if (nextType != null)
+                    return nextType
+            }
+        }
+        return null
+    }
 
 
 }

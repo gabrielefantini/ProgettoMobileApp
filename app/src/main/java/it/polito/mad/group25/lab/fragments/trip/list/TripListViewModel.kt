@@ -3,19 +3,21 @@ package it.polito.mad.group25.lab.fragments.trip.list
 import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.fasterxml.jackson.core.type.TypeReference
 import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.utils.persistence.Persistors
-import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareLiveData
 import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareMutableMap
 import it.polito.mad.group25.lab.utils.persistence.awareds.persistenceAwareMutableMapOf
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 
 class TripListViewModel(application: Application) : PersistableViewModel(application) {
-    val trips: PersistenceAwareLiveData<PersistenceAwareMutableMap<Int, Trip>> by Persistors.sharedPreferences(
-        PersistenceAwareLiveData(persistenceAwareMutableMapOf()),
-        object : TypeReference<PersistenceAwareLiveData<PersistenceAwareMutableMap<Int, Trip>>>() {}
-    )
+    val trips: LiveData<PersistenceAwareMutableMap<Int, Trip>>
+            by Persistors.sharedPreferences(
+                MutableLiveData(persistenceAwareMutableMapOf()),
+                object : TypeReference<MutableLiveData<PersistenceAwareMutableMap<Int, Trip>>>() {}
+            )
 
     private companion object {
         var index = 0

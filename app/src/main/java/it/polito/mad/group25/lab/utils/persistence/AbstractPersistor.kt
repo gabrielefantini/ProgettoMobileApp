@@ -99,6 +99,7 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         val LOG_TAG = "PERSISTENCE DELEGATES"
     }
 
+    private var isInitialized = false
     var observer: PersistenceObserver<T>
     protected val thisRef: C
     val default: T
@@ -107,8 +108,16 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
     protected val handler: PersistenceHandler<T>
     protected var value: T
         set(value) {
+            if (!isInitialized) {
+                field = value
+                return
+            }
             Log.d(LOG_TAG, "Calling handler for changing value attempt of $id")
-            var toSet: T? = handler.handleNewValue(field, value)
+
+            var toSet: T? = if (field != null)
+                handler.handleNewValue(field, value)
+            else handler.handleNewValue(value)
+
             if (toSet == null) {
                 Log.w(LOG_TAG, "Handler of $id denied value changing.")
                 return
@@ -142,7 +151,15 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         this.id = id
         this.targetClass = targetClass
         this.handler = initializeHandler(handler)
-        value = loadPersistence() ?: default
+        this.value = default
+    }
+
+    /**
+     * Used to start the persistence loading after the child has initialized all it's value
+     */
+    protected open fun initialized() {
+        isInitialized = true
+        this.value = loadPersistence() ?: default
     }
 
     private fun initializeHandler(handler: AbstractPersistenceHandler<T, *>?): PersistenceHandler<T> =
@@ -236,6 +253,9 @@ abstract class ConcurrentPersistor<T, C>(
 
 
     private val lock = ReentrantReadWriteLock()
+
+    override fun initialized() =
+        lock.write { super.initialized() }
 
     override fun setValue(thisRef: C, property: KProperty<*>, value: T) =
         lock.write { super.setValue(thisRef, property, value) }

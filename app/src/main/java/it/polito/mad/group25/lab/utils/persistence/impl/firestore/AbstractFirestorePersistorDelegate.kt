@@ -3,7 +3,7 @@ package it.polito.mad.group25.lab.utils.persistence.impl.firestore
 import android.util.Log
 import com.google.firebase.firestore.*
 import it.polito.mad.group25.lab.AuthenticationContext
-import it.polito.mad.group25.lab.utils.extractGenericType
+import it.polito.mad.group25.lab.utils.genericType
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
@@ -81,7 +81,7 @@ abstract class AbstractFirestoreCollectionPersistorDelegate<T, C>(
         q: QuerySnapshot?
     ): A? {
         Log.i(LOG_TAG, "Parsing values loaded from firestore for $id")
-        val innerType: Class<Any?> = targetClass.extractGenericType() as Class<Any?>
+        val innerType: Class<Any?> = targetClass.genericType()[0] as Class<Any?>
         return q?.documents?.mapNotNull { d -> d.toObject(innerType) }
             ?.toCollection(tryCreateCollection(clazz, innerType))
     }

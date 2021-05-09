@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.fasterxml.jackson.core.type.TypeReference
 import java.lang.reflect.Field
+import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -86,25 +87,25 @@ fun <T : Any> KClass<T>.distanceFrom(sourceClass: KClass<*>): Int? =
     java.distanceFrom(sourceClass.java)
 
 @RequiresApi(Build.VERSION_CODES.P)
-fun <T> TypeReference<T>.genericType(): Class<*> {
-    if (!this.type.isGeneric())
+fun <T> TypeReference<T>.genericType(): Array<Type> {
+    if (this.type !is ParameterizedType)
         throw IllegalArgumentException("Given type is not a generic one!")
-    return this.type.extractGenericType()
+    return (this.type as ParameterizedType).actualTypeArguments
 }
 
 @RequiresApi(Build.VERSION_CODES.P)
-fun <T> Class<T>.genericType(): Class<*> {
+fun <T> Class<T>.genericType(): Array<Type> {
     val genericSuperClass = this.genericSuperclass
-    if (genericSuperClass == null || !genericSuperClass.isGeneric())
+    if (genericSuperClass == null || genericSuperClass !is ParameterizedType)
         throw IllegalArgumentException("Given type is not a generic one")
-    return genericSuperClass.extractGenericType()
+    return genericSuperClass.actualTypeArguments
 }
 
 
-@RequiresApi(Build.VERSION_CODES.P)
-fun Type.extractGenericType(): Class<*> = Class.forName(
-    this.typeName.let { it.substring(it.indexOf("<" + 1), it.indexOf(">")) }
-)
+fun Type.extractClass(): Class<*> = Class.forName(cleanGenericClassName(this.typeName))
 
-@RequiresApi(Build.VERSION_CODES.P)
-fun Type.isGeneric() = this.typeName.let { it.contains(">") && it.contains("<") }
+private fun cleanGenericClassName(className: String) = className.let {
+    if (it.contains("<"))
+        it.substring(0, it.indexOf("<"))
+    else it
+}

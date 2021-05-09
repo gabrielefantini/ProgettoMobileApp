@@ -1,6 +1,6 @@
 package it.polito.mad.group25.lab.utils.persistence.awareds
 
-import it.polito.mad.group25.lab.utils.persistence.impl.AbstractPersistenceAware
+import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
 
 fun <K, V> persistenceAwareMutableMapOf(vararg pairs: Pair<K, V>): PersistenceAwareMutableMap<K, V> =
     PersistenceAwareMutableMap<K, V>().apply { putAll(pairs.toMap()) }

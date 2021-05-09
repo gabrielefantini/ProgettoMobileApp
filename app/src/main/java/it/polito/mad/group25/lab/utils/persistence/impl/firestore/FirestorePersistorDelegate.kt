@@ -17,6 +17,9 @@ class FirestorePersistorDelegate<T, C>(
     targetClass, default, observer, handler
 ) {
 
+    init {
+        initialized()
+    }
 
     override fun <R> doLoadPersistence(targetClass: Class<R>): R? =
         parseNullableValue(targetClass, store.get().result)
@@ -37,6 +40,11 @@ class FirestoreCollectionPersistorDelegate<Q, T : MutableCollection<Q>, C>(
     thisRef, id, collection, targetClass,
     default, observer, handler
 ) {
+
+
+    init {
+        initialized()
+    }
 
     override fun <R> doPersist(value: R) = doPersistValues(value as Collection<*>)
 
