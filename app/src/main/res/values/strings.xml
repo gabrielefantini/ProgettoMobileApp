@@ -52,4 +52,7 @@
     <string name="EmptyPrice">0.0</string>
     <string name="EmptySeats">0</string>
     <string name="no_trip_present">No trip present</string>
+
+    <string name="InterestedUsersText">Interested Users</string>
+    <string name="NoOtherInfos">No additional info found.</string>
 </resources>

@@ -8,8 +8,6 @@ import it.polito.mad.group25.lab.R
 
 class ShowTripDetailsFragment : TripDetailsFragment(R.layout.trip_details_fragment) {
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) = inflater.inflate(R.menu.menu,menu)
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.editProfile -> {

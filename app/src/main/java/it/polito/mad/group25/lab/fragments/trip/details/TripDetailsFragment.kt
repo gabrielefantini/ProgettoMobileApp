@@ -2,9 +2,9 @@ package it.polito.mad.group25.lab.fragments.trip.details
 
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -14,11 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.fragments.trip.TripLocation
-import it.polito.mad.group25.lab.fragments.trip.TripViewModel
-import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
-import it.polito.mad.group25.lab.fragments.trip.timeFormatted
+import it.polito.mad.group25.lab.fragments.trip.*
+import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.views.fromFile
 import java.io.File
 import java.time.LocalDateTime
@@ -29,10 +28,18 @@ abstract class TripDetailsFragment(
 ) : Fragment(contentLayoutId) {
 
     private val tripViewModel: TripViewModel by activityViewModels()
+    private var isOwner = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        if(tripViewModel.userId == tripViewModel.ownerId)
+            isOwner = true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater){
+        if(isOwner)
+            inflater.inflate(R.menu.menu, menu)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -44,6 +51,7 @@ abstract class TripDetailsFragment(
         val rv = view.findViewById<RecyclerView>(R.id.tripList)
         val additionalInfoChips = view.findViewById<ChipGroup>(R.id.additionalInfoChips)
 
+        //probabilmente il trip sarà MutableLiveData e sarà da "osservare" in quanto la lista di interessati può variare nel tempo oppure può non essere più disponibile
         val trip = tripViewModel.trip
 
         view.findViewById<TextView>(R.id.carName).text = trip.carName
@@ -61,14 +69,44 @@ abstract class TripDetailsFragment(
         if (additionalInfoChips.childCount != 0)
             additionalInfoChips.removeAllViews()
 
-        trip.additionalInfo.forEach {
-            val chip = Chip(context)
-            chip.text = it
-            additionalInfoChips.addView(chip)
+        if(trip.additionalInfo.size == 0){
+            additionalInfoChips.visibility = GONE
+            view.findViewById<TextView>(R.id.noOtherInfos).visibility = VISIBLE
+        }else {
+            trip.additionalInfo.forEach {
+                val chip = Chip(context)
+                chip.text = it
+                additionalInfoChips.addView(chip)
+            }
         }
         view.findViewById<ImageView>(R.id.carImage)
             .fromFile(trip.carPic ?: File(requireActivity().dataDir, trip.id.toString()))
 
+        val div = view.findViewById<View>(R.id.dividerInfo)
+        val intUserText = view.findViewById<TextView>(R.id.interestedUsers)
+        val rv2 = view.findViewById<RecyclerView>(R.id.userList)
+
+        if(!isOwner) {
+            //normal user
+            var fab = view.findViewById<FloatingActionButton>(R.id.tripDetailsFab)
+
+            fab.visibility = VISIBLE
+            rv2.visibility = GONE
+            div.visibility = GONE
+            intUserText.visibility = GONE
+
+            fab.setOnClickListener {
+                showError("Sent confirmation request to the trip's owner!")
+                tripViewModel.addCurrentUserToSet()
+            }
+
+        }else{
+            //trip owner
+            rv2.layoutManager = LinearLayoutManager(context)
+            rv2.adapter = TripUsersAdapter(
+                tripViewModel.userSet.filter{it -> it.isConfirmed == false}.toList()
+            )
+        }
     }
 }
 
@@ -121,4 +159,31 @@ class TripLocationAdapter(private val list: List<TripLocation>) :
             else -> R.layout.trip_line
         }
     }
+}
+
+class TripUsersAdapter(private val list: List<TripUser>) :
+    RecyclerView.Adapter<TripUsersAdapter.TripUsersViewHolder>() {
+
+    class TripUsersViewHolder(v: View) : RecyclerView.ViewHolder(v) {
+        private val username: TextView = v.findViewById(R.id.username)
+
+        fun bind(t: TripUser) {
+            username.text = "user${t.userId}"
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripUsersViewHolder {
+        val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
+        return TripUsersViewHolder(layout)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onBindViewHolder(holder: TripUsersViewHolder, position: Int) {
+        holder.bind(list[position])
+    }
+
+    override fun getItemCount(): Int = list.size
+
+    override fun getItemViewType(position: Int): Int = R.layout.trip_user_line
+
 }
