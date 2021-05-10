@@ -39,7 +39,7 @@ import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersist
 import it.polito.mad.group25.lab.utils.views.fromFile
 import it.polito.mad.group25.lab.utils.views.isCompliant
 import it.polito.mad.group25.lab.utils.views.setConstraints
-import it.polito.mad.group25.lab.utils.views.toFile
+import it.polito.mad.group25.lab.utils.views.toByteList
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -426,7 +426,7 @@ abstract class TripEditFragment(
         }
 
         view?.findViewById<ImageView>(R.id.carImage)?.also {
-            tripSel.carPic = it.toFile()!!
+            tripSel.carPic = it.toByteList()
         }
 
         seats.also {

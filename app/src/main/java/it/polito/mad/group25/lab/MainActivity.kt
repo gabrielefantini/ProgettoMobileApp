@@ -13,18 +13,28 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import it.polito.mad.group25.lab.databinding.ActivityMainBinding
-import it.polito.mad.group25.lab.fragments.userprofile.UserProfileData
-import it.polito.mad.group25.lab.fragments.userprofile.UserProfileDataChangeListener
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
-import it.polito.mad.group25.lab.utils.views.fromFile
+import it.polito.mad.group25.lab.utils.views.fromByteList
 
-class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var activityMainBinding: ActivityMainBinding
 
+    private lateinit var userProfileViewModel: UserProfileViewModel
+
+    /*companion object {
+        init {
+            val settings = FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build()
+            FirebaseFirestore.getInstance().firestoreSettings = settings
+        }
+    }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AuthenticationContext.userID = "3"
+
         super.onCreate(savedInstanceState)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
@@ -59,11 +69,21 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
             true
         }
 
-        updateNavHeaderUserInfo(
-            UserProfileData.fromViewModel(
-                ViewModelProvider(this).get(UserProfileViewModel::class.java)
-            )
-        )
+        userProfileViewModel = ViewModelProvider(this).get(UserProfileViewModel::class.java)
+
+        userProfileViewModel.shownUser.observe(this) { data ->
+            val parent = activityMainBinding.navView.getHeaderView(0)
+
+            parent.findViewById<ImageView>(R.id.nav_header_user_profile_pic)
+                ?.run { this.fromByteList(data.userProfilePhotoFile) }
+
+            parent.findViewById<TextView>(R.id.nav_header_user_profile_nick)
+                ?.run { text = data.nickName }
+            parent.findViewById<TextView>(R.id.nav_header_user_profile_email)
+                ?.run { text = data.email }
+        }
+
+        updateNavHeaderUserInfo()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -72,19 +92,9 @@ class MainActivity : AppCompatActivity(), UserProfileDataChangeListener {
     }
 
 
-    override fun onUserProfileDataChanged(data: UserProfileData) = updateNavHeaderUserInfo(data)
+    private fun updateNavHeaderUserInfo() {
 
-    private fun updateNavHeaderUserInfo(data: UserProfileData) {
-        val parent = activityMainBinding.navView.getHeaderView(0)
-        parent.findViewById<ImageView>(R.id.nav_header_user_profile_pic)
-            ?.run { data.imageProfile?.also { fromFile(it) } }
 
-        parent.findViewById<TextView>(R.id.nav_header_user_profile_nick)
-            ?.run {
-                text = data.nickName ?: resources.getString(R.string.guest)
-            }
-        parent.findViewById<TextView>(R.id.nav_header_user_profile_email)
-            ?.run { text = data.email }
     }
 
 }

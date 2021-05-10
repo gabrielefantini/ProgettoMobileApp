@@ -3,12 +3,16 @@ package it.polito.mad.group25.lab.utils.persistence
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.fasterxml.jackson.core.type.TypeReference
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import it.polito.mad.group25.lab.utils.extractClass
 import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistableContainer
 import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistorDelegate
-import it.polito.mad.group25.lab.utils.persistence.impl.firestore.*
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLiveCollectionPersistorDelegate
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistenceObserver
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreMapPersistorDelegate
 import it.polito.mad.group25.lab.utils.type
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -126,7 +130,7 @@ object Persistors {
 
     fun <T> sharedPreferences(
         default: T,
-        typeReference: TypeReference<T> = object : TypeReference<T>() {},
+        typeReference: TypeReference<T>,
         observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
     ): PropertyDelegateProvider<SharedPreferencesPersistableContainer, Persistor<T, SharedPreferencesPersistableContainer>> {
         return createThroughProvider(true, default, observer)
@@ -138,11 +142,17 @@ object Persistors {
         }
     }
 
-    fun <Q, T : MutableCollection<Q>, C> liveFirestoreCollection(
+    inline fun <reified T> sharedPreferences(
+        default: T,
+        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
+    ) = sharedPreferences(default, object : TypeReference<T>() {}, observer)
+
+
+    fun <T, C> liveFirestoreCollection(
         collection: String? = null,
         default: T,
         observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
-            FirestoreLivePersistenceObserver<QuerySnapshot, T>() {},
+            FirestoreLivePersistenceObserver<QuerySnapshot, T> {},
     ): PropertyDelegateProvider<C, Persistor<T, C>> {
         return createThroughProvider(false, default, observer)
         { id, container, targetClass, handler ->
@@ -153,12 +163,12 @@ object Persistors {
         }
     }
 
-    fun <T, C> liveFirestore(
+    fun <T, C> simpleLiveFirestore(
         collection: String? = null,
         document: String? = null,
         default: T,
         observer: FirestoreLivePersistenceObserver<DocumentSnapshot, T> = object :
-            FirestoreLivePersistenceObserver<DocumentSnapshot, T>() {},
+            FirestoreLivePersistenceObserver<DocumentSnapshot, T> {},
     ): PropertyDelegateProvider<C, Persistor<T, C>> {
         return createThroughProvider(false, default, observer)
         { id, container, targetClass, handler ->
@@ -169,35 +179,51 @@ object Persistors {
         }
     }
 
-    fun <E, T : MutableCollection<E>, C> firestoreCollection(
-        collection: String? = null,
-        default: T,
-        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
-    ): PropertyDelegateProvider<C, Persistor<T, C>> {
-        return createThroughProvider(true, default, observer)
-        { id, container, targetClass, handler ->
-            FirestoreCollectionPersistorDelegate(
-                container, id, collection,
-                targetClass, default, observer, handler
-            )
-        }
-    }
 
-    fun <T, C> simpleFirestore(
+    inline fun <reified T, C> liveFirestore(
         collection: String? = null,
         document: String? = null,
         default: T,
-        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
+        observer: FirestoreLivePersistenceObserver<Any?, T> = object :
+            FirestoreLivePersistenceObserver<Any?, T> {},
+    ): PropertyDelegateProvider<C, Persistor<T, C>> =
+        if (isEligibleAsFirestoreCollection<T>(document))
+            liveFirestoreCollection(
+                collection, default,
+                observer as FirestoreLivePersistenceObserver<QuerySnapshot, T>
+            )
+        else simpleLiveFirestore(
+            collection, document, default,
+            observer as FirestoreLivePersistenceObserver<DocumentSnapshot, T>
+        )
+
+    inline fun <reified T> isEligibleAsFirestoreCollection(document: String?): Boolean {
+        if (document != null) return false
+        if (MutableCollection::class.java.isAssignableFrom(T::class.java)) return true
+        if (LiveData::class.java.isAssignableFrom(T::class.java)) {
+            val innerType = (object : TypeReference<T>() {}.type as ParameterizedType)
+                .actualTypeArguments[0].extractClass()
+            if (MutableCollection::class.java.isAssignableFrom(innerType)) return true
+        }
+        return false
+    }
+
+    fun <T, C> firestoreMap(
+        collection: String? = null,
+        default: T,
+        mapBuilder: (DocumentSnapshot, Class<MutableMap<Any?, Any?>>) -> Pair<Any?, Any?>,
+        entriesSaver: (Pair<Any?, Any?>, CollectionReference) -> Unit,
+        observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
+            FirestoreLivePersistenceObserver<QuerySnapshot, T> {}
     ): PropertyDelegateProvider<C, Persistor<T, C>> {
         return createThroughProvider(true, default, observer)
         { id, container, targetClass, handler ->
-            FirestorePersistorDelegate(
-                container, id, collection, document, targetClass,
-                default, observer, handler
+            FirestoreMapPersistorDelegate(
+                container, id, collection,
+                targetClass, default, mapBuilder, entriesSaver, observer, handler
             )
         }
     }
-
 
 }
 

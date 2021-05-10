@@ -8,25 +8,28 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.navigation.findNavController
+import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 
 class ShowUserProfileFragment :
     GenericUserProfileFragment(R.layout.show_user_profile_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val captionView = view.findViewById<TextView>(R.id.email)
-        if (userProfileViewModel.nickName != null) {
+        userProfileViewModel.shownUser.observe(viewLifecycleOwner) {
+            val captionView = view.findViewById<TextView>(R.id.email)
             super.onViewCreated(view, savedInstanceState)
             captionView.setTypeface(captionView.typeface, Typeface.NORMAL)
-        } else {
-            captionView.text = resources.getString(R.string.subscriptionCaption)
-            captionView.setTypeface(captionView.typeface, Typeface.ITALIC)
+        }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        userProfileViewModel.shownUser.observe(viewLifecycleOwner) {
+            if (it.id == AuthenticationContext.userID)
+                inflater.inflate(R.menu.menu, menu)
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) =
-        inflater.inflate(R.menu.menu, menu)
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {

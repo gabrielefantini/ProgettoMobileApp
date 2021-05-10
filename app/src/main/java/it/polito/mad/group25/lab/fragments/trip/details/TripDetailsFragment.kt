@@ -19,8 +19,7 @@ import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
-import it.polito.mad.group25.lab.utils.views.fromFile
-import java.io.File
+import it.polito.mad.group25.lab.utils.views.fromByteList
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -66,8 +65,10 @@ abstract class TripDetailsFragment(
             chip.text = it
             additionalInfoChips.addView(chip)
         }
-        view.findViewById<ImageView>(R.id.carImage)
-            .fromFile(trip.carPic ?: File(requireActivity().dataDir, trip.id.toString()))
+        trip.carPic?.let {
+            view.findViewById<ImageView>(R.id.carImage)
+                .fromByteList(it)
+        }
 
     }
 }
@@ -78,11 +79,11 @@ fun getDurationFormatted(first: LocalDateTime, last: LocalDateTime): String {
     var hours = durationMin / 60
     val min = durationMin % 60
 
-    val days = hours/24
-    if(days != 0)
+    val days = hours / 24
+    if (days != 0)
         hours -= 24
 
-    return "${if(days != 0) "${days}d" else ""} ${if (hours != 0) "${hours}h" else ""} ${if (min != 0) "${min}min" else ""}"
+    return "${if (days != 0) "${days}d" else ""} ${if (hours != 0) "${hours}h" else ""} ${if (min != 0) "${min}min" else ""}"
 }
 
 class TripLocationAdapter(private val list: List<TripLocation>) :

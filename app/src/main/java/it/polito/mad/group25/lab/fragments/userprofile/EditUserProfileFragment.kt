@@ -12,12 +12,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.google.android.material.textfield.TextInputLayout
+import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.views.isCompliant
 import it.polito.mad.group25.lab.utils.views.setConstraints
-import it.polito.mad.group25.lab.utils.views.toFile
-import java.io.File
+import it.polito.mad.group25.lab.utils.views.toByteList
 
 class EditUserProfileFragment :
     GenericUserProfileFragment(R.layout.edit_user_profile_fragment) {
@@ -153,59 +153,38 @@ class EditUserProfileFragment :
                     && locationTextInputLayout.isCompliant())
         ) return false
 
-        userProfileViewModel.fullName =
+        val fullName =
             requireActivity().findViewById<TextView>(R.id.fullName).text.toString()
 
-        userProfileViewModel.nickName =
+        val nickName =
             requireActivity().findViewById<TextView>(R.id.nickName).text.toString()
 
-        userProfileViewModel.email =
+        val email =
             requireActivity().findViewById<TextView>(R.id.email).text.toString()
 
-        userProfileViewModel.location =
+        val location =
             requireActivity().findViewById<TextView>(R.id.location).text.toString()
 
-        requireView().findViewById<ImageView>(R.id.profilePic).toFile()
-            ?.let { userProfileViewModel.userProfilePhotoFile = it }
+        val userProfilePhotoFile =
+            requireView().findViewById<ImageView>(R.id.profilePic).toByteList()
 
-        fireDataChanges()
+        val userProfile = UserProfile(
+            AuthenticationContext.userID,
+            fullName,
+            nickName,
+            email,
+            location,
+            userProfilePhotoFile
+        )
+
+        userProfileViewModel.shownUser.value = userProfile
         return true
     }
 
-    private fun fireDataChanges() {
-        val act = activity
-        if (act is UserProfileDataChangeListener) {
-            act.onUserProfileDataChanged(
-                UserProfileData.fromViewModel(userProfileViewModel)
-            )
-        }
-    }
 }
 
 class EditUserProfileViewModel : ViewModel() {
     var tempProfileDrawable: Drawable? = null
 }
 
-data class UserProfileData(
-    val fullName: String?,
-    val nickName: String?,
-    val email: String?,
-    val location: String?,
-    val imageProfile: File?
-) {
-    companion object {
-        fun fromViewModel(
-            userProfileViewModel: UserProfileViewModel,
-        ) = UserProfileData(
-            userProfileViewModel.fullName,
-            userProfileViewModel.nickName,
-            userProfileViewModel.email,
-            userProfileViewModel.location,
-            userProfileViewModel.userProfilePhotoFile
-        )
-    }
-}
 
-interface UserProfileDataChangeListener {
-    fun onUserProfileDataChanged(data: UserProfileData)
-}
