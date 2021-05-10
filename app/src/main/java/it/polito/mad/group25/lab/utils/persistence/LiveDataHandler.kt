@@ -35,6 +35,8 @@ class LiveDataPersistenceHandler<T, L : LiveData<T>>(
 ) : AbstractPersistenceHandler<L, T>(nextHandler) {
 
     private fun doPersistInnerType(value: T) {
+        if (isCurrentlyLoadingPersistence())
+            return
         var ex: Exception? = null
         var toPersist: T? = null
         try {
@@ -62,15 +64,36 @@ class LiveDataPersistenceHandler<T, L : LiveData<T>>(
         throw NotImplementedError("Unknown type of LiveData ${clazz.canonicalName}")
     }
 
-    override fun handleNewValue(oldValue: L, newValue: L): L =
-        newValue.apply {
-            if (this !== oldValue) //ensure value changed in order to avoid multiple subscriptions
-                subscribeToLiveData(this)
-        }
+    override fun handleNewValue(oldValue: L, newValue: L): L? {
+        return if (MutableLiveData::class.java.isAssignableFrom(oldValue::class.java) && !newValue.hasActiveObservers()) {
+            //just set the value of the old value in order to don't lose the old observers!
+            //but if the new value has it's own observers then will use only the new one
+            oldValue as MutableLiveData<T>
+            oldValue.apply {
+                value = newValue.value.let {
+                    innerHandler.handleNewValue(
+                        oldValue.value as T,
+                        newValue.value as T,
+                    )
+                }
+            }
+        } else handleNewValue(newValue)
+    }
 
-    override fun handleNewValue(newValue: L): L = newValue.let(this::subscribeToLiveData)
+    override fun handleNewValue(newValue: L): L? {
+        newValue.value?.let {
+            val handled = innerHandler.handleNewValue(it) // let the inner handling it in any case!
+            if (MutableLiveData::class.java.isAssignableFrom(newValue::class.java)) {
+                newValue as MutableLiveData<T>
+                newValue.value = handled as T
+            }
+        }
+        return newValue
+    }
 
     override fun handlePersistenceRequest(value: L) {
+        if (this.isCurrentlyLoadingPersistence())
+            return
         value.value?.let { it1 -> doPersistInnerType(it1) }
     }
 
@@ -79,12 +102,15 @@ class LiveDataPersistenceHandler<T, L : LiveData<T>>(
     }
 
     private fun subscribeToLiveData(obj: L) = obj.apply {
-        if (isAutoUpdatable)
+        if (isAutoUpdatable) {
             this.observeForever {
+                if (isCurrentlyLoadingPersistence())
+                    return@observeForever
                 val toPersist = innerHandler.handleNewValue(it) ?: return@observeForever
                 observer.onLiveValueChanges(toPersist)
                 doPersistInnerType(toPersist)
             }
+        }
     }
 
 }

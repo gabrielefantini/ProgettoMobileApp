@@ -1,6 +1,7 @@
 package it.polito.mad.group25.lab.utils.persistence
 
 import android.util.Log
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
@@ -54,22 +55,37 @@ interface PersistenceObserver<T> {
 
 
 /**
- * Generic interface which purpose is to hold the strategies to handle persistence
+ * Generic class  which purpose is to hold the strategies to handle persistence
  */
-interface PersistenceHandler<T> {
+abstract class PersistenceHandler<T> {
     /**
      * Handle object changing. Return null to deny changing.
      * This is called <b>before</b> the delegate observer.
      */
-    fun handleNewValue(oldValue: T, newValue: T): T?
+    abstract fun handleNewValue(oldValue: T, newValue: T): T?
 
     /**
      * Handle object changing in case old value its not available. Return null to deny changing.
      * This is called <b>before</b> the delegate observer.
      */
-    fun handleNewValue(newValue: T): T?
-    fun handlePersistenceRequest(value: T)
-    fun handlePersistenceLoading(clazz: Class<T>): T?
+    abstract fun handleNewValue(newValue: T): T?
+    abstract fun handlePersistenceRequest(value: T)
+    abstract fun handlePersistenceLoading(clazz: Class<T>): T?
+
+    /**
+     * Used to notify the handlers that the current value is being loaded so it has not be serialized
+     * even if it is changed. (ex insertion on PersistenceAware Collections and so on)
+     */
+    private val isCurrentlyLoadingPersistence = AtomicBoolean(false)
+    protected val currentlyLoadingPersisenceFlag = ReentrantReadWriteLock()
+    open fun notifyPersistenceLoading() =
+        currentlyLoadingPersisenceFlag.write { isCurrentlyLoadingPersistence.set(true) }
+
+    open fun notifyPersistenceLoadingCompleted() =
+        currentlyLoadingPersisenceFlag.write { isCurrentlyLoadingPersistence.set(false) }
+
+    protected fun isCurrentlyLoadingPersistence(): Boolean =
+        currentlyLoadingPersisenceFlag.read { isCurrentlyLoadingPersistence.get() }
 }
 
 
@@ -81,8 +97,9 @@ interface PersistenceHandler<T> {
  * TO WORK ON THE VALUE RETURNED BY ITS INNER HANDLER.
  */
 abstract class AbstractPersistenceHandler<T, I>(nextHandler: PersistenceHandler<I>? = null) :
-    PersistenceHandler<T> {
+    PersistenceHandler<T>() {
     lateinit var innerHandler: PersistenceHandler<I>
+
 
     init {
         if (nextHandler != null)
@@ -90,6 +107,18 @@ abstract class AbstractPersistenceHandler<T, I>(nextHandler: PersistenceHandler<
     }
 
     fun isInitialized() = this::innerHandler.isInitialized
+
+    final override fun notifyPersistenceLoading() =
+        currentlyLoadingPersisenceFlag.write {
+            super.notifyPersistenceLoading();
+            innerHandler.notifyPersistenceLoading()
+        }
+
+    final override fun notifyPersistenceLoadingCompleted() =
+        currentlyLoadingPersisenceFlag.write {
+            super.notifyPersistenceLoadingCompleted();
+            innerHandler.notifyPersistenceLoadingCompleted()
+        }
 }
 
 
@@ -108,10 +137,6 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
     protected val handler: PersistenceHandler<T>
     protected var value: T
         set(value) {
-            /*if (!isInitialized) {
-                field = value
-                return
-            }*/
             Log.d(LOG_TAG, "Calling handler for changing value attempt of $id")
 
             var toSet: T? = if (field != null)
@@ -159,7 +184,9 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
      */
     protected open fun initialized() {
         isInitialized = true
+        this.handler.notifyPersistenceLoading()
         this.value = loadPersistence() ?: default
+        this.handler.notifyPersistenceLoadingCompleted()
     }
 
     private fun initializeHandler(handler: AbstractPersistenceHandler<T, *>?): PersistenceHandler<T> =
@@ -171,7 +198,7 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         else doInitializeHandlerRecursively(handler.innerHandler as AbstractPersistenceHandler<*, *>)
     }
 
-    private fun <R> basicHandler(): PersistenceHandler<R> = object : PersistenceHandler<R> {
+    private fun <R> basicHandler(): PersistenceHandler<R> = object : PersistenceHandler<R>() {
         override fun handlePersistenceLoading(clazz: Class<R>): R? = doLoadPersistence(clazz)
 
         override fun handlePersistenceRequest(value: R) = doPersist(value)
@@ -231,6 +258,12 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         }
         Log.d(LOG_TAG, "Calling observer after loaded persisted value of $id")
         return observer.afterLoadingPersistedValue(loaded, ex)
+    }
+
+    protected fun loadPersistenceAndSaveIt() {
+        this.handler.notifyPersistenceLoading()
+        loadPersistence()?.let { this.value = it }
+        this.handler.notifyPersistenceLoadingCompleted()
     }
 
     //other generic types because the handler can customize the value to be serialized or loaded.

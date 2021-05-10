@@ -72,6 +72,9 @@ class MainActivity : AppCompatActivity() {
         userProfileViewModel = ViewModelProvider(this).get(UserProfileViewModel::class.java)
 
         userProfileViewModel.shownUser.observe(this) { data ->
+            if (data == null)
+                return@observe
+
             val parent = activityMainBinding.navView.getHeaderView(0)
 
             parent.findViewById<ImageView>(R.id.nav_header_user_profile_pic)

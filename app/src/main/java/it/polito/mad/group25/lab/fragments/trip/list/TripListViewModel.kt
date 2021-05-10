@@ -18,7 +18,7 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
                 mapBuilder = { d, _ ->
                     d.get("id", Int::class.java) to d.toObject(Trip::class.java)
                 },
-                entriesSaver = { p, c, -> c.add(p.second!!) }
+                entriesSaver = { p, c -> c.add(p.second!!) },
             )
 
     private companion object {

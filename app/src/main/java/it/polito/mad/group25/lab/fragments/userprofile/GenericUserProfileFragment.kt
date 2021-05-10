@@ -28,6 +28,8 @@ abstract class GenericUserProfileFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         userProfileViewModel.shownUser.observe(viewLifecycleOwner) {
+            if (it == null)
+                return@observe
             view.findViewById<TextView>(R.id.fullName).text = it.fullName
             view.findViewById<TextView>(R.id.nickName).text = it.nickName
             view.findViewById<TextView>(R.id.email).text = it.email
@@ -39,7 +41,11 @@ abstract class GenericUserProfileFragment(
 }
 
 class UserProfileViewModel(application: Application) : AndroidViewModel(application) {
-    var shownUser: MutableLiveData<UserProfile> by Persistors.liveFirestore(default = MutableLiveData())
+    //nullable because initially it will be null until the data is loaded from the server.
+    var shownUser: MutableLiveData<UserProfile?> by Persistors.liveFirestore(
+        collection = "users",
+        default = MutableLiveData()
+    )
 }
 
 data class UserProfile(
