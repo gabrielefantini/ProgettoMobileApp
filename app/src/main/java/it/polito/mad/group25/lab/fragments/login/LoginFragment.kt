@@ -68,6 +68,8 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
         val currentUser = auth.currentUser
         currentUser?.let {
             tripListViewModel.userId = currentUser.uid
+            //tripListViewModel.userId = "A"
+            //tripListViewModel.userId = "B"
             activity?.findNavController(R.id.nav_host_fragment_content_main)
                 ?.navigate(R.id.action_LoginFragment_to_TripListFragment)
         }
