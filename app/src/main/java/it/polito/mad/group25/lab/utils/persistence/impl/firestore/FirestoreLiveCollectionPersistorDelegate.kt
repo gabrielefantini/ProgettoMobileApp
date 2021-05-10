@@ -1,6 +1,7 @@
 package it.polito.mad.group25.lab.utils.persistence.impl.firestore
 
 import android.util.Log
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import it.polito.mad.group25.lab.utils.genericType
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
@@ -19,12 +20,12 @@ class FirestoreLiveCollectionPersistorDelegate<T, C>(
 
     private fun <R : MutableCollection<Any?>> parseValues(
         clazz: Class<R>,
-        q: QuerySnapshot?
+        q: Collection<DocumentSnapshot>
     ): R? {
         Log.i(LOG_TAG, "Parsing values loaded from firestore for $id")
         val innerType: Class<Any?> = targetClass.genericType()[0] as Class<Any?>
-        return q?.documents?.mapNotNull { d -> d.toObject(innerType) }
-            ?.toCollection(tryCreateCollection(clazz))
+        return q.map { d -> d.toObject(innerType) }.toCollection(tryCreateCollection(clazz))
+            .let { if (it.isEmpty()) null else it }
     }
 
     private fun <I, C : MutableCollection<I>>
@@ -35,12 +36,10 @@ class FirestoreLiveCollectionPersistorDelegate<T, C>(
     override fun <R> doPersist(value: R) {
         Log.i(LOG_TAG, "Persisting values for $id on firestore")
         value as Collection<Any?>
-        value.filterNotNull().forEach { store.add(it) }
+        value.filterNotNull().forEach { store.add(it).apply(this::handleInsertion) }
     }
 
     override fun <R> doLoadPersistence(targetClass: Class<R>): R? =
-        if (isParsable())
-            parseValues(targetClass as Class<MutableCollection<Any?>>, toParse) as R
-        else null
+        parseValues(targetClass as Class<MutableCollection<Any?>>, toParse) as R?
 
 }

@@ -108,10 +108,10 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
     protected val handler: PersistenceHandler<T>
     protected var value: T
         set(value) {
-            if (!isInitialized) {
+            /*if (!isInitialized) {
                 field = value
                 return
-            }
+            }*/
             Log.d(LOG_TAG, "Calling handler for changing value attempt of $id")
 
             var toSet: T? = if (field != null)

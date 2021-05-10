@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
+import com.google.firebase.firestore.Blob
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -24,6 +25,8 @@ fun ImageView.fromBytes(bytes: ByteArray) {
 }
 
 fun ImageView.fromByteList(byteList: List<Byte>) = fromBytes(byteList.toByteArray())
+
+fun ImageView.fromBlob(blob: Blob) = fromBytes(blob.toBytes())
 
 private fun getBitmapFromDrawable(drawable: Drawable): Bitmap {
     val bmp = Bitmap.createBitmap(
@@ -54,6 +57,7 @@ private fun convertBitmapToBytes(bitmap: Bitmap): ByteArray =
 fun ImageView.toBitmap() = getBitmapFromDrawable(this.drawable)
 fun ImageView.toBytes(): ByteArray = toBitmap().let(::convertBitmapToBytes)
 fun ImageView.toByteList(): List<Byte> = toBytes().toList()
+fun ImageView.toBlob(): Blob = Blob.fromBytes(toBytes())
 
 fun ImageView.toFile(fileProvider: () -> File) = fileProvider().apply {
     val drawable = drawable

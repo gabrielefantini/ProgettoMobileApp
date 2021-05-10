@@ -3,16 +3,18 @@ package it.polito.mad.group25.lab.utils.persistence
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.fasterxml.jackson.core.type.TypeReference
+import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import it.polito.mad.group25.lab.utils.extractClass
 import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistableContainer
 import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistorDelegate
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLiveCollectionPersistorDelegate
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLiveMapPersistorDelegate
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
-import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreMapPersistorDelegate
 import it.polito.mad.group25.lab.utils.type
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -49,8 +51,7 @@ object Persistors {
 
         if (PersistenceAware::class.java.isAssignableFrom(targetClass)) {
             handler = persistenceAwareHandler(
-                id,
-                handler as AbstractPersistenceHandler<PersistenceAware, *>?
+                id, handler as AbstractPersistenceHandler<PersistenceAware, *>?
             ) as AbstractPersistenceHandler<T, *>
         }
 
@@ -212,13 +213,13 @@ object Persistors {
         collection: String? = null,
         default: T,
         mapBuilder: (DocumentSnapshot, Class<MutableMap<Any?, Any?>>) -> Pair<Any?, Any?>,
-        entriesSaver: (Pair<Any?, Any?>, CollectionReference) -> Unit,
+        entriesSaver: (Pair<Any?, Any?>, CollectionReference) -> Task<DocumentReference>,
         observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
             FirestoreLivePersistenceObserver<QuerySnapshot, T> {}
     ): PropertyDelegateProvider<C, Persistor<T, C>> {
         return createThroughProvider(true, default, observer)
         { id, container, targetClass, handler ->
-            FirestoreMapPersistorDelegate(
+            FirestoreLiveMapPersistorDelegate(
                 container, id, collection,
                 targetClass, default, mapBuilder, entriesSaver, observer, handler
             )

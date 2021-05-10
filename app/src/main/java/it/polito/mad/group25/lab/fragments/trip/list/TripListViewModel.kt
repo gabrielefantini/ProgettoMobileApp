@@ -15,8 +15,10 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
     val trips: LiveData<PersistenceAwareMutableMap<Int, Trip>>
             by Persistors.firestoreMap(
                 default = MutableLiveData(persistenceAwareMutableMapOf()),
-                mapBuilder = { d, _ -> d.getString("id") to d.toObject(Trip::class.java) },
-                entriesSaver = { p, c -> c.add(p.second!!) }
+                mapBuilder = { d, _ ->
+                    d.get("id", Int::class.java) to d.toObject(Trip::class.java)
+                },
+                entriesSaver = { p, c, -> c.add(p.second!!) }
             )
 
     private companion object {

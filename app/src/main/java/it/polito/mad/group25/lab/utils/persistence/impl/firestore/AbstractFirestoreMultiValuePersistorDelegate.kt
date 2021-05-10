@@ -1,9 +1,8 @@
 package it.polito.mad.group25.lab.utils.persistence.impl.firestore
 
 import android.util.Log
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
+import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.*
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
 
@@ -18,7 +17,8 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<T, C>(
 ) : SimplePersistor<T, C>(thisRef, id, targetClass, default, observer, handler) {
 
     var store: CollectionReference
-    lateinit var toParse: QuerySnapshot
+    protected var toParse: Collection<DocumentSnapshot> = mutableListOf()
+    protected val justStoredCache = FirestoreJustInsertedCache(id)
 
     init {
         val collection = collection ?: id
@@ -32,10 +32,22 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<T, C>(
                     "Received value is null! " +
                             "This should never happen, check error handling of the observer!"
                 )
-            toParse = value
+            toParse = value.documents.filter {
+                !justStoredCache.contains(it.id)
+                    .apply {
+                        if (this)
+                            Log.d(LOG_TAG, "Ignoring just persisted value with id ${it.id}")
+                    }
+            }
             loadPersistence()?.let { this.value = it } //trigger the handlers
         }
     }
 
-    protected fun isParsable() = this::toParse.isInitialized
+    protected fun handleInsertion(insertionTask: Task<DocumentReference>) {
+        insertionTask.addOnCompleteListener {
+            if (it.isSuccessful)
+                justStoredCache.add(it.result!!.id)
+        }
+    }
+
 }

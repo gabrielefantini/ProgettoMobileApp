@@ -19,7 +19,8 @@ import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
-import it.polito.mad.group25.lab.utils.views.fromByteList
+import it.polito.mad.group25.lab.utils.toLocalDateTime
+import it.polito.mad.group25.lab.utils.views.fromBlob
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -52,7 +53,10 @@ abstract class TripDetailsFragment(
 
         val last = trip.locations.lastIndex
         view.findViewById<TextView>(R.id.durationText).text =
-            getDurationFormatted(trip.locations[0].locationTime, trip.locations[last].locationTime)
+            getDurationFormatted(
+                trip.locations[0].locationTime.toLocalDateTime(),
+                trip.locations[last].locationTime.toLocalDateTime()
+            )
 
         rv.layoutManager = LinearLayoutManager(context)
         rv.adapter = TripLocationAdapter(trip.locations)
@@ -67,7 +71,7 @@ abstract class TripDetailsFragment(
         }
         trip.carPic?.let {
             view.findViewById<ImageView>(R.id.carImage)
-                .fromByteList(it)
+                .fromBlob(it)
         }
 
     }
