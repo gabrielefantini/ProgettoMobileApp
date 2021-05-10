@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -23,12 +24,14 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
 
 class LoginFragment: Fragment(R.layout.login_fragment) {
 
     private lateinit var mGoogleSignInClient : GoogleSignInClient
     private lateinit var resultLauncher : ActivityResultLauncher<Intent>
     private lateinit var auth: FirebaseAuth
+    private val tripListViewModel: TripListViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,9 +66,8 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
         super.onStart()
         //check for already signed in users
         val currentUser = auth.currentUser
-        Log.d("customDBG","$currentUser")
         currentUser?.let {
-            //do things with currentUser
+            tripListViewModel.userId = currentUser.uid
             activity?.findNavController(R.id.nav_host_fragment_content_main)
                 ?.navigate(R.id.action_LoginFragment_to_TripListFragment)
         }
@@ -94,12 +96,9 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
                 if(task.isSuccessful){
                     //success
                     val user = auth.currentUser
-                    //do things with user
+                    tripListViewModel.userId = user.uid
                     activity?.findNavController(R.id.nav_host_fragment_content_main)
                         ?.navigate(R.id.action_LoginFragment_to_TripListFragment)
-                }else{
-                    //failure
-                    //do things (?)
                 }
             }
     }

@@ -156,6 +156,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/other_infos"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -177,7 +178,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp"
                 android:text="@string/NoOtherInfos"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:visibility="gone" />
 
             <View
@@ -192,6 +193,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/InterestedUsersText"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
@@ -203,7 +205,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginBottom="16dp" />
         </LinearLayout>
     </ScrollView>

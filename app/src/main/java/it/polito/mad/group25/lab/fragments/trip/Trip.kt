@@ -21,6 +21,8 @@ class Trip {
     var seats: Int = 0
     var price: Double = 0.0
     val additionalInfo: MutableList<String> = mutableListOf()
+    var ownerId : String? = null
+    val interestedUsers: MutableSet<String> = mutableSetOf()
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

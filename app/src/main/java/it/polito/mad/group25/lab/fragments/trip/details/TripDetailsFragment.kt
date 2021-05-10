@@ -17,6 +17,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.fragments.trip.*
+import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.views.fromFile
 import java.io.File
@@ -28,12 +29,13 @@ abstract class TripDetailsFragment(
 ) : Fragment(contentLayoutId) {
 
     private val tripViewModel: TripViewModel by activityViewModels()
+    private val tripListViewModel: TripListViewModel by activityViewModels()
     private var isOwner = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        if(tripViewModel.userId == tripViewModel.ownerId)
+        if(tripListViewModel.userId == tripViewModel.trip.ownerId)
             isOwner = true
     }
 
@@ -97,14 +99,15 @@ abstract class TripDetailsFragment(
 
             fab.setOnClickListener {
                 showError("Sent confirmation request to the trip's owner!")
-                tripViewModel.addCurrentUserToSet()
+                tripViewModel.addCurrentUserToSet(tripListViewModel.userId)
+                tripListViewModel.putTrip(tripViewModel.trip)
             }
 
         }else{
             //trip owner
             rv2.layoutManager = LinearLayoutManager(context)
             rv2.adapter = TripUsersAdapter(
-                tripViewModel.userSet.filter{it -> it.isConfirmed == false}.toList()
+                tripViewModel.trip.interestedUsers.toList()
             )
         }
     }
@@ -161,14 +164,18 @@ class TripLocationAdapter(private val list: List<TripLocation>) :
     }
 }
 
-class TripUsersAdapter(private val list: List<TripUser>) :
+/*class TripUser (val userId: String){
+    var isConfirmed: Boolean = false
+}*/
+
+class TripUsersAdapter(private val list: List<String>) :
     RecyclerView.Adapter<TripUsersAdapter.TripUsersViewHolder>() {
 
     class TripUsersViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         private val username: TextView = v.findViewById(R.id.username)
 
-        fun bind(t: TripUser) {
-            username.text = "user${t.userId}"
+        fun bind(t: String) {
+            username.text = "user $t"
         }
     }
 

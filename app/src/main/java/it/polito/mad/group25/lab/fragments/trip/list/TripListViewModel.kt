@@ -21,6 +21,8 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
         var index = 0
     }
 
+    var userId = ""
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNewTrip(): Trip {
         if (trips.value!!.isNotEmpty() && index == 0)

@@ -462,6 +462,8 @@ abstract class TripEditFragment(
             }
         }
 
+        tripSel.ownerId = tripListViewModel.userId
+
         tripListViewModel.putTrip(tripSel)
 
         return true
