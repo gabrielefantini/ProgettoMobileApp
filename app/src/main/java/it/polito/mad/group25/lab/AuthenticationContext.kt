@@ -8,16 +8,16 @@ import coil.ImageLoader
 import coil.request.ImageRequest
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.Blob
+import it.polito.mad.group25.lab.utils.datastructure.IdentifiableObject
 import it.polito.mad.group25.lab.utils.persistence.Persistors
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 import it.polito.mad.group25.lab.utils.views.toBlob
+import kotlin.reflect.jvm.isAccessible
 
 
 class AuthenticationContext(application: Application) : PersistableViewModel(application) {
 
-    companion object {
-        val STORED_USERID_KEY = "user_id"
-    }
 
     val authUser: LiveData<FirebaseUser?> = MutableLiveData(null)
 
@@ -26,7 +26,6 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
         default = MutableLiveData(null),
         lazyInit = true
     )
-    private var userID: String by Persistors.sharedPreferences("", STORED_USERID_KEY)
 
     var rememberMe: Boolean by Persistors.sharedPreferences(default = false)
 
@@ -40,19 +39,36 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
     fun loginUser(user: FirebaseUser) {
         authUser as MutableLiveData<FirebaseUser?>
         authUser.value = user
-        userData.value = UserProfile(user.uid, user.displayName, null, user.email, null, null)
-        loadAndSaveImage(user.photoUrl, user.uid)
-        userID = user.uid
+
+        val persistor = (this::userData.apply { isAccessible = true }
+            .getDelegate() as FirestoreLivePersistorDelegate<MutableLiveData<UserProfile?>, AuthenticationContext>)
+
+        // check if the user is already saved on the db by loading it.
+        // if it is absent then save it.
+        persistor.loadAnotherDocument(user.uid).get().addOnCompleteListener {
+            if (!it.isSuccessful) throw it.exception!!
+            if (!it.result!!.exists()) {
+                userData.value =
+                    UserProfile(user.uid, user.displayName, null, user.email, null, null)
+                loadAndSaveImage(user.photoUrl, user.uid)
+            }
+        }
     }
 
     fun logoutUser() {
         authUser as MutableLiveData<FirebaseUser?>
         authUser.value = null
         userData.value = null
-        userID = ""
     }
 
-    fun userId(): String = userID
+
+    fun loadRememberedUser(user: FirebaseUser) {
+        authUser as MutableLiveData<FirebaseUser?>
+        authUser.value = user
+
+    }
+
+    fun userId(): String? = userData.value?.id
 
     private fun loadAndSaveImage(uri: Uri?, oldId: String) {
         val userPhotoRequest =
@@ -69,11 +85,23 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
 }
 
 data class UserProfile(
-    var id: String,
     var fullName: String?,
     var nickName: String?,
     var email: String?,
     var location: String?,
     var userProfilePhotoFile: Blob?
-)
+) : IdentifiableObject() {
+    constructor(
+        id: String?,
+        fullName: String?,
+        nickName: String?,
+        email: String?,
+        location: String?,
+        userProfilePhotoFile: Blob?
+    ) : this(fullName, nickName, email, location, userProfilePhotoFile) {
+        this.id = id
+    }
+
+    constructor() : this(null, null, null, null, null, null)
+}
 

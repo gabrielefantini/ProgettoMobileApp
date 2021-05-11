@@ -26,6 +26,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 
 class LoginFragment : Fragment(R.layout.login_fragment) {
 
@@ -34,6 +35,7 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
     private lateinit var authenticator: FirebaseAuth
 
     private val authenticationContext: AuthenticationContext by activityViewModels()
+    private val userProfileViewModel: UserProfileViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,8 +81,7 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
         if (authenticationContext.rememberMe)
             authenticator.currentUser?.let {
                 authenticationContext.loginUser(it)
-                activity?.findNavController(R.id.nav_host_fragment_content_main)
-                    ?.navigate(R.id.action_LoginFragment_to_OthersTripListFragment)
+                complete()
             }
     }
 
@@ -117,10 +118,14 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
                     //if "remember me" is not selected, next time login page is visited google shouldn ask again the google account
                     if (!authenticationContext.rememberMe)
                         signOut()
-
-                    activity?.findNavController(R.id.nav_host_fragment_content_main)
-                        ?.navigate(R.id.action_LoginFragment_to_OthersTripListFragment)
+                    complete()
                 }
             }
+    }
+
+    private fun complete() {
+        //userProfileViewModel.showUser(authenticationContext.userId()!!) TODO FIX ASYNC VALUE LOADING.
+        activity?.findNavController(R.id.nav_host_fragment_content_main)
+            ?.navigate(R.id.action_LoginFragment_to_OthersTripListFragment)
     }
 }

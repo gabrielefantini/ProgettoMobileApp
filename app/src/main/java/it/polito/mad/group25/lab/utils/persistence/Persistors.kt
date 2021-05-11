@@ -157,7 +157,7 @@ object Persistors {
         observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
             FirestoreLivePersistenceObserver<QuerySnapshot, T> {},
     ): PropertyDelegateProvider<C, FirestoreLiveCollectionPersistorDelegate<T, C>> {
-        return createThroughProvider(typeReference, false, default, id, observer)
+        return createThroughProvider(typeReference, true, default, id, observer)
         { id, container, targetClass, handler ->
             FirestoreLiveCollectionPersistorDelegate(
                 container, id, collection,
@@ -213,7 +213,7 @@ object Persistors {
         observer: FirestoreLivePersistenceObserver<DocumentSnapshot, T> = object :
             FirestoreLivePersistenceObserver<DocumentSnapshot, T> {},
     ): PropertyDelegateProvider<C, FirestoreLivePersistorDelegate<T, C>> {
-        return createThroughProvider(typeReference, false, default, id, observer)
+        return createThroughProvider(typeReference, true, default, id, observer)
         { id, container, targetClass, handler ->
             FirestoreLivePersistorDelegate(
                 container, id, collection, document, lazyInit,

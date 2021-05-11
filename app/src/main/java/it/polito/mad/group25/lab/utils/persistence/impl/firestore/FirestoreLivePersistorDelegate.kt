@@ -5,6 +5,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import it.polito.mad.group25.lab.utils.datastructure.Identifiable
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
@@ -53,7 +54,7 @@ class FirestoreLivePersistorDelegate<T, C>(
             Log.d(LOG_TAG, "${javaClass.simpleName} is not in lazy mode for $id")
             if (document == null)
                 throw IllegalStateException("${javaClass.simpleName} is not on lazy initialization mode and none document id was provided")
-            loadDocument(document!!)
+            initializeStore(document!!)
         } else {
             Log.d(LOG_TAG, "${javaClass.simpleName} is in lazy mode for $id")
         }
@@ -73,10 +74,24 @@ class FirestoreLivePersistorDelegate<T, C>(
 
     override fun <R> doPersist(value: R) {
         Log.i(LOG_TAG, "Persisting value for $id on firestore")
-        store.set(value ?: NULL_VALUE)
+        if (!this::store.isInitialized) {
+            if (value is Identifiable) {
+                if (value.id == null) {
+                    FirebaseFirestore.getInstance()
+                        .collection(this.collection!!).add(value)
+                        .addOnCompleteListener { t -> if (t.isSuccessful) value.id = t.result!!.id }
+                } else {
+                    initializeStore(value.id!!)
+                    store.set(value)
+                }
+            } else if (value != null) {
+                FirebaseFirestore.getInstance()
+                    .collection(this.collection!!).add(value)
+            }
+        } else store.set(value ?: NULL_VALUE)
     }
 
-    private fun loadDocument(document: String) {
+    private fun initializeStore(document: String) {
         Log.i(LOG_TAG, "${javaClass.simpleName} will try using $collection/$document for $id")
         store = FirebaseFirestore.getInstance()
             .collection(this.collection!!)
@@ -96,9 +111,11 @@ class FirestoreLivePersistorDelegate<T, C>(
         }
     }
 
-    fun loadAnotherDocument(document: String) {
-        listenerRegistration.remove()
-        loadDocument(document)
+    fun loadAnotherDocument(document: String): DocumentReference {
+        if (this::listenerRegistration.isInitialized)
+            listenerRegistration.remove()
+        initializeStore(document)
+        return store
     }
 
 }

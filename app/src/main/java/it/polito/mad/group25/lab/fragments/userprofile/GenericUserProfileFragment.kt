@@ -56,16 +56,12 @@ abstract class GenericUserProfileFragment(
 }
 
 class UserProfileViewModel(application: Application) : PersistableViewModel(application) {
-    private val userID: String by Persistors.sharedPreferences(
-        "unknown",
-        AuthenticationContext.STORED_USERID_KEY
-    )
 
     //nullable because initially it will be null until the data is loaded from the server.
     val shownUser: MutableLiveData<UserProfile?>
             by Persistors.simpleLiveFirestore(
                 collection = "users",
-                document = userID,
+                lazyInit = true,
                 default = MutableLiveData(),
                 observer = object :
                     FirestoreLivePersistenceObserver<DocumentSnapshot, MutableLiveData<UserProfile?>> {

@@ -141,15 +141,11 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
     protected val handler: PersistenceHandler<T>
     protected var value: T
         set(value) {
-            if (!defaultLoaded) {
-                field = value
-                return
-            }
             assertNotReadOnly()
 
             Log.d(LOG_TAG, "Calling handler for changing value attempt of $id")
 
-            var toSet: T? = if (field != null)
+            var toSet: T? = if (defaultLoaded)
                 handler.handleNewValue(field, value)
             else handler.handleNewValue(value)
 
@@ -157,8 +153,10 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
                 Log.w(LOG_TAG, "Handler of $id denied value changing.")
                 return
             }
-            Log.d(LOG_TAG, "Providing value change request of $id to observer")
-            toSet = observer.beforeValueChanges(field, toSet)
+            if (defaultLoaded) {
+                Log.d(LOG_TAG, "Providing value change request of $id to observer")
+                toSet = observer.beforeValueChanges(field, toSet)
+            }
             if (toSet == null) {
                 Log.w(LOG_TAG, "Observer denied value changing of $id.")
                 return
@@ -197,7 +195,7 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
      */
     protected open fun initialized() {
         isInitialized = true
-        notifyingPersistenceLoading { this.value = loadPersistence() ?: default }
+        notifyingPersistenceLoading { loadPersistenceAndSaveIt() }
     }
 
     private fun initializeHandler(handler: AbstractPersistenceHandler<T, *>?): PersistenceHandler<T> =
