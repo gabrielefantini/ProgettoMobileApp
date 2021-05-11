@@ -21,6 +21,12 @@ import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.views.fromFile
 import java.io.File
+import it.polito.mad.group25.lab.fragments.trip.TripLocation
+import it.polito.mad.group25.lab.fragments.trip.TripViewModel
+import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
+import it.polito.mad.group25.lab.fragments.trip.timeFormatted
+import it.polito.mad.group25.lab.utils.toLocalDateTime
+import it.polito.mad.group25.lab.utils.views.fromBlob
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -63,7 +69,10 @@ abstract class TripDetailsFragment(
 
         val last = trip.locations.lastIndex
         view.findViewById<TextView>(R.id.durationText).text =
-            getDurationFormatted(trip.locations[0].locationTime, trip.locations[last].locationTime)
+            getDurationFormatted(
+                trip.locations[0].locationTime.toLocalDateTime(),
+                trip.locations[last].locationTime.toLocalDateTime()
+            )
 
         rv.layoutManager = LinearLayoutManager(context)
         rv.adapter = TripLocationAdapter(trip.locations)
@@ -81,8 +90,10 @@ abstract class TripDetailsFragment(
                 additionalInfoChips.addView(chip)
             }
         }
-        view.findViewById<ImageView>(R.id.carImage)
-            .fromFile(trip.carPic ?: File(requireActivity().dataDir, trip.id.toString()))
+        trip.carPic?.let {
+            view.findViewById<ImageView>(R.id.carImage)
+                .fromBlob(it)
+        }
 
         val div = view.findViewById<View>(R.id.dividerInfo)
         val intUserText = view.findViewById<TextView>(R.id.interestedUsers)
@@ -128,11 +139,11 @@ fun getDurationFormatted(first: LocalDateTime, last: LocalDateTime): String {
     var hours = durationMin / 60
     val min = durationMin % 60
 
-    val days = hours/24
-    if(days != 0)
+    val days = hours / 24
+    if (days != 0)
         hours -= 24
 
-    return "${if(days != 0) "${days}d" else ""} ${if (hours != 0) "${hours}h" else ""} ${if (min != 0) "${min}min" else ""}"
+    return "${if (days != 0) "${days}d" else ""} ${if (hours != 0) "${hours}h" else ""} ${if (min != 0) "${min}min" else ""}"
 }
 
 class TripLocationAdapter(private val list: List<TripLocation>) :

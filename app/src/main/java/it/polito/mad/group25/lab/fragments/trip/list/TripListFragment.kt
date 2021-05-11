@@ -22,7 +22,7 @@ import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
-import it.polito.mad.group25.lab.utils.views.fromFile
+import it.polito.mad.group25.lab.utils.views.fromBlob
 
 
 class TripListFragment : Fragment() {
@@ -56,7 +56,7 @@ class TripListFragment : Fragment() {
         //pass an observable to MyTripCarRecyclerViewAdapter
         tripListViewModel.trips.observe(viewLifecycleOwner, { tripMap ->
             // Set the adapter
-            if(tripMap.size == 0){
+            if (tripMap.size == 0) {
                 view.findViewById<TextView>(R.id.textView2).visibility = View.VISIBLE
                 list.visibility = View.GONE
             } else {
@@ -124,7 +124,7 @@ class TripListFragment : Fragment() {
                 tripViewModel.trip = item
                 view.findNavController().navigate(R.id.showTripDetailsFragment)
             }
-            tripList[position].carPic?.let { holder.image.fromFile(it) }
+            tripList[position].carPic?.let { holder.image.fromBlob(it) }
         }
 
         override fun getItemCount(): Int = tripList.size

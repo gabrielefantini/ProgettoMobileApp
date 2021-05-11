@@ -7,11 +7,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.utils.persistence.ConcurrentPersistor
-import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
-import it.polito.mad.group25.lab.utils.views.fromFile
-import java.io.File
+import it.polito.mad.group25.lab.utils.persistence.Persistors
+import it.polito.mad.group25.lab.utils.views.fromByteList
 
 abstract class GenericUserProfileFragment(
     contentLayoutId: Int
@@ -27,25 +27,32 @@ abstract class GenericUserProfileFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<TextView>(R.id.fullName).text = userProfileViewModel.fullName
-        view.findViewById<TextView>(R.id.nickName).text = userProfileViewModel.nickName
-        view.findViewById<TextView>(R.id.email).text = userProfileViewModel.email
-        view.findViewById<TextView>(R.id.location).text = userProfileViewModel.location
-
-        view.findViewById<ImageView>(R.id.profilePic)
-            .fromFile(userProfileViewModel.userProfilePhotoFile)
+        userProfileViewModel.shownUser.observe(viewLifecycleOwner) {
+            if (it == null)
+                return@observe
+            view.findViewById<TextView>(R.id.fullName).text = it.fullName
+            view.findViewById<TextView>(R.id.nickName).text = it.nickName
+            view.findViewById<TextView>(R.id.email).text = it.email
+            view.findViewById<TextView>(R.id.location).text = it.location
+            view.findViewById<ImageView>(R.id.profilePic)
+                .fromByteList(it.userProfilePhotoFile)
+        }
     }
 }
 
-class UserProfileViewModel(application: Application) : PersistableViewModel(application) {
-
-    var fullName: String? by ConcurrentPersistor(null)
-    var nickName: String? by ConcurrentPersistor(null)
-    var email: String? by ConcurrentPersistor(null)
-    var location: String? by ConcurrentPersistor(null)
-    var userProfilePhotoFile: File by ConcurrentPersistor(
-        File(application.filesDir, "userProfilePicture")
+class UserProfileViewModel(application: Application) : AndroidViewModel(application) {
+    //nullable because initially it will be null until the data is loaded from the server.
+    var shownUser: MutableLiveData<UserProfile?> by Persistors.liveFirestore(
+        collection = "users",
+        default = MutableLiveData()
     )
-
 }
 
+data class UserProfile(
+    var id: String,
+    var fullName: String,
+    var nickName: String,
+    var email: String,
+    var location: String,
+    var userProfilePhotoFile: List<Byte>
+)

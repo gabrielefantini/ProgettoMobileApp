@@ -3,31 +3,36 @@ package it.polito.mad.group25.lab.fragments.trip.list
 import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.fasterxml.jackson.core.type.TypeReference
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import it.polito.mad.group25.lab.fragments.trip.Trip
-import it.polito.mad.group25.lab.utils.persistence.ConcurrentPersistor
-import it.polito.mad.group25.lab.utils.persistence.impl.PersistenceAwareLiveData
-import it.polito.mad.group25.lab.utils.persistence.impl.PersistenceAwareMutableMap
-import it.polito.mad.group25.lab.utils.persistence.impl.persistenceAwareMutableMapOf
+import it.polito.mad.group25.lab.utils.persistence.Persistors
+import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareMutableMap
+import it.polito.mad.group25.lab.utils.persistence.awareds.persistenceAwareMutableMapOf
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
+import java.util.*
 
 class TripListViewModel(application: Application) : PersistableViewModel(application) {
-    val trips: PersistenceAwareLiveData<PersistenceAwareMutableMap<Int, Trip>> by ConcurrentPersistor(
-        PersistenceAwareLiveData(persistenceAwareMutableMapOf()),
-        object : TypeReference<PersistenceAwareLiveData<PersistenceAwareMutableMap<Int, Trip>>>() {}
-    )
+    val trips: LiveData<PersistenceAwareMutableMap<String, Trip>>
+            by Persistors.liveFirestore(
+                collection = "trips",
+                default = MutableLiveData(persistenceAwareMutableMapOf())
+            )
 
-    private companion object {
-        var index = 0
-    }
 
     var userId = ""
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNewTrip(): Trip {
-        if (trips.value!!.isNotEmpty() && index == 0)
-            index = trips.value!!.keys.maxOf { it } + 1
-        return Trip().apply { id = index++ }
+        return Trip().apply { id = generateNewId() }
+    }
+
+    private fun generateNewId(): String {
+        var id: String
+        do {
+            id = UUID.randomUUID().toString()
+        } while (trips.value!!.containsKey(id))
+        return id
     }
 
 
@@ -36,8 +41,7 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
     }
 
     fun putTrip(trip: Trip) {
-        if (trip.id > index) index = trip.id + 1
-        trips.value?.put(trip.id, trip)
+        trips.value?.put(trip.id!!, trip)
     }
 
 }

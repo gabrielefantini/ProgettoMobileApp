@@ -2,21 +2,20 @@ package it.polito.mad.group25.lab.fragments.trip
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import java.io.File
-import java.time.LocalDate
-import java.time.LocalDateTime
+import com.google.firebase.firestore.Blob
+import it.polito.mad.group25.lab.utils.datastructure.IdentifiableObject
+import java.time.Instant
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.properties.Delegates
 
 @RequiresApi(Build.VERSION_CODES.O)
-class Trip {
-    var id by Delegates.notNull<Int>()
-    var carPic: File? = null
+class Trip : IdentifiableObject() {
+    var carPic: Blob? = null
     var carName: String? = null
-    var tripStartDate: LocalDate = LocalDate.now()
+    var tripStartDate: Long = System.currentTimeMillis()
     val locations: MutableList<TripLocation> = mutableListOf(
         TripLocation(),
-        TripLocation(locationTime = LocalDateTime.now().plusMinutes(30))
+        TripLocation(locationTime = Instant.now().plusSeconds(30 * 60).toEpochMilli())
     )
     var seats: Int = 0
     var price: Double = 0.0
@@ -27,21 +26,26 @@ class Trip {
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun Trip.startDateFormatted(): String =
-    this.tripStartDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+    DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        .withZone(ZoneId.systemDefault())
+        .format(Instant.ofEpochMilli(this.tripStartDate))
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 data class TripLocation(
     var location: String = "loc name",
-    var locationTime: LocalDateTime = LocalDateTime.now()
+    var locationTime: Long = System.currentTimeMillis()
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun TripLocation.timeFormatted(): String =
-    this.locationTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+    DateTimeFormatter.ofPattern("HH:mm")
+        .withZone(ZoneId.systemDefault())
+        .format(Instant.ofEpochMilli(this.locationTime))
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun Trip.addTripLocationOrdered(location: String, locationTime: LocalDateTime) {
-    val trip = TripLocation(location, locationTime)
+fun Trip.addTripLocationOrdered(location: String, locationTime: Instant) {
+    val trip = TripLocation(location, locationTime.toEpochMilli())
     locations.add(trip)
     locations.sortBy { it.locationTime }
 }

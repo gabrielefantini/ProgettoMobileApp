@@ -1,7 +1,12 @@
 package it.polito.mad.group25.lab.utils
 
 import android.os.Build
+import androidx.annotation.RequiresApi
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.type.TypeFactory
 import java.lang.reflect.Field
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
 import java.math.BigDecimal
 import java.math.BigInteger
 import kotlin.reflect.KClass
@@ -81,3 +86,29 @@ fun <T : Any> Class<T>.distanceFrom(sourceClass: Class<*>): Int? {
 
 fun <T : Any> KClass<T>.distanceFrom(sourceClass: KClass<*>): Int? =
     java.distanceFrom(sourceClass.java)
+
+@RequiresApi(Build.VERSION_CODES.P)
+fun <T> TypeReference<T>.genericType(): Array<Type> {
+    if (this.type !is ParameterizedType)
+        throw IllegalArgumentException("Given type is not a generic one!")
+    return (this.type as ParameterizedType).actualTypeArguments
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+fun <T> Class<T>.genericType(): Array<Type> {
+    val genericSuperClass = this.genericSuperclass
+    if (genericSuperClass == null || genericSuperClass !is ParameterizedType)
+        throw IllegalArgumentException("Given type is not a generic one")
+    return genericSuperClass.actualTypeArguments
+}
+
+
+fun Type.extractClass(): Class<*> = Class.forName(cleanGenericClassName(this.typeName))
+
+private fun cleanGenericClassName(className: String) = className.let {
+    if (it.contains("<"))
+        it.substring(0, it.indexOf("<"))
+    else it
+}
+
+fun <T> TypeReference<T>.toJavaType() = TypeFactory.defaultInstance().constructType(this)
