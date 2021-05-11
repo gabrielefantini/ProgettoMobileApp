@@ -1,10 +1,12 @@
 package it.polito.mad.group25.lab
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -13,6 +15,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import it.polito.mad.group25.lab.databinding.ActivityMainBinding
+import it.polito.mad.group25.lab.fragments.login.AuthContext
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 import it.polito.mad.group25.lab.utils.views.fromByteList
 
@@ -22,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
 
     private lateinit var userProfileViewModel: UserProfileViewModel
+    private lateinit var authContext: AuthContext
 
     /*companion object {
         init {
@@ -41,7 +45,6 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(activityMainBinding.appBarMain.toolbar)
 
-
         val drawerLayout: DrawerLayout = activityMainBinding.drawerLayout
         val navView: NavigationView = activityMainBinding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -55,9 +58,8 @@ class MainActivity : AppCompatActivity() {
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
+
         navView.setupWithNavController(navController)
-
-
         navView.menu.findItem(R.id.nav_user_profile).setOnMenuItemClickListener {
             navController.navigate(R.id.showUserProfileFragment)
             drawerLayout.closeDrawers()
@@ -75,6 +77,15 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.closeDrawers()
             true
         }
+
+        authContext = ViewModelProvider(this).get(AuthContext::class.java)
+        authContext.authUser.observe(this,{
+            user ->
+            if(user == null){
+                supportActionBar?.title = "Welcome!"
+                supportActionBar?.setDisplayHomeAsUpEnabled(false)
+            }
+        })
 
         userProfileViewModel = ViewModelProvider(this).get(UserProfileViewModel::class.java)
 

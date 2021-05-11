@@ -77,11 +77,11 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
 
     override fun onStart() {
         super.onStart()
-
+        authContext.authUser.value = null
         //check for already signed in users (only if selected)
         if(authContext.rememberMe.value == true)
             authenticator.currentUser?.let {
-                authContext.authUser = it
+                authContext.authUser.value = it
                 activity?.findNavController(R.id.nav_host_fragment_content_main)
                     ?.navigate(R.id.action_LoginFragment_to_OthersTripListFragment)
             }
@@ -115,7 +115,7 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
             .addOnCompleteListener { task ->
                 if(task.isSuccessful){
                     //success
-                    authContext.authUser = authenticator.currentUser!!
+                    authContext.authUser.value = authenticator.currentUser!!
 
                     //if "remember me" is not selected, next time login page is visited google shouldn ask again the google account
                     if(authContext.rememberMe.value == false)
@@ -129,11 +129,11 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
 }
 
 class AuthContext(application: Application): PersistableViewModel(application){
-    var authUser: FirebaseUser? = null
+    var authUser: MutableLiveData<FirebaseUser?> = MutableLiveData(null)
 
     var rememberMe: MutableLiveData<Boolean> by Persistors.sharedPreferences(
         default = MutableLiveData(false)
     )
 
-    fun userId(): String? = authUser?.uid
+    fun userId(): String? = authUser.value?.uid
 }
