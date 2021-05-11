@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.login.AuthContext
 import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
@@ -30,6 +31,7 @@ class TripListFragment : Fragment() {
     //Initializing sharedViewModel
     private val tripListViewModel: TripListViewModel by activityViewModels()
     private val tripViewModel: TripViewModel by activityViewModels()
+    private val authContext: AuthContext by activityViewModels()
 
     private var columnCount = 1
 
@@ -66,7 +68,7 @@ class TripListFragment : Fragment() {
                         columnCount <= 1 -> LinearLayoutManager(context)
                         else -> GridLayoutManager(context, columnCount)
                     }
-                    adapter = TripCardRecyclerViewAdapter(tripMap.values.toList(), tripViewModel)
+                    adapter = TripCardRecyclerViewAdapter(tripMap.values.toList(), tripViewModel, authContext.userId())
                 }
             }
         })

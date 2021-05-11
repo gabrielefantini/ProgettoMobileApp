@@ -27,7 +27,7 @@ interface CardType {
         const val TYPE_OTHERSTRIP = 2
     }
 }
-class TripCardRecyclerViewAdapter(val tripList: List<Trip>, var currentTrip: TripViewModel) :
+class TripCardRecyclerViewAdapter(val tripList: List<Trip>, var currentTrip: TripViewModel, val currentId: String?) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -54,8 +54,11 @@ class TripCardRecyclerViewAdapter(val tripList: List<Trip>, var currentTrip: Tri
     override fun getItemCount(): Int = tripList.size
 
     override fun getItemViewType(position: Int): Int {
-        return if (tripList[position].getType()) 1
-                else 2
+        return if(currentId != null){
+            if(currentId == tripList[position].ownerId) 1
+            else 2
+        } else 1
+
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int){
