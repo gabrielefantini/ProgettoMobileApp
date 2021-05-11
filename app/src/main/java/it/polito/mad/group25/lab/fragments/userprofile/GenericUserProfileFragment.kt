@@ -57,17 +57,16 @@ abstract class GenericUserProfileFragment(
 
 class UserProfileViewModel(application: Application) : PersistableViewModel(application) {
 
-    //nullable because initially it will be null until the data is loaded from the server.
-    val shownUser: MutableLiveData<UserProfile?>
+    val shownUser: MutableLiveData<UserProfile>
             by Persistors.simpleLiveFirestore(
                 collection = "users",
                 lazyInit = true,
                 default = MutableLiveData(),
                 observer = object :
-                    FirestoreLivePersistenceObserver<DocumentSnapshot, MutableLiveData<UserProfile?>> {
+                    FirestoreLivePersistenceObserver<DocumentSnapshot, MutableLiveData<UserProfile>> {
                     // do no persist any value set here! It's just for reading!
-                    override fun beforePerformingPersistence(value: MutableLiveData<UserProfile?>)
-                            : MutableLiveData<UserProfile?>? = null
+                    override fun beforePerformingPersistence(value: MutableLiveData<UserProfile>)
+                            : MutableLiveData<UserProfile>? = null
                 }
             )
 
