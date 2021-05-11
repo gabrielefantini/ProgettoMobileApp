@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.transition.TransitionManager
+import android.util.Log
 import android.view.*
 import android.view.View.*
 import android.widget.*
@@ -33,7 +34,6 @@ import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.details.getDurationFormatted
 import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
-import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.persistence.PersistableContainer
@@ -49,6 +49,7 @@ import java.time.ZoneOffset
 import java.time.chrono.ChronoLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.reflect.jvm.internal.impl.util.Check
 
 abstract class TripEditFragment(
     contentLayoutId: Int
@@ -64,6 +65,8 @@ abstract class TripEditFragment(
     private lateinit var carNameLayout: TextInputLayout
     private lateinit var priceLayout: TextInputLayout
     private lateinit var seatsLayout: TextInputLayout
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,9 +111,9 @@ abstract class TripEditFragment(
         )
         seatsLayout.setConstraints(
             R.id.seatsText,
-            "Please provide valid seats between 1 and 7",
+            "Please provide valid seats between 1 and 7 (considering also the assigned ones)",
             true
-        ) { it.isNotBlank() && it.toString().toInt().let { s -> s in 1..7 } }
+        ) { it.isNotBlank() && it.toString().toInt().let { s -> s in 1..7 - tripViewModel.trip.interestedUsers.size } }
 
 
         val context = this.context
@@ -264,6 +267,9 @@ abstract class TripEditFragment(
             }
         }
 
+        setUpRemoveButton(view)
+        setUpInterestedUsers(view)
+
         tripEditViewModel.selectedTripLocationId.observe(viewLifecycleOwner,
             { locationId ->
                 if (locationId != null) {
@@ -350,6 +356,25 @@ abstract class TripEditFragment(
 
     }
 
+    fun setUpInterestedUsers(view: View) {
+        val rv = view.findViewById<RecyclerView>(R.id.userList)
+        rv.layoutManager = LinearLayoutManager(context)
+        rv.adapter = TripUsersEditAdapter(
+            tripViewModel.trip.interestedUsers.toList(),
+            tripEditViewModel.interestedUsersTmp
+        )
+
+    }
+
+    fun setUpRemoveButton(view: View) {
+        val remove_button = view.findViewById<Button>(R.id.remove_button)
+        remove_button.setOnClickListener {
+            tripListViewModel.removeTrip(tripViewModel.trip)
+            view.findNavController().navigate(R.id.TripListFragment)
+        }
+
+    }
+
 
     override fun onCreateContextMenu(
         menu: ContextMenu,
@@ -430,16 +455,19 @@ abstract class TripEditFragment(
             tripSel.carPic = it.toFile()!!
         }
 
+        if (tripEditViewModel.interestedUsersTmp.size > seats) {
+            showError("Please select a proper number of user to add to the trip")
+            return false
+        }
+        // se il controllo è andato a buon fine aggiorno il numero di posti disponibili
         seats.also {
-            if (tripSel.seats != it) {
-                tripSel.seats = it
+            if (tripSel.seats != it-tripEditViewModel.interestedUsersTmp.size) {
+                tripSel.seats = it-tripEditViewModel.interestedUsersTmp.size
             }
         }
-        seats.also {
-            if (tripSel.seats != it) {
-                tripSel.seats = it
-            }
-        }
+
+        // se non ho posti liberi non potrò aggiungere altri utenti
+        //if (tripSel.seats == 0) tripViewModel.trip.interestedUsers = mutableListOf()
 
         view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble().also {
             if (tripSel.price != it) {
@@ -589,6 +617,7 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
     PersistableContainer {
 
     private var _selectedTripLocationId = MutableLiveData<Int>(null)
+    val interestedUsersTmp = mutableListOf<String>()
     val selectedTripLocationId: LiveData<Int> = _selectedTripLocationId
     fun selectTripLocation(id: Int) {
         _selectedTripLocationId.value = id
@@ -603,4 +632,40 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
 
 }
 
+class TripUsersEditAdapter(private val list: List<String>, val interestedUsersTmp: MutableList<String>) :
+    RecyclerView.Adapter<TripUsersEditAdapter.TripUsersViewHolder>() {
 
+    class TripUsersViewHolder(v: View, interestedUsersTmp: MutableList<String>) : RecyclerView.ViewHolder(v) {
+        private val username: TextView = v.findViewById(R.id.username)
+        private val checkBox = v.findViewById<CheckBox>(R.id.confirm_user)
+
+        fun bind(t: String, interestedUsersTmp: MutableList<String>) {
+            username.text = "user $t"
+            var i = 0
+            // if (!t.isConfirmed) {
+                checkBox.visibility = VISIBLE
+                checkBox.setOnClickListener {
+                    if(i%2 == 0) interestedUsersTmp.add(t)
+                    else interestedUsersTmp.remove(t)
+                    i++
+                    Log.d("checkBox", interestedUsersTmp.toString())
+                }
+            //}
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripUsersViewHolder {
+        val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
+        return TripUsersViewHolder(layout, interestedUsersTmp)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onBindViewHolder(holder: TripUsersViewHolder, position: Int) {
+        holder.bind(list[position], interestedUsersTmp)
+    }
+
+    override fun getItemCount(): Int = list.size
+
+    override fun getItemViewType(position: Int): Int = R.layout.trip_user_line
+
+}
