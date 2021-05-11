@@ -4,7 +4,7 @@ import android.util.Log
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import it.polito.mad.group25.lab.AuthenticationContext
+import com.google.firebase.firestore.ListenerRegistration
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
@@ -25,8 +25,9 @@ interface FirestoreLivePersistenceObserver<SF, T> :
 class FirestoreLivePersistorDelegate<T, C>(
     thisRef: C,
     id: String,
-    collection: String? = null,
-    document: String? = null,
+    private var collection: String? = null,
+    private var document: String? = null,
+    private var lazyInit: Boolean,
     targetClass: Class<T>,
     default: T,
     observer: FirestoreLivePersistenceObserver<DocumentSnapshot, T>,
@@ -36,34 +37,25 @@ class FirestoreLivePersistorDelegate<T, C>(
     default, observer, handler
 ) {
 
-    lateinit var toParse: DocumentSnapshot
 
-    protected val NULL_VALUE = "null"
+    private val NULL_VALUE = "null"
 
-
-    var store: DocumentReference
+    private lateinit var toParse: DocumentSnapshot
+    private lateinit var store: DocumentReference
+    private lateinit var listenerRegistration: ListenerRegistration
 
     init {
         // Prendo la collection data oppure il l'id del field in questione
         // Prendo il documento dato oppure quello che appartiene all'utente selezionato.
         // Esempio pratico per gli utenti: Collection di utenti in cui l'oggetto che mi interessa è quello dell'utente x.
-        val c = collection ?: id
-        val d = document ?: AuthenticationContext.userID
-        Log.i(LOG_TAG, "${javaClass.simpleName} will try using $c/$d for $id")
-        store = FirebaseFirestore.getInstance()
-            .collection(c)
-            .document(d)
-
-        store.addSnapshotListener { value, error ->
-            Log.i(LOG_TAG, "Received async value for $id.")
-            observer.onAsyncValueReceived(value, error)
-            if (value == null)
-                throw IllegalArgumentException(
-                    "Received value is null! " +
-                            "This should never happen, check error handling of the observer!"
-                )
-            toParse = value
-            loadPersistence()?.let { this.value = it } //trigger the handlers
+        collection = collection ?: id
+        if (!lazyInit) {
+            Log.d(LOG_TAG, "${javaClass.simpleName} is not in lazy mode for $id")
+            if (document == null)
+                throw IllegalStateException("${javaClass.simpleName} is not on lazy initialization mode and none document id was provided")
+            loadDocument(document!!)
+        } else {
+            Log.d(LOG_TAG, "${javaClass.simpleName} is in lazy mode for $id")
         }
         initialized()
     }
@@ -82,6 +74,31 @@ class FirestoreLivePersistorDelegate<T, C>(
     override fun <R> doPersist(value: R) {
         Log.i(LOG_TAG, "Persisting value for $id on firestore")
         store.set(value ?: NULL_VALUE)
+    }
+
+    private fun loadDocument(document: String) {
+        Log.i(LOG_TAG, "${javaClass.simpleName} will try using $collection/$document for $id")
+        store = FirebaseFirestore.getInstance()
+            .collection(this.collection!!)
+            .document(document)
+
+        listenerRegistration = store.addSnapshotListener { value, error ->
+            Log.i(LOG_TAG, "Received async value for $id.")
+            (observer as FirestoreLivePersistenceObserver<DocumentSnapshot, T>)
+                .onAsyncValueReceived(value, error)
+            if (value == null)
+                throw IllegalArgumentException(
+                    "Received value is null! " +
+                            "This should never happen, check error handling of the observer!"
+                )
+            toParse = value
+            loadPersistenceAndSaveIt()
+        }
+    }
+
+    fun loadAnotherDocument(document: String) {
+        listenerRegistration.remove()
+        loadDocument(document)
     }
 
 }

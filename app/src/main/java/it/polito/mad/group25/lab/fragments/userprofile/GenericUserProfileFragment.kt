@@ -7,17 +7,24 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.firestore.DocumentSnapshot
+import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.UserProfile
 import it.polito.mad.group25.lab.utils.persistence.Persistors
-import it.polito.mad.group25.lab.utils.views.fromByteList
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistenceObserver
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
+import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
+import it.polito.mad.group25.lab.utils.views.fromBlob
+import kotlin.reflect.jvm.isAccessible
 
 abstract class GenericUserProfileFragment(
     contentLayoutId: Int
 ) : Fragment(contentLayoutId) {
 
     protected val userProfileViewModel: UserProfileViewModel by activityViewModels()
+    protected val authenticationContext: AuthenticationContext by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,34 +32,57 @@ abstract class GenericUserProfileFragment(
     }
 
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    fun visualizeUserData(view: View, hideSensitiveDataIfNecessary: Boolean) {
         userProfileViewModel.shownUser.observe(viewLifecycleOwner) {
             if (it == null)
                 return@observe
-            view.findViewById<TextView>(R.id.fullName).text = it.fullName
+
             view.findViewById<TextView>(R.id.nickName).text = it.nickName
+            it.userProfilePhotoFile?.let { it1 ->
+                view.findViewById<ImageView>(R.id.profilePic)
+                    .fromBlob(it1)
+            }
+
+            if (hideSensitiveDataIfNecessary && it.id != authenticationContext.userId())
+                return@observe
+
+            view.findViewById<TextView>(R.id.fullName).text = it.fullName
             view.findViewById<TextView>(R.id.email).text = it.email
             view.findViewById<TextView>(R.id.location).text = it.location
-            view.findViewById<ImageView>(R.id.profilePic)
-                .fromByteList(it.userProfilePhotoFile)
+
+
         }
     }
 }
 
-class UserProfileViewModel(application: Application) : AndroidViewModel(application) {
-    //nullable because initially it will be null until the data is loaded from the server.
-    var shownUser: MutableLiveData<UserProfile?> by Persistors.liveFirestore(
-        collection = "users",
-        default = MutableLiveData()
+class UserProfileViewModel(application: Application) : PersistableViewModel(application) {
+    private val userID: String by Persistors.sharedPreferences(
+        "unknown",
+        AuthenticationContext.STORED_USERID_KEY
     )
+
+    //nullable because initially it will be null until the data is loaded from the server.
+    val shownUser: MutableLiveData<UserProfile?>
+            by Persistors.simpleLiveFirestore(
+                collection = "users",
+                document = userID,
+                default = MutableLiveData(),
+                observer = object :
+                    FirestoreLivePersistenceObserver<DocumentSnapshot, MutableLiveData<UserProfile?>> {
+                    // do no persist any value set here! It's just for reading!
+                    override fun beforePerformingPersistence(value: MutableLiveData<UserProfile?>)
+                            : MutableLiveData<UserProfile?>? = null
+                }
+            )
+
+
+    private val persistor =
+        this::shownUser.apply { isAccessible = true }
+            .getDelegate() as FirestoreLivePersistorDelegate<MutableLiveData<UserProfile?>, UserProfileViewModel>
+
+    fun showUser(id: String) {
+        persistor.loadAnotherDocument(id)
+    }
+
 }
 
-data class UserProfile(
-    var id: String,
-    var fullName: String,
-    var nickName: String,
-    var email: String,
-    var location: String,
-    var userProfilePhotoFile: List<Byte>
-)

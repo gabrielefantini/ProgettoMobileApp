@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JavaType
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import it.polito.mad.group25.lab.utils.datastructure.Identifiable
-import it.polito.mad.group25.lab.utils.extractClass
 import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistableContainer
 import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistorDelegate
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLiveCollectionPersistorDelegate
@@ -16,11 +15,8 @@ import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLiveP
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
 import it.polito.mad.group25.lab.utils.toJavaType
 import it.polito.mad.group25.lab.utils.type
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.reflect.KProperty
-import kotlin.reflect.jvm.javaType
 
 //creato per separare la logica di scelta del persistor dal persistor stesso
 @Suppress("UNCHECKED_CAST")
@@ -32,19 +28,19 @@ object Persistors {
     // dei handler particolari
     private fun <T> customHandler(
         isAutoUpdatable: Boolean,
-        targetType: Type,
+        targetType: JavaType,
         id: String,
         observer: PersistenceObserver<T>
     ): AbstractPersistenceHandler<T, *>? {
         var handler: AbstractPersistenceHandler<T, *>? = null
 
-        val targetClass = targetType.extractClass()
+        val targetClass = targetType.rawClass
 
         if (LiveData::class.java.isAssignableFrom(targetClass)) {
             handler = liveDataHandler(
                 isAutoUpdatable,
                 targetClass as Class<LiveData<Any?>>,
-                targetType as ParameterizedType,
+                targetType,
                 id, observer as PersistenceObserver<LiveData<Any?>>
             ) as AbstractPersistenceHandler<T, *>
         }
@@ -61,17 +57,17 @@ object Persistors {
     private fun <T, L : LiveData<T>> liveDataHandler(
         isAutoUpdatable: Boolean,
         targetClass: Class<L>,
-        targetType: ParameterizedType,
+        targetType: JavaType,
         id: String,
         observer: PersistenceObserver<L>
     ): AbstractPersistenceHandler<L, T> {
         Log.d(LOG_TAG, "Persisted type $id is a Live Data, providing custom handling.")
 
-
-        val innerType = targetType.actualTypeArguments[0].extractClass() as Class<T>
+        val innerJavaType = targetType.bindings.typeParameters[0]
+        val innerType = innerJavaType.rawClass as Class<T>
 
         val innerHandler = customHandler(
-            isAutoUpdatable, innerType, id,
+            isAutoUpdatable, innerJavaType, id,
             object : PersistenceObserver<T> {}) as PersistenceHandler<T>?
 
         if (!LiveDataPersistenceObserver::class.java.isAssignableFrom(observer::class.java)) {
@@ -104,37 +100,40 @@ object Persistors {
 
     // i persistors vengono creati tramite il provider in modo da avere thisRef e Property.
     // con istanziazione diretta non vengono passati dal compilatore.
-    private fun <T, C> createThroughProvider(
+    private fun <T, C, P : SimplePersistor<T, C>> createThroughProvider(
+        typeReference: TypeReference<T>,
         isAutoUpdatable: Boolean,
         default: T,
+        id: String?,
         observer: PersistenceObserver<T>,
         targetExtractor: (KProperty<*>) -> Class<T> = { it.type().java as Class<T> },
-        creator: (String, C, Class<T>, AbstractPersistenceHandler<T, *>?) -> SimplePersistor<T, C>
-    ): PropertyDelegateProvider<C, SimplePersistor<T, C>> {
+        creator: (String, C, Class<T>, AbstractPersistenceHandler<T, *>?) -> P
+    ): PropertyDelegateProvider<C, P> {
         return PropertyDelegateProvider { thisRef, property ->
             val targetClass = targetExtractor(property)
-            val id = computeId(property)
+            val computedID = id ?: computeId(thisRef, property)
             creator(
-                id, thisRef, targetClass,
+                computedID, thisRef, targetClass,
                 customHandler(
                     isAutoUpdatable,
-                    property.returnType.javaType, id, observer
+                    typeReference.toJavaType(), computedID, observer
                 )
             )
         }
     }
 
 
-    private fun computeId(property: KProperty<*>): String =
-        "${property.type().java.simpleName}.${property.name}"
+    private fun <C> computeId(container: C, property: KProperty<*>): String =
+        "${container!!::class.java.canonicalName}.${property.type().java.simpleName}.${property.name}"
 
 
     fun <T> sharedPreferences(
         default: T,
         typeReference: TypeReference<T>,
+        id: String? = null,
         observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
-    ): PropertyDelegateProvider<SharedPreferencesPersistableContainer, Persistor<T, SharedPreferencesPersistableContainer>> {
-        return createThroughProvider(true, default, observer)
+    ): PropertyDelegateProvider<SharedPreferencesPersistableContainer, SharedPreferencesPersistorDelegate<T>> {
+        return createThroughProvider(typeReference, true, default, id, observer)
         { id, container, targetClass, handler ->
             SharedPreferencesPersistorDelegate(
                 container, id, typeReference, targetClass, default,
@@ -145,18 +144,20 @@ object Persistors {
 
     inline fun <reified T> sharedPreferences(
         default: T,
+        id: String? = null,
         observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
-    ) = sharedPreferences(default, object : TypeReference<T>() {}, observer)
+    ) = sharedPreferences(default, object : TypeReference<T>() {}, id, observer)
 
 
     fun <T, C> liveFirestoreCollection(
         collection: String? = null,
         default: T,
+        id: String? = null,
         typeReference: TypeReference<T>,
         observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
             FirestoreLivePersistenceObserver<QuerySnapshot, T> {},
-    ): PropertyDelegateProvider<C, Persistor<T, C>> {
-        return createThroughProvider(false, default, observer)
+    ): PropertyDelegateProvider<C, FirestoreLiveCollectionPersistorDelegate<T, C>> {
+        return createThroughProvider(typeReference, false, default, id, observer)
         { id, container, targetClass, handler ->
             FirestoreLiveCollectionPersistorDelegate(
                 container, id, collection,
@@ -168,20 +169,22 @@ object Persistors {
     inline fun <reified T, C> liveFirestoreCollection(
         collection: String? = null,
         default: T,
+        id: String? = null,
         observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
             FirestoreLivePersistenceObserver<QuerySnapshot, T> {},
-    ): PropertyDelegateProvider<C, Persistor<T, C>> =
-        liveFirestoreCollection(collection, default, object : TypeReference<T>() {}, observer)
+    ): PropertyDelegateProvider<C, FirestoreLiveCollectionPersistorDelegate<T, C>> =
+        liveFirestoreCollection(collection, default, id, object : TypeReference<T>() {}, observer)
 
 
     fun <T, C> liveFirestoreMap(
         collection: String? = null,
         default: T,
+        id: String? = null,
         typeReference: TypeReference<T>,
         observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
             FirestoreLivePersistenceObserver<QuerySnapshot, T> {}
-    ): PropertyDelegateProvider<C, Persistor<T, C>> {
-        return createThroughProvider(true, default, observer)
+    ): PropertyDelegateProvider<C, FirestoreLiveMapPersistorDelegate<T, C>> {
+        return createThroughProvider(typeReference, true, default, id, observer)
         { id, container, targetClass, handler ->
             FirestoreLiveMapPersistorDelegate(
                 container, id, collection,
@@ -193,62 +196,90 @@ object Persistors {
     inline fun <reified T, C> liveFirestoreMap(
         collection: String? = null,
         default: T,
+        id: String? = null,
         observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
             FirestoreLivePersistenceObserver<QuerySnapshot, T> {}
-    ): PropertyDelegateProvider<C, Persistor<T, C>> =
-        liveFirestoreMap(collection, default, object : TypeReference<T>() {}, observer)
+    ): PropertyDelegateProvider<C, FirestoreLiveMapPersistorDelegate<T, C>> =
+        liveFirestoreMap(collection, default, id, object : TypeReference<T>() {}, observer)
 
 
     fun <T, C> simpleLiveFirestore(
         collection: String? = null,
         document: String? = null,
+        lazyInit: Boolean = false,
         default: T,
+        id: String? = null,
+        typeReference: TypeReference<T>,
         observer: FirestoreLivePersistenceObserver<DocumentSnapshot, T> = object :
             FirestoreLivePersistenceObserver<DocumentSnapshot, T> {},
-    ): PropertyDelegateProvider<C, Persistor<T, C>> {
-        return createThroughProvider(false, default, observer)
+    ): PropertyDelegateProvider<C, FirestoreLivePersistorDelegate<T, C>> {
+        return createThroughProvider(typeReference, false, default, id, observer)
         { id, container, targetClass, handler ->
             FirestoreLivePersistorDelegate(
-                container, id, collection, document,
+                container, id, collection, document, lazyInit,
                 targetClass, default, observer, handler
             )
         }
     }
+
+    inline fun <reified T, C> simpleLiveFirestore(
+        collection: String? = null,
+        document: String? = null,
+        lazyInit: Boolean = false,
+        default: T,
+        id: String? = null,
+        observer: FirestoreLivePersistenceObserver<DocumentSnapshot, T> = object :
+            FirestoreLivePersistenceObserver<DocumentSnapshot, T> {},
+    ): PropertyDelegateProvider<C, FirestoreLivePersistorDelegate<T, C>> =
+        simpleLiveFirestore(
+            collection, document, lazyInit,
+            default, id, object : TypeReference<T>() {}, observer
+        )
 
 
     inline fun <reified T, C> liveFirestore(
         collection: String? = null,
         document: String? = null,
         default: T,
+        id: String? = null,
+        lazyInit: Boolean? = null,
         observer: FirestoreLivePersistenceObserver<Any?, T> = object :
             FirestoreLivePersistenceObserver<Any?, T> {},
     ): PropertyDelegateProvider<C, Persistor<T, C>> =
         object : TypeReference<T>() {}.toJavaType().let { type ->
             when {
-                isEligibleAsFirestoreCollection(document, type) ->
+                isEligibleAsFirestoreCollection(document, lazyInit, type) ->
                     liveFirestoreCollection(
-                        collection, default,
+                        collection, default, id,
                         observer as FirestoreLivePersistenceObserver<QuerySnapshot, T>
                     )
-                isEligibleAsFirestoreMap(document, type) ->
+                isEligibleAsFirestoreMap(document, lazyInit, type) ->
                     liveFirestoreMap(
-                        collection, default,
+                        collection, default, id,
                         observer as FirestoreLivePersistenceObserver<QuerySnapshot, T>
                     )
                 else -> simpleLiveFirestore(
-                    collection, document, default,
-                    observer as FirestoreLivePersistenceObserver<DocumentSnapshot, T>
+                    collection,
+                    document, lazyInit!!,
+                    default, id, observer as FirestoreLivePersistenceObserver<DocumentSnapshot, T>
                 )
             }
         }
 
-    fun isEligibleAsFirestoreCollection(document: String?, targetType: JavaType): Boolean {
-        if (document != null) return false
+    fun isEligibleAsFirestoreCollection(
+        document: String?,
+        lazyInit: Boolean?,
+        targetType: JavaType
+    ): Boolean {
+        if (document != null || lazyInit != null) return false
         return isEligibleAs(MutableCollection::class.java, targetType, 0)
     }
 
-    fun isEligibleAsFirestoreMap(document: String?, targetType: JavaType): Boolean {
-        if (document != null) return false
+    fun isEligibleAsFirestoreMap(
+        document: String?, lazyInit: Boolean?,
+        targetType: JavaType
+    ): Boolean {
+        if (document != null || lazyInit != null) return false
         return isEligibleAs(MutableMap::class.java, targetType, 1)
     }
 

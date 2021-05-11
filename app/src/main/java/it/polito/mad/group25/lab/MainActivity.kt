@@ -14,7 +14,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import it.polito.mad.group25.lab.databinding.ActivityMainBinding
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
-import it.polito.mad.group25.lab.utils.views.fromByteList
+import it.polito.mad.group25.lab.utils.views.fromBlob
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
 
     private lateinit var userProfileViewModel: UserProfileViewModel
-    private lateinit var authContext: AuthContext
+    private lateinit var authenticationContext: AuthenticationContext
 
     /*companion object {
         init {
@@ -34,8 +34,6 @@ class MainActivity : AppCompatActivity() {
     }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AuthenticationContext.userID = "3"
-
         super.onCreate(savedInstanceState)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
@@ -75,10 +73,9 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        authContext = ViewModelProvider(this).get(AuthContext::class.java)
-        authContext.authUser.observe(this,{
-            user ->
-            if(user == null){
+        authenticationContext = ViewModelProvider(this).get(AuthenticationContext::class.java)
+        authenticationContext.authUser.observe(this, { user ->
+            if (user == null) {
                 supportActionBar?.title = "Welcome!"
                 supportActionBar?.setDisplayHomeAsUpEnabled(false)
             }
@@ -93,7 +90,7 @@ class MainActivity : AppCompatActivity() {
             val parent = activityMainBinding.navView.getHeaderView(0)
 
             parent.findViewById<ImageView>(R.id.nav_header_user_profile_pic)
-                ?.run { this.fromByteList(data.userProfilePhotoFile) }
+                ?.run { data.userProfilePhotoFile?.let { this.fromBlob(it) } }
 
             parent.findViewById<TextView>(R.id.nav_header_user_profile_nick)
                 ?.run { text = data.nickName }

@@ -15,14 +15,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.fragments.login.AuthContext
-import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
-import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
+import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
 import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
+import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.toLocalDateTime
 import it.polito.mad.group25.lab.utils.views.fromBlob
 import java.time.LocalDateTime
@@ -34,13 +34,13 @@ abstract class TripDetailsFragment(
 
     private val tripViewModel: TripViewModel by activityViewModels()
     private val tripListViewModel: TripListViewModel by activityViewModels()
-    private val authContext: AuthContext by activityViewModels()
+    private val authenticationContext: AuthenticationContext by activityViewModels()
     private var isOwner = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        if(authContext.userId() == tripViewModel.trip.ownerId)
+        if(authenticationContext.userId() == tripViewModel.trip.ownerId)
             isOwner = true
     }
 
@@ -109,7 +109,7 @@ abstract class TripDetailsFragment(
 
             fab.setOnClickListener {
                 showError("Sent confirmation request to the trip's owner!")
-                tripViewModel.addCurrentUserToSet(authContext.userId()!!)
+                tripViewModel.addCurrentUserToSet(authenticationContext.userId()!!)
                 tripListViewModel.putTrip(tripViewModel.trip)
             }
 

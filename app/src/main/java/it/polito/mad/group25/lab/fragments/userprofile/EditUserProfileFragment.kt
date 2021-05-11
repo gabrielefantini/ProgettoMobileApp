@@ -12,12 +12,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.google.android.material.textfield.TextInputLayout
-import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.UserProfile
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.views.isCompliant
 import it.polito.mad.group25.lab.utils.views.setConstraints
-import it.polito.mad.group25.lab.utils.views.toByteList
+import it.polito.mad.group25.lab.utils.views.toBlob
 
 class EditUserProfileFragment :
     GenericUserProfileFragment(R.layout.edit_user_profile_fragment) {
@@ -29,6 +29,7 @@ class EditUserProfileFragment :
     private lateinit var usernameTextInputLayout: TextInputLayout
     private lateinit var emailTextInputLayout: TextInputLayout
     private lateinit var locationTextInputLayout: TextInputLayout
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +51,13 @@ class EditUserProfileFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        userProfileViewModel.shownUser.value?.let {
+            if (it.id != authenticationContext.userId())
+                throw IllegalAccessException("Can not modify profile of another user!!")
+        }
+
+        visualizeUserData(view, false)
 
         viewModel.tempProfileDrawable?.let {
             view.findViewById<ImageView>(R.id.profilePic).setImageDrawable(it)
@@ -166,10 +174,10 @@ class EditUserProfileFragment :
             requireActivity().findViewById<TextView>(R.id.location).text.toString()
 
         val userProfilePhotoFile =
-            requireView().findViewById<ImageView>(R.id.profilePic).toByteList()
+            requireView().findViewById<ImageView>(R.id.profilePic).toBlob()
 
         val userProfile = UserProfile(
-            AuthenticationContext.userID,
+            authenticationContext.userId(),
             fullName,
             nickName,
             email,
@@ -177,7 +185,7 @@ class EditUserProfileFragment :
             userProfilePhotoFile
         )
 
-        userProfileViewModel.shownUser.value = userProfile
+        authenticationContext.userData.value = userProfile
         return true
     }
 

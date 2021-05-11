@@ -29,7 +29,7 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
-import it.polito.mad.group25.lab.AuthContext
+import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
@@ -53,7 +53,6 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.reflect.jvm.internal.impl.util.Check
 
 abstract class TripEditFragment(
     contentLayoutId: Int
@@ -62,7 +61,7 @@ abstract class TripEditFragment(
     private lateinit var tripEditViewModel: TripEditViewModel
     private val tripViewModel: TripViewModel by activityViewModels()
     private val tripListViewModel: TripListViewModel by activityViewModels()
-    private val authContext: AuthContext by activityViewModels()
+    private val authenticationContext: AuthenticationContext by activityViewModels()
 
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void>
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
@@ -508,7 +507,7 @@ abstract class TripEditFragment(
             }
         }
 
-        tripSel.ownerId = authContext.userId()
+        tripSel.ownerId = authenticationContext.userId()
 
         tripListViewModel.putTrip(tripSel)
 

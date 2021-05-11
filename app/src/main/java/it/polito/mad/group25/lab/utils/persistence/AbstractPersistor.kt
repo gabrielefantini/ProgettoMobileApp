@@ -130,6 +130,8 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         val LOG_TAG = "PERSISTENCE DELEGATES"
     }
 
+    private var defaultLoaded: Boolean = false
+    val isReadOnly = AtomicBoolean(false)
     private var isInitialized = false
     var observer: PersistenceObserver<T>
     protected val thisRef: C
@@ -139,6 +141,12 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
     protected val handler: PersistenceHandler<T>
     protected var value: T
         set(value) {
+            if (!defaultLoaded) {
+                field = value
+                return
+            }
+            assertNotReadOnly()
+
             Log.d(LOG_TAG, "Calling handler for changing value attempt of $id")
 
             var toSet: T? = if (field != null)
@@ -180,6 +188,7 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         this.handler = initializeHandler(handler)
         this.handler.notifyPersistenceLoading()
         this.value = default
+        this.defaultLoaded = true
         this.handler.notifyPersistenceLoadingCompleted()
     }
 
@@ -205,8 +214,8 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
             override fun handlePersistenceLoading(clazz: Class<R>): R? = doLoadPersistence(clazz)
 
             override fun handlePersistenceRequest(value: R) {
+                assertNotReadOnly()
                 if (!isCurrentlyLoadingPersistence()) doPersist(value)
-
             }
 
             override fun handleNewValue(oldValue: R, newValue: R): R? = newValue
@@ -225,6 +234,7 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
 
 
     final override fun persist(value: T) {
+        assertNotReadOnly()
         Log.i(
             LOG_TAG,
             "Performing persistence of new value of $id through ${this.javaClass.simpleName}"
@@ -277,6 +287,11 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         } finally {
             this.handler.notifyPersistenceLoadingCompleted()
         }
+    }
+
+    protected fun assertNotReadOnly() {
+        if (isReadOnly.get())
+            throw IllegalAccessException("Persistor ${this::class.java.simpleName} of $id is readOnly!")
     }
 
     //other generic types because the handler can customize the value to be serialized or loaded.

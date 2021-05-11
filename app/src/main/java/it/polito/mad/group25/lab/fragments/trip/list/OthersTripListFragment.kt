@@ -5,11 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
@@ -17,13 +14,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import it.polito.mad.group25.lab.AuthContext
+import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
-import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
-import it.polito.mad.group25.lab.fragments.trip.timeFormatted
-import it.polito.mad.group25.lab.utils.views.fromBlob
 
 
 class OthersTripListFragment : Fragment() {
@@ -31,7 +24,7 @@ class OthersTripListFragment : Fragment() {
     //Initializing sharedViewModel
     private val tripListViewModel: TripListViewModel by activityViewModels()
     private val tripViewModel: TripViewModel by activityViewModels()
-    private val authContext: AuthContext by activityViewModels()
+    private val authenticationContext: AuthenticationContext by activityViewModels()
 
     private var columnCount = 1
 
@@ -68,7 +61,7 @@ class OthersTripListFragment : Fragment() {
                         columnCount <= 1 -> LinearLayoutManager(context)
                         else -> GridLayoutManager(context, columnCount)
                     }
-                    adapter = TripCardRecyclerViewAdapter(tripMap.values.toList(), tripViewModel, authContext.userId())
+                    adapter = TripCardRecyclerViewAdapter(tripMap.values.toList(), tripViewModel, authenticationContext.userId())
                 }
             }
         })

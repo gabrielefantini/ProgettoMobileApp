@@ -1,7 +1,6 @@
 package it.polito.mad.group25.lab.fragments.login
 
 import android.app.Activity
-import android.app.Application
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +12,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -23,22 +21,19 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import it.polito.mad.group25.lab.AuthContext
+import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.utils.persistence.Persistors
-import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 
-class LoginFragment: Fragment(R.layout.login_fragment) {
+class LoginFragment : Fragment(R.layout.login_fragment) {
 
-    private lateinit var mGoogleSignInClient : GoogleSignInClient
-    private lateinit var resultLauncher : ActivityResultLauncher<Intent>
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
+    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private lateinit var authenticator: FirebaseAuth
 
-    private val authContext: AuthContext by activityViewModels()
+    private val authenticationContext: AuthenticationContext by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,16 +45,17 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
             .requestEmail()
             .build()
 
-        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(),gso)
+        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
 
         authenticator = Firebase.auth
 
-        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ res ->
-            if(res.resultCode == Activity.RESULT_OK) {
-                var task = GoogleSignIn.getSignedInAccountFromIntent(res.data)
-                handleSignInResult(task)
+        resultLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+                if (res.resultCode == Activity.RESULT_OK) {
+                    var task = GoogleSignIn.getSignedInAccountFromIntent(res.data)
+                    handleSignInResult(task)
+                }
             }
-        }
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
@@ -71,31 +67,31 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
         }
 
         view.findViewById<CheckBox>(R.id.rememberMeCheck).setOnClickListener {
-            authContext.rememberMe.value = !authContext.rememberMe.value!!
+            authenticationContext.rememberMe = !authenticationContext.rememberMe
         }
 
     }
 
     override fun onStart() {
         super.onStart()
-        authContext.authUser.value = null
+        //authenticationContext.logoutUser()
         //check for already signed in users (only if selected)
-        if(authContext.rememberMe.value == true)
+        if (authenticationContext.rememberMe)
             authenticator.currentUser?.let {
-                authContext.authUser.value = it
+                authenticationContext.loginUser(it)
                 activity?.findNavController(R.id.nav_host_fragment_content_main)
                     ?.navigate(R.id.action_LoginFragment_to_OthersTripListFragment)
             }
     }
 
     //sign in to google
-    private fun signIn(){
+    private fun signIn() {
         var intent = mGoogleSignInClient.signInIntent
         resultLauncher.launch(intent)
     }
 
     //sign out from google
-    private fun signOut(){
+    private fun signOut() {
         mGoogleSignInClient.signOut()
     }
 
@@ -110,16 +106,16 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
         }
     }
 
-    private fun firebaseAuthWithGoogle(idToken: String){
-        val credentials= GoogleAuthProvider.getCredential(idToken,null)
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credentials = GoogleAuthProvider.getCredential(idToken, null)
         authenticator.signInWithCredential(credentials)
             .addOnCompleteListener { task ->
-                if(task.isSuccessful){
+                if (task.isSuccessful) {
                     //success
-                    authContext.authUser.value = authenticator.currentUser!!
+                    authenticationContext.loginUser(authenticator.currentUser!!)
 
                     //if "remember me" is not selected, next time login page is visited google shouldn ask again the google account
-                    if(authContext.rememberMe.value == false)
+                    if (!authenticationContext.rememberMe)
                         signOut()
 
                     activity?.findNavController(R.id.nav_host_fragment_content_main)
