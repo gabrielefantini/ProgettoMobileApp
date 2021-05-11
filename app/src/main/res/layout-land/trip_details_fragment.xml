@@ -235,6 +235,19 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:id="@+id/noIntUsers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/NoIntUsers"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:visibility="gone" />
+
             </LinearLayout>
         </ScrollView>
 

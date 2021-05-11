@@ -105,10 +105,19 @@ abstract class TripDetailsFragment(
 
         }else{
             //trip owner
-            rv2.layoutManager = LinearLayoutManager(context)
-            rv2.adapter = TripUsersAdapter(
-                tripViewModel.trip.interestedUsers.toList()
-            )
+            if(tripViewModel.trip.interestedUsers.size == 0){
+                //no interested users
+                view.findViewById<TextView>(R.id.noIntUsers).visibility = VISIBLE
+                rv2.visibility = GONE
+
+            }else {
+                //at least one interested user
+                rv2.layoutManager = LinearLayoutManager(context)
+                rv2.adapter = TripUsersAdapter(
+                    tripViewModel.trip.interestedUsers.toList()
+                )
+
+            }
         }
     }
 }

@@ -54,5 +54,6 @@
     <string name="no_trip_present">No trip present</string>
 
     <string name="InterestedUsersText">Interested Users</string>
-    <string name="NoOtherInfos">No additional info found.</string>
+    <string name="NoOtherInfos">No additional info available.</string>
+    <string name="NoIntUsers">No interested users at the moment...</string>
 </resources>
