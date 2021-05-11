@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import it.polito.mad.group25.lab.AuthContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.utils.persistence.Persistors
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
@@ -126,14 +127,4 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
                 }
             }
     }
-}
-
-class AuthContext(application: Application): PersistableViewModel(application){
-    var authUser: MutableLiveData<FirebaseUser?> = MutableLiveData(null)
-
-    var rememberMe: MutableLiveData<Boolean> by Persistors.sharedPreferences(
-        default = MutableLiveData(false)
-    )
-
-    fun userId(): String? = authUser.value?.uid
 }
