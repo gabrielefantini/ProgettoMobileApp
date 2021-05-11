@@ -109,7 +109,7 @@ abstract class TripDetailsFragment(
 
             fab.setOnClickListener {
                 showError("Sent confirmation request to the trip's owner!")
-                tripViewModel.addCurrentUserToSet(tripListViewModel.userId)
+                tripViewModel.addCurrentUserToSet(authContext.userId()!!)
                 tripListViewModel.putTrip(tripViewModel.trip)
             }
 
