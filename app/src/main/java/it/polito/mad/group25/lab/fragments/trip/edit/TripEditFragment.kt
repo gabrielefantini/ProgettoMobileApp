@@ -30,6 +30,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.login.AuthContext
 import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.details.getDurationFormatted
@@ -61,6 +62,7 @@ abstract class TripEditFragment(
     private lateinit var tripEditViewModel: TripEditViewModel
     private val tripViewModel: TripViewModel by activityViewModels()
     private val tripListViewModel: TripListViewModel by activityViewModels()
+    private val authContext: AuthContext by activityViewModels()
 
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void>
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
@@ -506,7 +508,7 @@ abstract class TripEditFragment(
             }
         }
 
-        tripSel.ownerId = tripListViewModel.userId
+        tripSel.ownerId = authContext.userId()
 
         tripListViewModel.putTrip(tripSel)
 
