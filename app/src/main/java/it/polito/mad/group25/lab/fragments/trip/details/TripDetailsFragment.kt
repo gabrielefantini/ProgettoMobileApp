@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import it.polito.mad.group25.lab.AuthContext
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.fragments.login.AuthContext
 import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.fragments.trip.TripLocation
