@@ -21,7 +21,7 @@ class Trip : IdentifiableObject() {
     var price: Double = 0.0
     val additionalInfo: MutableList<String> = mutableListOf()
     var ownerId : String? = null
-    val interestedUsers: MutableSet<String> = mutableSetOf()
+    val interestedUsers: MutableList<String> = mutableListOf()
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
