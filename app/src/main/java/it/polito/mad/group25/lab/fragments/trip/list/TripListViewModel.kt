@@ -19,9 +19,6 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
                 default = MutableLiveData(persistenceAwareMutableMapOf())
             )
 
-
-    var userId = ""
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNewTrip(): Trip {
         return Trip().apply { id = generateNewId() }
