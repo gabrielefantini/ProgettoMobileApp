@@ -6,11 +6,11 @@ import android.util.Log
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.ConcurrentPersistor
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
+import it.polito.mad.group25.lab.utils.toJavaType
 
 
 interface SharedPreferencesPersistableContainer {
@@ -41,8 +41,6 @@ class SharedPreferencesPersistorDelegate<T>(
         private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
     }
 
-    private val storage = thisRef.getStorage()
-
     init {
         initialized()
     }
@@ -56,7 +54,7 @@ class SharedPreferencesPersistorDelegate<T>(
     override fun <R> doLoadPersistence(targetClass: Class<R>): R? {
         val computedTypeReference = try {
             findSubJavaType(
-                TypeFactory.defaultInstance().constructType(typeReference),
+                typeReference.toJavaType(),
                 targetClass
             )
         } catch (_: Throwable) {
@@ -68,14 +66,11 @@ class SharedPreferencesPersistorDelegate<T>(
             null
         }
 
-        return storage.getString(id, null)
+        return thisRef.getStorage().getString(id, null)
             ?.let { v ->
-                val toRet: R = if (computedTypeReference != null)
+                if (computedTypeReference != null)
                     objectMapper.readValue(v, computedTypeReference) as R
                 else objectMapper.readValue(v, targetClass)
-                toRet
-                /*computedTypeReference?.let { objectMapper.readValue(v, it) as R }
-                    ?: objectMapper.readValue(v, targetClass)*/
             }
     }
 

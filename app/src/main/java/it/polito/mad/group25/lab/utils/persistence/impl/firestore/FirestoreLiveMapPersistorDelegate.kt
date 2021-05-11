@@ -1,11 +1,10 @@
 package it.polito.mad.group25.lab.utils.persistence.impl.firestore
 
 import android.util.Log
-import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
+import com.fasterxml.jackson.core.type.TypeReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
+import it.polito.mad.group25.lab.utils.datastructure.Identifiable
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 
 class FirestoreLiveMapPersistorDelegate<T, C>(
@@ -13,45 +12,46 @@ class FirestoreLiveMapPersistorDelegate<T, C>(
     id: String,
     private val collection: String? = null,
     targetClass: Class<T>,
+    targetTypeReference: TypeReference<T>,
     default: T,
-    private val mapBuilder: (DocumentSnapshot, Class<MutableMap<Any?, Any?>>) -> Pair<Any?, Any?>,
-    private val entriesSaver: (Pair<Any?, Any?>, CollectionReference) -> Task<DocumentReference>,
     observer: FirestoreLivePersistenceObserver<QuerySnapshot, T>,
     handler: AbstractPersistenceHandler<T, *>?,
-) : AbstractFirestoreMultiValuePersistorDelegate<T, C>(
-    thisRef, id, collection, targetClass,
-    default, observer, handler
+) : AbstractFirestoreMultiValuePersistorDelegate<MutableMap<String, Identifiable?>, T, C>(
+    thisRef, id, collection, targetClass, targetTypeReference,
+    MutableMap::class.java as Class<MutableMap<String, Identifiable?>>,
+    1, default, observer, handler
 ) {
-
 
 
     init {
         initialized()
     }
 
-    private fun <M : MutableMap<Any?, Any?>> parseValues(
-        clazz: Class<M>,
+
+    override fun parseValues(
+        clazz: Class<MutableMap<String, Identifiable?>>,
         q: Collection<DocumentSnapshot>
-    ): M? {
+    ): MutableMap<String, Identifiable?>? {
         Log.i(LOG_TAG, "Parsing values loaded from firestore for $id")
-        return q.map {
-            this.mapBuilder(it, clazz as Class<MutableMap<Any?, Any?>>)
-        }.toMap(tryCreateMap(clazz)).let { if (it.isEmpty()) null else it }
+        return if (q.isEmpty()) null else
+            q.map {
+                it.id to parseNullableValue(it)
+            }.toMap(tryCreateDataStructure(clazz))
     }
 
-    private fun <M : MutableMap<Any?, Any?>>
-            tryCreateMap(clazz: Class<M>): M =
-        clazz.constructors[0].newInstance() as M
+    override fun tryCreateDataStructure(clazz: Class<MutableMap<String, Identifiable?>>) =
+        clazz.constructors[0].newInstance() as MutableMap<String, Identifiable?>
 
 
     override fun <R> doLoadPersistence(targetClass: Class<R>): R? =
-        parseValues(targetClass as Class<MutableMap<Any?, Any?>>, toParse) as R
+        //if cast fails just throw up
+        parseValues(targetClass as Class<MutableMap<String, Identifiable?>>, toParse) as R
 
 
     override fun <R> doPersist(value: R) {
         Log.i(LOG_TAG, "Persisting values for $id on firestore")
-        value as Map<Any?, Any?>
-        value.forEach { k, v -> entriesSaver(k to v, store).apply(this::handleInsertion) }
+        value as Map<String, Identifiable?> // if cast fails just throw up
+        value.forEach { k, v -> insert(k, v) }
     }
 
 }

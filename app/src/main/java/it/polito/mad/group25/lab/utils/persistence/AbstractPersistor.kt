@@ -110,14 +110,16 @@ abstract class AbstractPersistenceHandler<T, I>(nextHandler: PersistenceHandler<
 
     final override fun notifyPersistenceLoading() =
         currentlyLoadingPersisenceFlag.write {
-            super.notifyPersistenceLoading();
-            innerHandler.notifyPersistenceLoading()
+            super.notifyPersistenceLoading()
+            if (isInitialized())
+                innerHandler.notifyPersistenceLoading()
         }
 
     final override fun notifyPersistenceLoadingCompleted() =
         currentlyLoadingPersisenceFlag.write {
-            super.notifyPersistenceLoadingCompleted();
-            innerHandler.notifyPersistenceLoadingCompleted()
+            super.notifyPersistenceLoadingCompleted()
+            if (isInitialized())
+                innerHandler.notifyPersistenceLoadingCompleted()
         }
 }
 
@@ -176,7 +178,9 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         this.id = id
         this.targetClass = targetClass
         this.handler = initializeHandler(handler)
+        this.handler.notifyPersistenceLoading()
         this.value = default
+        this.handler.notifyPersistenceLoadingCompleted()
     }
 
     /**
@@ -184,9 +188,7 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
      */
     protected open fun initialized() {
         isInitialized = true
-        this.handler.notifyPersistenceLoading()
-        this.value = loadPersistence() ?: default
-        this.handler.notifyPersistenceLoadingCompleted()
+        notifyingPersistenceLoading { this.value = loadPersistence() ?: default }
     }
 
     private fun initializeHandler(handler: AbstractPersistenceHandler<T, *>?): PersistenceHandler<T> =
@@ -198,15 +200,19 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         else doInitializeHandlerRecursively(handler.innerHandler as AbstractPersistenceHandler<*, *>)
     }
 
-    private fun <R> basicHandler(): PersistenceHandler<R> = object : PersistenceHandler<R>() {
-        override fun handlePersistenceLoading(clazz: Class<R>): R? = doLoadPersistence(clazz)
+    private fun <R> basicHandler(): PersistenceHandler<R> =
+        object : AbstractPersistenceHandler<R, R>() {
+            override fun handlePersistenceLoading(clazz: Class<R>): R? = doLoadPersistence(clazz)
 
-        override fun handlePersistenceRequest(value: R) = doPersist(value)
+            override fun handlePersistenceRequest(value: R) {
+                if (!isCurrentlyLoadingPersistence()) doPersist(value)
 
-        override fun handleNewValue(oldValue: R, newValue: R): R? = newValue
+            }
 
-        override fun handleNewValue(newValue: R): R? = newValue
-    }
+            override fun handleNewValue(oldValue: R, newValue: R): R? = newValue
+
+            override fun handleNewValue(newValue: R): R? = newValue
+        }
 
 
     override fun setValue(thisRef: C, property: KProperty<*>, value: T) {
@@ -260,10 +266,17 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         return observer.afterLoadingPersistedValue(loaded, ex)
     }
 
-    protected fun loadPersistenceAndSaveIt() {
-        this.handler.notifyPersistenceLoading()
-        loadPersistence()?.let { this.value = it }
-        this.handler.notifyPersistenceLoadingCompleted()
+    protected fun loadPersistenceAndSaveIt() =
+        notifyingPersistenceLoading { loadPersistence()?.let { this.value = it } }
+
+
+    protected fun <P> notifyingPersistenceLoading(action: () -> P): P {
+        try {
+            this.handler.notifyPersistenceLoading()
+            return action()
+        } finally {
+            this.handler.notifyPersistenceLoadingCompleted()
+        }
     }
 
     //other generic types because the handler can customize the value to be serialized or loaded.

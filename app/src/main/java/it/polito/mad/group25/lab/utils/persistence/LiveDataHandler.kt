@@ -88,7 +88,7 @@ class LiveDataPersistenceHandler<T, L : LiveData<T>>(
                 newValue.value = handled as T
             }
         }
-        return newValue
+        return newValue.apply(this::subscribeToLiveData)
     }
 
     override fun handlePersistenceRequest(value: L) {

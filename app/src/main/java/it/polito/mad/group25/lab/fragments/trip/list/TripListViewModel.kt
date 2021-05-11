@@ -10,26 +10,27 @@ import it.polito.mad.group25.lab.utils.persistence.Persistors
 import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareMutableMap
 import it.polito.mad.group25.lab.utils.persistence.awareds.persistenceAwareMutableMapOf
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
+import java.util.*
 
 class TripListViewModel(application: Application) : PersistableViewModel(application) {
-    val trips: LiveData<PersistenceAwareMutableMap<Int, Trip>>
-            by Persistors.firestoreMap(
-                default = MutableLiveData(persistenceAwareMutableMapOf()),
-                mapBuilder = { d, _ ->
-                    d.get("id", Int::class.java) to d.toObject(Trip::class.java)
-                },
-                entriesSaver = { p, c -> c.add(p.second!!) },
+    val trips: LiveData<PersistenceAwareMutableMap<String, Trip>>
+            by Persistors.liveFirestore(
+                collection = "trips",
+                default = MutableLiveData(persistenceAwareMutableMapOf())
             )
 
-    private companion object {
-        var index = 0
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNewTrip(): Trip {
-        if (trips.value!!.isNotEmpty() && index == 0)
-            index = trips.value!!.keys.maxOf { it } + 1
-        return Trip().apply { id = index++ }
+        return Trip().apply { id = generateNewId() }
+    }
+
+    private fun generateNewId(): String {
+        var id: String
+        do {
+            id = UUID.randomUUID().toString()
+        } while (trips.value!!.containsKey(id))
+        return id
     }
 
 
@@ -38,8 +39,7 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
     }
 
     fun putTrip(trip: Trip) {
-        if (trip.id > index) index = trip.id + 1
-        trips.value?.put(trip.id, trip)
+        trips.value?.put(trip.id!!, trip)
     }
 
 }

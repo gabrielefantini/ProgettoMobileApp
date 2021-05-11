@@ -4,7 +4,6 @@ import android.util.Log
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
@@ -16,7 +15,7 @@ interface FirestoreLivePersistenceObserver<SF, T> :
     /**
      * Intercepts an async value receiving. Has to handle the eventual error or to interrupt the processing.
      */
-    fun onAsyncValueReceived(value: SF?, error: FirebaseFirestoreException?) {
+    fun onAsyncValueReceived(value: SF?, error: Exception?) {
         if (error != null)
             throw error
     }
@@ -69,9 +68,9 @@ class FirestoreLivePersistorDelegate<T, C>(
         initialized()
     }
 
-    private fun <R> parseNullableValue(clazz: Class<R>, doc: DocumentSnapshot?): R? {
+    private fun <R> parseNullableValue(clazz: Class<R>, doc: DocumentSnapshot): R? {
         Log.i(LOG_TAG, "Parsing value loaded from firestore for $id")
-        return doc?.let {
+        return doc.let {
             if (it.toString() != NULL_VALUE) it.toObject(clazz) as R else null
         }
     }

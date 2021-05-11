@@ -3,6 +3,7 @@ package it.polito.mad.group25.lab.utils
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.type.TypeFactory
 import java.lang.reflect.Field
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -109,3 +110,5 @@ private fun cleanGenericClassName(className: String) = className.let {
         it.substring(0, it.indexOf("<"))
     else it
 }
+
+fun <T> TypeReference<T>.toJavaType() = TypeFactory.defaultInstance().constructType(this)

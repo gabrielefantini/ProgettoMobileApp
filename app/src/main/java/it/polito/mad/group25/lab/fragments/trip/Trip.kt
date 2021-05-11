@@ -3,14 +3,13 @@ package it.polito.mad.group25.lab.fragments.trip
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.Blob
+import it.polito.mad.group25.lab.utils.datastructure.IdentifiableObject
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.properties.Delegates
 
 @RequiresApi(Build.VERSION_CODES.O)
-class Trip {
-    var id by Delegates.notNull<Int>()
+class Trip : IdentifiableObject() {
     var carPic: Blob? = null
     var carName: String? = null
     var tripStartDate: Long = System.currentTimeMillis()
