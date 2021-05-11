@@ -50,7 +50,8 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.showUserProfileFragment,
-                R.id.TripListFragment
+                R.id.TripListFragment,
+                R.id.OthersTripListFragment
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -65,6 +66,12 @@ class MainActivity : AppCompatActivity() {
 
         navView.menu.findItem(R.id.nav_trip_list).setOnMenuItemClickListener {
             navController.navigate(R.id.TripListFragment)
+            drawerLayout.closeDrawers()
+            true
+        }
+
+        navView.menu.findItem(R.id.nav_others_trip_list).setOnMenuItemClickListener {
+            navController.navigate(R.id.OthersTripListFragment)
             drawerLayout.closeDrawers()
             true
         }

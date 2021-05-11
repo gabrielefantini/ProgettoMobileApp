@@ -71,7 +71,7 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
             //tripListViewModel.userId = "A"
             //tripListViewModel.userId = "B"
             activity?.findNavController(R.id.nav_host_fragment_content_main)
-                ?.navigate(R.id.action_LoginFragment_to_TripListFragment)
+                ?.navigate(R.id.action_LoginFragment_to_OthersTripListFragment)
         }
     }
 
@@ -100,7 +100,7 @@ class LoginFragment: Fragment(R.layout.login_fragment) {
                     val user = auth.currentUser
                     tripListViewModel.userId = user.uid
                     activity?.findNavController(R.id.nav_host_fragment_content_main)
-                        ?.navigate(R.id.action_LoginFragment_to_TripListFragment)
+                        ?.navigate(R.id.action_LoginFragment_to_OthersTripListFragment)
                 }
             }
     }

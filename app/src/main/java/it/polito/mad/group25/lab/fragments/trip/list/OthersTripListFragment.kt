@@ -25,11 +25,12 @@ import it.polito.mad.group25.lab.fragments.trip.timeFormatted
 import it.polito.mad.group25.lab.utils.views.fromBlob
 
 
-class TripListFragment : Fragment() {
+class OthersTripListFragment : Fragment() {
 
     //Initializing sharedViewModel
     private val tripListViewModel: TripListViewModel by activityViewModels()
     private val tripViewModel: TripViewModel by activityViewModels()
+
 
     private var columnCount = 1
 

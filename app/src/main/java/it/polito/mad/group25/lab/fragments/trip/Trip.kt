@@ -22,6 +22,10 @@ class Trip : IdentifiableObject() {
     val additionalInfo: MutableList<String> = mutableListOf()
     var ownerId : String? = null
     val interestedUsers: MutableList<String> = mutableListOf()
+    fun getType(): Boolean {
+        //TODO
+        return true
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
