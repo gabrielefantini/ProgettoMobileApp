@@ -76,7 +76,8 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
 
     override fun onStart() {
         super.onStart()
-        //authenticationContext.logoutUser()
+        authenticationContext.logoutUser()
+
         //check for already signed in users (only if selected)
         if (authenticationContext.rememberMe)
             authenticator.currentUser?.let {

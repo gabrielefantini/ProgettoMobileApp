@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
@@ -22,6 +23,7 @@ import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
 import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
 import it.polito.mad.group25.lab.fragments.trip.timeFormatted
+import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.toLocalDateTime
 import it.polito.mad.group25.lab.utils.views.fromBlob
@@ -35,6 +37,8 @@ abstract class TripDetailsFragment(
     private val tripViewModel: TripViewModel by activityViewModels()
     private val tripListViewModel: TripListViewModel by activityViewModels()
     private val authenticationContext: AuthenticationContext by activityViewModels()
+    private val userProfileViewModel: UserProfileViewModel by activityViewModels()
+
     private var isOwner = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,7 +119,7 @@ abstract class TripDetailsFragment(
 
         }else{
             //trip owner
-            if(tripViewModel.trip.interestedUsers.size == 0){
+            if(trip.interestedUsers.size == 0){
                 //no interested users
                 view.findViewById<TextView>(R.id.noIntUsers).visibility = VISIBLE
                 rv2.visibility = GONE
@@ -124,11 +128,55 @@ abstract class TripDetailsFragment(
                 //at least one interested user
                 rv2.layoutManager = LinearLayoutManager(context)
                 rv2.adapter = TripUsersAdapter(
-                    tripViewModel.trip.interestedUsers.toList()
+                    trip.interestedUsers.toList(),
+                    userProfileViewModel
                 )
 
             }
         }
+    }
+
+    fun navigateToUserProfile(userId: String){
+        userProfileViewModel.showUser(userId)
+        requireActivity().findNavController(R.id.nav_host_fragment_content_main)
+            .navigate(R.id.action_showTripDetailsFragment_to_showUserProfileFragment)
+    }
+
+    inner class TripUsersAdapter(private val list: List<String>, private val usersData: UserProfileViewModel) :
+        RecyclerView.Adapter<TripUsersAdapter.TripUsersViewHolder>() {
+
+        inner class TripUsersViewHolder(v: View, private val usersData: UserProfileViewModel) : RecyclerView.ViewHolder(v) {
+            private val username: TextView = v.findViewById(R.id.username)
+            private val proPic: ImageView = v.findViewById(R.id.proPic)
+
+            fun bind(userId: String) {
+                usersData.showUser(userId)
+                usersData.shownUser.observe(viewLifecycleOwner,{ user ->
+                    user.fullName?.let { username.text = it }
+                    user.userProfilePhotoFile?.let { proPic.fromBlob(it) }
+                })
+
+                username.setOnClickListener {
+                    navigateToUserProfile(userId)
+                }
+
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripUsersViewHolder {
+            val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
+            return TripUsersViewHolder(layout,usersData)
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        override fun onBindViewHolder(holder: TripUsersViewHolder, position: Int) {
+            holder.bind(list[position])
+        }
+
+        override fun getItemCount(): Int = list.size
+
+        override fun getItemViewType(position: Int): Int = R.layout.trip_user_line
+
     }
 }
 
@@ -183,33 +231,9 @@ class TripLocationAdapter(private val list: List<TripLocation>) :
     }
 }
 
-/*class TripUser (val userId: String){
+/*data class TripUser(
+    val userId: String
     var isConfirmed: Boolean = false
-}*/
+    )
+*/
 
-class TripUsersAdapter(private val list: List<String>) :
-    RecyclerView.Adapter<TripUsersAdapter.TripUsersViewHolder>() {
-
-    class TripUsersViewHolder(v: View) : RecyclerView.ViewHolder(v) {
-        private val username: TextView = v.findViewById(R.id.username)
-
-        fun bind(t: String) {
-            username.text = "user $t"
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripUsersViewHolder {
-        val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        return TripUsersViewHolder(layout)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onBindViewHolder(holder: TripUsersViewHolder, position: Int) {
-        holder.bind(list[position])
-    }
-
-    override fun getItemCount(): Int = list.size
-
-    override fun getItemViewType(position: Int): Int = R.layout.trip_user_line
-
-}

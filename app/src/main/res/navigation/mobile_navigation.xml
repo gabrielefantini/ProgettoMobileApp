@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_showTripDetailsFragment_to_showTripEditFragment"
             app:destination="@id/showTripEditFragment" />
+        <action
+            android:id="@+id/action_showTripDetailsFragment_to_showUserProfileFragment"
+            app:destination="@id/showUserProfileFragment" />
     </fragment>
 
     <fragment
