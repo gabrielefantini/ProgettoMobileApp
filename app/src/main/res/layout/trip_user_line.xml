@@ -5,21 +5,30 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/proPic"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/propicCard"
         android:layout_width="32dp"
         android:layout_height="32dp"
+        app:cardCornerRadius="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:contentDescription="@string/profile_pic_description"
-        android:src="@mipmap/basic_profile_pic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.333"
-        tools:src="@tools:sample/avatars" />
+        >
+        <ImageView
+            android:id="@+id/proPic"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/profile_pic_description"
+            android:src="@mipmap/basic_profile_pic"
+            tools:src="@tools:sample/avatars"
+            android:scaleType="centerCrop"/>
+    </androidx.cardview.widget.CardView>
+
 
     <TextView
         android:id="@+id/username"
@@ -28,9 +37,9 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:text="@string/fullName"
-        app:layout_constraintBottom_toBottomOf="@+id/proPic"
-        app:layout_constraintStart_toEndOf="@+id/proPic"
-        app:layout_constraintTop_toTopOf="@+id/proPic" />
+        app:layout_constraintBottom_toBottomOf="@+id/propicCard"
+        app:layout_constraintStart_toEndOf="@+id/propicCard"
+        app:layout_constraintTop_toTopOf="@+id/propicCard" />
 
     <CheckBox
         android:id="@+id/confirm_user"
