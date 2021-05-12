@@ -53,7 +53,7 @@
     </fragment>
     <fragment
         android:id="@+id/OthersTripListFragment"
-        android:name="it.polito.mad.group25.lab.fragments.trip.list.TripListFragment"
+        android:name="it.polito.mad.group25.lab.fragments.trip.list.OthersTripListFragment"
         android:label="@string/others_trip_list"
         tools:layout="@layout/trip_list_fragment">
         <action

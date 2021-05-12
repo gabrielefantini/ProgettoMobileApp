@@ -28,7 +28,7 @@
             app:layoutManager="LinearLayoutManager"
             app:layout_constraintBottom_toTopOf="@id/addTrip"
             app:layout_constraintTop_toTopOf="parent"
-            tools:context=".fragments.trip.list.TripListFragment"
+            tools:context=".fragments.trip.list.TripListFragment, .fragments.trip.list.OthersTripListFragment"
             tools:listitem="@layout/trip_card_fragment" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

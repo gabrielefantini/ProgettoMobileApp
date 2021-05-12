@@ -50,7 +50,9 @@ class TripListFragment : Fragment() {
         //pass an observable to MyTripCarRecyclerViewAdapter
         tripListViewModel.trips.observe(viewLifecycleOwner, { tripMap ->
             // Set the adapter
-            if (tripMap.size == 0) {
+            val tripList = tripMap.values.toList()
+            val userId = authenticationContext.userId()
+            if (tripList.isEmpty()) {
                 view.findViewById<TextView>(R.id.textView2).visibility = View.VISIBLE
                 list.visibility = View.GONE
             } else {
@@ -61,7 +63,7 @@ class TripListFragment : Fragment() {
                         columnCount <= 1 -> LinearLayoutManager(context)
                         else -> GridLayoutManager(context, columnCount)
                     }
-                    adapter = TripCardRecyclerViewAdapter(tripMap.values.toList(), tripViewModel, authenticationContext.userId())
+                    adapter = TripCardRecyclerViewAdapter(tripList.filter { trip ->  trip.ownerId == userId}, tripViewModel, userId)
                 }
             }
         })
