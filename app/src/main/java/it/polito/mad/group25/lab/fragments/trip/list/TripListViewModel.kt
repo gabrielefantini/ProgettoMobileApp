@@ -6,7 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import it.polito.mad.group25.lab.fragments.trip.Trip
-import it.polito.mad.group25.lab.utils.persistence.Persistors
+import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
 import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareMutableMap
 import it.polito.mad.group25.lab.utils.persistence.awareds.persistenceAwareMutableMapOf
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel

@@ -224,14 +224,20 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
 
     override fun setValue(thisRef: C, property: KProperty<*>, value: T) {
         Log.d(LOG_TAG, "${this.javaClass.simpleName} intercepted a value change of $id.")
-        persist(value)
+        val oldValue = this.value
         this.value = value
+        try {
+            persist()
+        } catch (ex: Exception) {
+            this.value = oldValue //rollback
+            throw ex
+        }
     }
 
     override fun getValue(thisRef: C, property: KProperty<*>): T = value
 
 
-    final override fun persist(value: T) {
+    final override fun persist() {
         assertNotReadOnly()
         Log.i(
             LOG_TAG,

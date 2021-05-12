@@ -26,7 +26,6 @@ abstract class LiveDataPersistenceObserver<T>(inner: PersistenceObserver<LiveDat
 }
 
 class LiveDataPersistenceHandler<T, L : LiveData<T>>(
-    private val isAutoUpdatable: Boolean,
     private val clazz: Class<L>,
     private val innerType: Class<T>,
     private val observer: LiveDataPersistenceObserver<T> = object :
@@ -71,10 +70,13 @@ class LiveDataPersistenceHandler<T, L : LiveData<T>>(
             oldValue as MutableLiveData<T>
             oldValue.apply {
                 value = newValue.value.let {
-                    innerHandler.handleNewValue(
-                        oldValue.value as T,
-                        newValue.value as T,
-                    )
+                    if (oldValue.value == null)
+                        innerHandler.handleNewValue(newValue.value as T)
+                    else
+                        innerHandler.handleNewValue(
+                            oldValue.value as T,
+                            newValue.value as T,
+                        )
                 }
             }
         } else handleNewValue(newValue)
@@ -102,15 +104,14 @@ class LiveDataPersistenceHandler<T, L : LiveData<T>>(
     }
 
     private fun subscribeToLiveData(obj: L) = obj.apply {
-        if (isAutoUpdatable) {
-            this.observeForever {
-                if (isCurrentlyLoadingPersistence())
-                    return@observeForever
-                val toPersist = innerHandler.handleNewValue(it) ?: return@observeForever
-                observer.onLiveValueChanges(toPersist)
-                doPersistInnerType(toPersist)
-            }
+        this.observeForever {
+            if (isCurrentlyLoadingPersistence())
+                return@observeForever
+            val toPersist = innerHandler.handleNewValue(it) ?: return@observeForever
+            observer.onLiveValueChanges(toPersist)
+            doPersistInnerType(toPersist)
         }
+
     }
 
 }

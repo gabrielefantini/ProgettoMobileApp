@@ -12,7 +12,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.UserProfile
-import it.polito.mad.group25.lab.utils.persistence.Persistors
+import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel

@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.type.TypeFactory
 import java.lang.reflect.Field
+import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.math.BigDecimal
@@ -112,3 +113,18 @@ private fun cleanGenericClassName(className: String) = className.let {
 }
 
 fun <T> TypeReference<T>.toJavaType() = TypeFactory.defaultInstance().constructType(this)
+
+
+private fun searchForFieldsRecursive(clazz: Class<*>?, destination: MutableCollection<Field>) {
+    if (clazz == null) return
+    destination.addAll(clazz.declaredFields)
+    searchForFieldsRecursive(clazz.superclass, destination)
+}
+
+fun <T> Class<T>.getAllFields(): Array<Field> {
+    val destination = mutableListOf<Field>()
+    searchForFieldsRecursive(this, destination)
+    return destination.toTypedArray()
+}
+
+fun Field.isStatic() = Modifier.isStatic(modifiers)

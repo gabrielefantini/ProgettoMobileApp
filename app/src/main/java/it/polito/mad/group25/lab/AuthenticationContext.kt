@@ -8,9 +8,10 @@ import coil.ImageLoader
 import coil.request.ImageRequest
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.Blob
-import it.polito.mad.group25.lab.utils.datastructure.IdentifiableObject
-import it.polito.mad.group25.lab.utils.persistence.Persistors
+import it.polito.mad.group25.lab.utils.datastructure.Identifiable
+import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
+import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 import it.polito.mad.group25.lab.utils.views.toBlob
 import kotlin.reflect.jvm.isAccessible
@@ -50,7 +51,7 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
             if (!it.result!!.exists()) {
                 userData.value =
                     UserProfile(user.uid, user.displayName, null, user.email, null, null)
-                loadAndSaveImage(user.photoUrl, user.uid) //magari l'utente ha cambiato immagine su google
+                loadAndSaveImage(user.photoUrl, user.uid)
             }
         }
     }
@@ -68,11 +69,9 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
         val userPhotoRequest =
             ImageRequest.Builder(getContext()).data(uri)
                 .target({
-                    if (it != null) {
-                        if (userId() == oldId)
-                            userData.value =
-                                userData.value?.copy(userProfilePhotoFile = it.toBlob())
-                    }
+                    if (userId() == oldId)
+                        userData.value?.userProfilePhotoFile = it?.toBlob()
+
                 }).build()
         imageLoader.enqueue(userPhotoRequest)
     }
@@ -80,12 +79,15 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
 }
 
 data class UserProfile(
+    override var id: String?,
     var fullName: String?,
     var nickName: String?,
     var email: String?,
     var location: String?,
-    var userProfilePhotoFile: Blob?
-) : IdentifiableObject() {
+) : AbstractPersistenceAware(), Identifiable {
+
+    var userProfilePhotoFile: Blob? by onChangeUpdateStatus(null)
+
     constructor(
         id: String?,
         fullName: String?,
@@ -93,8 +95,8 @@ data class UserProfile(
         email: String?,
         location: String?,
         userProfilePhotoFile: Blob?
-    ) : this(fullName, nickName, email, location, userProfilePhotoFile) {
-        this.id = id
+    ) : this(id, fullName, nickName, email, location) {
+        this.userProfilePhotoFile = userProfilePhotoFile
     }
 
     constructor() : this(null, null, null, null, null, null)
