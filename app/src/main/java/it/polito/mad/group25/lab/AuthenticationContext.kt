@@ -50,7 +50,7 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
             if (!it.result!!.exists()) {
                 userData.value =
                     UserProfile(user.uid, user.displayName, null, user.email, null, null)
-                loadAndSaveImage(user.photoUrl, user.uid)
+                loadAndSaveImage(user.photoUrl, user.uid) //magari l'utente ha cambiato immagine su google
             }
         }
     }
@@ -62,12 +62,6 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
     }
 
 
-    fun loadRememberedUser(user: FirebaseUser) {
-        authUser as MutableLiveData<FirebaseUser?>
-        authUser.value = user
-
-    }
-
     fun userId(): String? = userData.value?.id
 
     private fun loadAndSaveImage(uri: Uri?, oldId: String) {
@@ -76,7 +70,8 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
                 .target({
                     if (it != null) {
                         if (userId() == oldId)
-                            userData.value?.userProfilePhotoFile = it.toBlob()
+                            userData.value =
+                                userData.value?.copy(userProfilePhotoFile = it.toBlob())
                     }
                 }).build()
         imageLoader.enqueue(userPhotoRequest)

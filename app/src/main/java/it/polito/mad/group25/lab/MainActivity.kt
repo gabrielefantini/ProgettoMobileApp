@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity() {
 
         navView.setupWithNavController(navController)
         navView.menu.findItem(R.id.nav_user_profile).setOnMenuItemClickListener {
+            userProfileViewModel.showUser(authenticationContext.userId()!!)
             navController.navigate(R.id.showUserProfileFragment)
             drawerLayout.closeDrawers()
             true
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
         userProfileViewModel = ViewModelProvider(this).get(UserProfileViewModel::class.java)
 
-        userProfileViewModel.shownUser.observe(this) { data ->
+        authenticationContext.userData.observe(this) { data ->
             if (data == null)
                 return@observe
 
@@ -97,8 +98,6 @@ class MainActivity : AppCompatActivity() {
             parent.findViewById<TextView>(R.id.nav_header_user_profile_email)
                 ?.run { text = data.email }
         }
-
-        updateNavHeaderUserInfo()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -107,9 +106,5 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun updateNavHeaderUserInfo() {
-
-
-    }
 
 }

@@ -124,7 +124,6 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
     }
 
     private fun complete() {
-        //userProfileViewModel.showUser(authenticationContext.userId()!!) TODO FIX ASYNC VALUE LOADING.
         activity?.findNavController(R.id.nav_host_fragment_content_main)
             ?.navigate(R.id.action_LoginFragment_to_OthersTripListFragment)
     }
