@@ -16,7 +16,7 @@ class Trip : AbstractPersistenceAware(), Identifiable {
     var carPic: Blob? by onChangeUpdateStatus(null)
     var carName: String? by onChangeUpdateStatus(null)
     var tripStartDate: Long by onChangeUpdateStatus(System.currentTimeMillis())
-    val locations: MutableList<TripLocation> by onChangeUpdateStatus(
+    var locations: MutableList<TripLocation> by onChangeUpdateStatus(
         mutableListOf(
             TripLocation(),
             TripLocation(locationTime = Instant.now().plusSeconds(30 * 60).toEpochMilli())
@@ -24,9 +24,9 @@ class Trip : AbstractPersistenceAware(), Identifiable {
     )
     var seats: Int by onChangeUpdateStatus(0)
     var price: Double by onChangeUpdateStatus(0.0)
-    val additionalInfo: MutableList<String> by onChangeUpdateStatus(mutableListOf())
+    var additionalInfo: MutableList<String> by onChangeUpdateStatus(mutableListOf())
     var ownerId: String? by onChangeUpdateStatus(null)
-    val interestedUsers: MutableList<String> by onChangeUpdateStatus(mutableListOf())
+    var interestedUsers: MutableList<String> by onChangeUpdateStatus(mutableListOf())
     fun getType(): Boolean {
         //TODO
         return true
