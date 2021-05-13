@@ -43,13 +43,8 @@ abstract class TripDetailsFragment(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
-        tripViewModel.trip.observe(viewLifecycleOwner,{ trip ->
-            if(trip != null){
-                if(authenticationContext.userId() == trip.ownerId)
-                    isOwner = true
-            }
-        })
+        if(authenticationContext.userId() == tripViewModel.trip.value?.ownerId)
+            isOwner = true
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater){
