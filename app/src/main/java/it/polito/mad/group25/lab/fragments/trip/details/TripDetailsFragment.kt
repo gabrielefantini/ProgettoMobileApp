@@ -35,7 +35,6 @@ abstract class TripDetailsFragment(
 ) : Fragment(contentLayoutId) {
 
     private val tripViewModel: TripViewModel by activityViewModels()
-    private val tripListViewModel: TripListViewModel by activityViewModels()
     private val authenticationContext: AuthenticationContext by activityViewModels()
     private val userProfileViewModel: UserProfileViewModel by activityViewModels()
 
@@ -44,8 +43,13 @@ abstract class TripDetailsFragment(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        if(authenticationContext.userId() == tripViewModel.trip.value.ownerId)
-            isOwner = true
+
+        tripViewModel.trip.observe(viewLifecycleOwner,{ trip ->
+            if(trip != null){
+                if(authenticationContext.userId() == trip.ownerId)
+                    isOwner = true
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater){
@@ -62,78 +66,83 @@ abstract class TripDetailsFragment(
         val rv = view.findViewById<RecyclerView>(R.id.tripList)
         val additionalInfoChips = view.findViewById<ChipGroup>(R.id.additionalInfoChips)
 
-        //probabilmente il trip sarà MutableLiveData e sarà da "osservare" in quanto la lista di interessati può variare nel tempo oppure può non essere più disponibile
-        val trip = tripViewModel.trip
+        tripViewModel.trip.observe(viewLifecycleOwner,{ trip ->
+            if(trip != null){
 
-        view.findViewById<TextView>(R.id.carName).text = trip.carName
-        view.findViewById<TextView>(R.id.departureDate).text = trip.startDateFormatted()
-        view.findViewById<TextView>(R.id.seatsText).text = trip.seats.toString()
-        view.findViewById<TextView>(R.id.priceText).text = trip.price.toString()
+                //populate view with trip **********************************************************
+                view.findViewById<TextView>(R.id.carName).text = trip.carName
+                view.findViewById<TextView>(R.id.departureDate).text = trip.startDateFormatted()
+                view.findViewById<TextView>(R.id.seatsText).text = trip.seats.toString()
+                view.findViewById<TextView>(R.id.priceText).text = trip.price.toString()
 
-        val last = trip.locations.lastIndex
-        view.findViewById<TextView>(R.id.durationText).text =
-            getDurationFormatted(
-                trip.locations[0].locationTime.toLocalDateTime(),
-                trip.locations[last].locationTime.toLocalDateTime()
-            )
+                val last = trip.locations.lastIndex
+                view.findViewById<TextView>(R.id.durationText).text =
+                    getDurationFormatted(
+                        trip.locations[0].locationTime.toLocalDateTime(),
+                        trip.locations[last].locationTime.toLocalDateTime()
+                    )
 
-        rv.layoutManager = LinearLayoutManager(context)
-        rv.adapter = TripLocationAdapter(trip.locations)
+                rv.layoutManager = LinearLayoutManager(context)
+                rv.adapter = TripLocationAdapter(trip.locations)
 
-        if (additionalInfoChips.childCount != 0)
-            additionalInfoChips.removeAllViews()
+                if (additionalInfoChips.childCount != 0)
+                    additionalInfoChips.removeAllViews()
 
-        if(trip.additionalInfo.size == 0){
-            additionalInfoChips.visibility = GONE
-            view.findViewById<TextView>(R.id.noOtherInfos).visibility = VISIBLE
-        }else {
-            trip.additionalInfo.forEach {
-                val chip = Chip(context)
-                chip.text = it
-                additionalInfoChips.addView(chip)
+                if(trip.additionalInfo.size == 0){
+                    additionalInfoChips.visibility = GONE
+                    view.findViewById<TextView>(R.id.noOtherInfos).visibility = VISIBLE
+                }else {
+                    trip.additionalInfo.forEach {
+                        val chip = Chip(context)
+                        chip.text = it
+                        additionalInfoChips.addView(chip)
+                    }
+                }
+                trip.carPic?.let {
+                    view.findViewById<ImageView>(R.id.carImage)
+                        .fromBlob(it)
+                }
+
+                val div = view.findViewById<View>(R.id.dividerInfo)
+                val intUserText = view.findViewById<TextView>(R.id.interestedUsers)
+                val rv2 = view.findViewById<RecyclerView>(R.id.userList)
+
+                if(!isOwner) {
+                    //normal user
+                    var fab = view.findViewById<FloatingActionButton>(R.id.tripDetailsFab)
+
+                    fab.visibility = VISIBLE
+                    rv2.visibility = GONE
+                    div.visibility = GONE
+                    intUserText.visibility = GONE
+
+                    fab.setOnClickListener {
+                        showError("Sent confirmation request to the trip's owner!")
+                        /*tripViewModel.addCurrentUserToSet(authenticationContext.userId()!!)
+                        tripListViewModel.putTrip(tripViewModel.trip)*/
+                    }
+
+                }else{
+                    //trip owner
+                    if(trip.interestedUsers.size == 0){
+                        //no interested users
+                        view.findViewById<TextView>(R.id.noIntUsers).visibility = VISIBLE
+                        rv2.visibility = GONE
+
+                    }else {
+                        //at least one interested user
+                        rv2.layoutManager = LinearLayoutManager(context)
+                        rv2.adapter = TripUsersAdapter(
+                            trip.interestedUsers.toList(),
+                            userProfileViewModel
+                        )
+
+                    }
+                }
+                //**********************************************************************************
+
             }
-        }
-        trip.carPic?.let {
-            view.findViewById<ImageView>(R.id.carImage)
-                .fromBlob(it)
-        }
-
-        val div = view.findViewById<View>(R.id.dividerInfo)
-        val intUserText = view.findViewById<TextView>(R.id.interestedUsers)
-        val rv2 = view.findViewById<RecyclerView>(R.id.userList)
-
-        if(!isOwner) {
-            //normal user
-            var fab = view.findViewById<FloatingActionButton>(R.id.tripDetailsFab)
-
-            fab.visibility = VISIBLE
-            rv2.visibility = GONE
-            div.visibility = GONE
-            intUserText.visibility = GONE
-
-            fab.setOnClickListener {
-                showError("Sent confirmation request to the trip's owner!")
-                tripViewModel.addCurrentUserToSet(authenticationContext.userId()!!)
-                tripListViewModel.putTrip(tripViewModel.trip)
-            }
-
-        }else{
-            //trip owner
-            if(trip.interestedUsers.size == 0){
-                //no interested users
-                view.findViewById<TextView>(R.id.noIntUsers).visibility = VISIBLE
-                rv2.visibility = GONE
-
-            }else {
-                //at least one interested user
-                rv2.layoutManager = LinearLayoutManager(context)
-                rv2.adapter = TripUsersAdapter(
-                    trip.interestedUsers.toList(),
-                    userProfileViewModel
-                )
-
-            }
-        }
+        })
     }
 
     fun navigateToUserProfile(userId: String){

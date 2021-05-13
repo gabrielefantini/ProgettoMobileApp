@@ -21,7 +21,7 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun createNewTrip(): Trip {
-        return Trip().apply { id = generateNewId() }
+        return Trip()
     }
 
     private fun generateNewId(): String {
@@ -38,6 +38,7 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
     }
 
     fun putTrip(trip: Trip) {
+        trip.id = generateNewId()
         trips.value?.put(trip.id!!, trip)
     }
 

@@ -70,7 +70,7 @@ class TripListFragment : Fragment() {
 
         val addNewTripButton = view.findViewById<FloatingActionButton>(R.id.addTrip)
         addNewTripButton.setOnClickListener {
-            tripViewModel.trip = tripListViewModel.createNewTrip()
+            tripViewModel.trip.value = tripListViewModel.createNewTrip()
             view.findNavController().navigate(R.id.showTripEditFragment)
         }
     }
