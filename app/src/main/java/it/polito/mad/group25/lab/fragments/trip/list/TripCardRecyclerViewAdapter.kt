@@ -3,7 +3,6 @@ package it.polito.mad.group25.lab.fragments.trip.list
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.INVISIBLE
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
@@ -109,7 +108,7 @@ class TripCardRecyclerViewAdapter(val tripList: List<Trip>, var currentTrip: Tri
                 item.locations[item.locations.size - 1].location.toString()
             itemView.findViewById<TextView>(R.id.card_seats_text).text = item.seats.toString()
             itemView.findViewById<TextView>(R.id.card_price_text).text = item.price.toString()
-            itemView.findViewById<Button>(R.id.editTrip).visibility = INVISIBLE
+            itemView.findViewById<Button>(R.id.editTrip).visibility = View.GONE
             itemView.findViewById<CardView>(R.id.card).setOnClickListener { view ->
                 currentTrip.trip = item
                 view.findNavController().navigate(R.id.showTripDetailsFragment)

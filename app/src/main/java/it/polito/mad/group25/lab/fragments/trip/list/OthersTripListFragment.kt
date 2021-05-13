@@ -2,9 +2,7 @@ package it.polito.mad.group25.lab.fragments.trip.list
 
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -34,6 +32,7 @@ class OthersTripListFragment : Fragment() {
         arguments?.let {
             columnCount = it.getInt(ARG_COLUMN_COUNT)
         }
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -41,6 +40,20 @@ class OthersTripListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? = inflater.inflate(R.layout.trip_list_fragment, container, false)
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater){
+        inflater.inflate(R.menu.menu_filter_trip_list, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.edit_trip_list_filter -> {
+                activity?.findNavController(R.id.nav_host_fragment_content_main)
+                    ?.navigate(R.id.action_OthersTripListFragment_to_TripFilterFragment)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,10 +82,7 @@ class OthersTripListFragment : Fragment() {
         })
 
         val addNewTripButton = view.findViewById<FloatingActionButton>(R.id.addTrip)
-        addNewTripButton.setOnClickListener {
-            tripViewModel.trip = tripListViewModel.createNewTrip()
-            view.findNavController().navigate(R.id.showTripEditFragment)
-        }
+        addNewTripButton.visibility = View.GONE
     }
 
     companion object {
