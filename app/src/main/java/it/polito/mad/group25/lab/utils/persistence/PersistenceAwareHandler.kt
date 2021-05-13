@@ -54,7 +54,7 @@ interface PersistenceAwareWrapper<T : PersistenceAware> : PersistenceAware {
 }
 
 
-class PersistenceAwarePersistenceHandler<T : PersistenceAware>(nextHandler: PersistenceHandler<T>? = null) :
+class PersistenceAwarePersistenceHandler<T : PersistenceAware?>(nextHandler: PersistenceHandler<T>? = null) :
     AbstractPersistenceHandler<T, T>(nextHandler) {
 
     override fun handleNewValue(oldValue: T, newValue: T): T? =
@@ -70,7 +70,7 @@ class PersistenceAwarePersistenceHandler<T : PersistenceAware>(nextHandler: Pers
 
 
     private fun injectPersistenceContext(value: T) =
-        value.apply {
+        value?.apply {
             this.persistenceContext =
                 PersistenceContext { handlePersistenceRequest(it as T) }
         }
