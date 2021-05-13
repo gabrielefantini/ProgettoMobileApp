@@ -85,11 +85,11 @@ class TripCardRecyclerViewAdapter(val tripList: List<Trip>, var currentTrip: Tri
             itemView.findViewById<TextView>(R.id.card_seats_text).text = item.seats.toString()
             itemView.findViewById<TextView>(R.id.card_price_text).text = item.price.toString()
             itemView.findViewById<Button>(R.id.editTrip).setOnClickListener { view ->
-                currentTrip.trip = item
+                currentTrip.trip.value = item
                 view.findNavController().navigate(R.id.showTripEditFragment)
             }
             itemView.findViewById<CardView>(R.id.card).setOnClickListener { view ->
-                currentTrip.trip = item
+                currentTrip.trip.value = item
                 view.findNavController().navigate(R.id.showTripDetailsFragment)
             }
             tripList[position].carPic?.let { itemView.findViewById<ImageView>(R.id.card_car_image).fromBlob(it) }
@@ -110,7 +110,7 @@ class TripCardRecyclerViewAdapter(val tripList: List<Trip>, var currentTrip: Tri
             itemView.findViewById<TextView>(R.id.card_price_text).text = item.price.toString()
             itemView.findViewById<Button>(R.id.editTrip).visibility = View.GONE
             itemView.findViewById<CardView>(R.id.card).setOnClickListener { view ->
-                currentTrip.trip = item
+                currentTrip.trip.value = item
                 view.findNavController().navigate(R.id.showTripDetailsFragment)
             }
             tripList[position].carPic?.let { itemView.findViewById<ImageView>(R.id.card_car_image).fromBlob(it) }

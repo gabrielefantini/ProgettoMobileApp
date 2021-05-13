@@ -20,7 +20,6 @@ interface FirestoreLivePersistenceObserver<SF, T> :
         if (error != null)
             throw error
     }
-
 }
 
 class FirestoreLivePersistorDelegate<T, C>(
@@ -79,7 +78,9 @@ class FirestoreLivePersistorDelegate<T, C>(
                 if (value.id == null) {
                     FirebaseFirestore.getInstance()
                         .collection(this.collection!!).add(value)
-                        .addOnCompleteListener { t -> if (t.isSuccessful) value.id = t.result!!.id }
+                        .addOnCompleteListener { t ->
+                            if (t.isSuccessful) value.id = t.result!!.id
+                        }
                 } else {
                     initializeStore(value.id!!)
                     store.set(value)

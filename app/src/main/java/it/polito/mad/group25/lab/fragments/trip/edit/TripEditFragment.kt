@@ -31,6 +31,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.details.getDurationFormatted
@@ -113,11 +114,17 @@ abstract class TripEditFragment(
             true,
             CharSequence::isNotBlank
         )
+        var seatsTaken = 0
+        tripViewModel.trip.observe(viewLifecycleOwner, { trip ->
+            if (trip != null) {
+                seatsTaken = trip.interestedUsers.size
+            }
+        })
         seatsLayout.setConstraints(
             R.id.seatsText,
             "Please provide valid seats between 1 and 7 (considering also the assigned ones)",
             true
-        ) { it.isNotBlank() && it.toString().toInt().let { s -> s in 1..7 - tripViewModel.trip.interestedUsers.size } }
+        ) { it.isNotBlank() && it.toString().toInt().let { s -> s in 1..7 - seatsTaken } }
 
 
         val context = this.context
@@ -127,255 +134,258 @@ abstract class TripEditFragment(
         val depDate = view.findViewById<TextView>(R.id.departureDate)
 
 
-        val trip = tripViewModel.trip
-
-        if (tripEditViewModel.tripStepList.isEmpty())
-            trip.locations.forEach {
-                tripEditViewModel.tripStepList.add(it)
-            }
-        updateDuration(view)
-
-        view.findViewById<EditText>(R.id.carName).setText(trip.carName)
-        depDate.text = tripEditViewModel.tripStepList[0].locationTime.asFormattedDate("dd/MM/yyyy")
-        view.findViewById<EditText>(R.id.seatsText).setText(trip.seats.toString())
-        view.findViewById<EditText>(R.id.priceText).setText(trip.price.toString())
-
-
-        rv.layoutManager = LinearLayoutManager(context)
-        rv.adapter = TripAdapter(tripEditViewModel.tripStepList, context)
-
-        if (additionalInfoChips.childCount != 0)
-            additionalInfoChips.removeAllViews()
-
-        if (tripEditViewModel.tripDet.isEmpty())
-            trip.additionalInfo.forEach {
-                tripEditViewModel.tripDet.add(it)
-            }
-
-        tripEditViewModel.tripDet.forEach {
-            additionalInfoChips.addView(getChip(additionalInfoChips, it))
-        }
-
-        view.findViewById<ImageView>(R.id.carImage)
-            .fromFile(File(requireActivity().dataDir, "tripPhoto" + tripViewModel.trip.id))
-
-        tripEditViewModel.tempProfileDrawable?.let {
-            view.findViewById<ImageView>(R.id.carImage).setImageDrawable(it)
-        }
-
-
-        val imageButton = view.findViewById<ImageButton>(R.id.changeCarPicButton)
-        registerForContextMenu(imageButton)
-        imageButton.setOnClickListener {
-            it.showContextMenu()
-        }
-
-        //aggiunta nuova TripLocation ***************************************
-
-        val dateStop = view.findViewById<TextView>(R.id.dateStop)
-        val timeStop = view.findViewById<TextView>(R.id.time_stop)
-        val locationStop = view.findViewById<EditText>(R.id.location_stop)
-
-        val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
-        val saveButton = view.findViewById<ImageButton>(R.id.save_stop)
-
-        val addButton = view.findViewById<FloatingActionButton>(R.id.addTripStop)
-        addButton.setOnClickListener {
-            val layout = view.findViewById<LinearLayout>(R.id.add_fields_layout)
-            if (layout.visibility == VISIBLE) {
-
-                dateStop.text = "--/--/----"
-                timeStop.text = "--:--"
-                locationStop.text.clear()
-
-                layout.visibility = GONE
-                deleteStop.visibility = GONE
-            } else {
-                layout.visibility = VISIBLE
-                deleteStop.visibility = GONE
-
-
-                dateStop.text = "--/--/----"
-                timeStop.text = "--:--"
-                locationStop.text.clear()
-
-                dateStop.setOnClickListener {
-                    openDatePicker(tv = dateStop)
-                }
-
-                timeStop.setOnClickListener {
-                    openTimePicker(tv = timeStop)
-                }
-
-                saveButton.setOnClickListener {
-                    if (locationStop.text.toString() != "" && timeStop.text.toString() != "--:--" && dateStop.text.toString() != "--/--/----") {
-                        //System.out.println(time_stop.text.toString())
-                        val date = dateStop.text.toString().split("/")
-                            .map { if (it.length < 2) "0$it" else it }
-                            .reduce { acc, s -> "$acc/$s" }
-                        val formatter: DateTimeFormatter =
-                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-                        val t = TripLocation(
-                            locationStop.text.toString(),
-                            LocalDateTime.parse(
-                                date + " " + timeStop.text.toString(),
-                                formatter
-                            ).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                        )
-                        tripEditViewModel.tripStepList.add(t)
-                        tripEditViewModel.tripStepList.sortBy { it.locationTime }
-
-                        updateDuration(view)
-
-                        dateStop.text = "--/--/----"
-                        timeStop.text = "--:--"
-                        locationStop.text.clear()
-                        layout.visibility = GONE
-
-                        depDate.text =
-                            tripEditViewModel.tripStepList[0].locationTime.asFormattedDate("dd/MM/yyyy")
-
-                        rv.adapter?.notifyDataSetChanged()
-                    } else Toast.makeText(context, "Fill all fields!", Toast.LENGTH_LONG).show()
-
-                }
-            }
-        }
-
-        //*****************************************************************************
-
-        val addDetail = view.findViewById<FloatingActionButton>(R.id.addDetail)
-        addDetail.setOnClickListener {
-            val layout = view.findViewById<LinearLayout>(R.id.addDetailLayout)
-            if (layout.visibility == VISIBLE) {
-                view.findViewById<EditText>(R.id.insertDetail).text.clear()
-                layout.visibility = INVISIBLE
-            } else {
-                layout.visibility = VISIBLE
-                val add_button = view.findViewById<ImageButton>(R.id.addDetBut)
-                val detText = view.findViewById<EditText>(R.id.insertDetail)
-                add_button.setOnClickListener {
-                    if (detText.text.toString() == "") Toast.makeText(
-                        context,
-                        "Insert a text!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    else {
-                        tripEditViewModel.tripDet.add(detText.text.toString())
-                        trip.additionalInfo.add(detText.text.toString())
-                        layout.visibility = INVISIBLE
-
-                        additionalInfoChips.addView(
-                            getChip(
-                                additionalInfoChips,
-                                detText.text.toString()
-                            )
-                        )
-                        detText.text.clear()
+        tripViewModel.trip.observe(viewLifecycleOwner, { trip ->
+            if (trip != null) {
+                if (tripEditViewModel.tripStepList.isEmpty())
+                    trip.locations.forEach {
+                        tripEditViewModel.tripStepList.add(it)
                     }
+                updateDuration(view)
+
+                view.findViewById<EditText>(R.id.carName).setText(trip.carName)
+                depDate.text = tripEditViewModel.tripStepList[0].locationTime.asFormattedDate("dd/MM/yyyy")
+                view.findViewById<EditText>(R.id.seatsText).setText(trip.seats.toString())
+                view.findViewById<EditText>(R.id.priceText).setText(trip.price.toString())
+
+
+                rv.layoutManager = LinearLayoutManager(context)
+                rv.adapter = TripAdapter(tripEditViewModel.tripStepList, context)
+
+                if (additionalInfoChips.childCount != 0)
+                    additionalInfoChips.removeAllViews()
+
+                if (tripEditViewModel.tripDet.isEmpty())
+                    trip.additionalInfo.forEach {
+                        tripEditViewModel.tripDet.add(it)
+                    }
+
+                tripEditViewModel.tripDet.forEach {
+                    additionalInfoChips.addView(getChip(additionalInfoChips, it))
                 }
-            }
-        }
 
-        setUpRemoveButton(view)
-        setUpInterestedUsers(view)
+                view.findViewById<ImageView>(R.id.carImage)
+                    .fromFile(File(requireActivity().dataDir, "tripPhoto" + trip.id))
 
-        tripEditViewModel.selectedTripLocationId.observe(viewLifecycleOwner,
-            { locationId ->
-                if (locationId != null) {
+                tripEditViewModel.tempProfileDrawable?.let {
+                    view.findViewById<ImageView>(R.id.carImage).setImageDrawable(it)
+                }
+
+
+                val imageButton = view.findViewById<ImageButton>(R.id.changeCarPicButton)
+                registerForContextMenu(imageButton)
+                imageButton.setOnClickListener {
+                    it.showContextMenu()
+                }
+
+                //aggiunta nuova TripLocation ***************************************
+
+                val dateStop = view.findViewById<TextView>(R.id.dateStop)
+                val timeStop = view.findViewById<TextView>(R.id.time_stop)
+                val locationStop = view.findViewById<EditText>(R.id.location_stop)
+
+                val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
+                val saveButton = view.findViewById<ImageButton>(R.id.save_stop)
+
+                val addButton = view.findViewById<FloatingActionButton>(R.id.addTripStop)
+                addButton.setOnClickListener {
                     val layout = view.findViewById<LinearLayout>(R.id.add_fields_layout)
-                    layout.visibility = VISIBLE
-                    deleteStop.visibility = VISIBLE
-
-                    val timeInit = tripEditViewModel.tripStepList[locationId].locationTime
-                    val locationInit = tripEditViewModel.tripStepList[locationId].location
-
-                    dateStop.text =
-                        tripEditViewModel.tripStepList[locationId].locationTime.asFormattedDate("dd/MM/yyyy")
-
-                    timeStop.text = tripEditViewModel.tripStepList[locationId].timeFormatted()
-                    locationStop.setText(tripEditViewModel.tripStepList[locationId].location)
-
-                    dateStop.setOnClickListener {
-                        openDatePicker(timeInit.toLocalDateTime(), dateStop)
-                    }
-
-                    timeStop.setOnClickListener {
-                        openTimePicker(timeInit.toLocalDateTime(), timeStop)
-                    }
-
-                    saveButton.setOnClickListener {
-                        val t = tripEditViewModel.tripStepList.find {
-                            !(it.locationTime < timeInit || it.locationTime > timeInit)
-                                    && it.location == locationInit
-                        }
-                        tripEditViewModel.tripStepList.remove(t)
-                        val formatter: DateTimeFormatter =
-                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-                        val date = dateStop.text.toString().split("/")
-                            .map { if (it.length < 2) "0$it" else it }
-                            .reduce { acc, s -> "$acc/$s" }
-
-                        tripEditViewModel.tripStepList.add(
-                            TripLocation(
-                                locationStop.text.toString(),
-                                LocalDateTime.parse(
-                                    date + " " + timeStop.text.toString(),
-                                    formatter
-                                ).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                            )
-                        )
-
-                        tripEditViewModel.tripStepList.sortBy { it.locationTime }
-
-                        updateDuration(view)
+                    if (layout.visibility == VISIBLE) {
 
                         dateStop.text = "--/--/----"
                         timeStop.text = "--:--"
                         locationStop.text.clear()
 
                         layout.visibility = GONE
-                        depDate.text =
-                            tripEditViewModel.tripStepList[0].locationTime.asFormattedDate("dd/MM/yyyy")
+                        deleteStop.visibility = GONE
+                    } else {
+                        layout.visibility = VISIBLE
+                        deleteStop.visibility = GONE
 
-                        rv.adapter?.notifyDataSetChanged()
+
+                        dateStop.text = "--/--/----"
+                        timeStop.text = "--:--"
+                        locationStop.text.clear()
+
+                        dateStop.setOnClickListener {
+                            openDatePicker(tv = dateStop)
+                        }
+
+                        timeStop.setOnClickListener {
+                            openTimePicker(tv = timeStop)
+                        }
+
+                        saveButton.setOnClickListener {
+                            if (locationStop.text.toString() != "" && timeStop.text.toString() != "--:--" && dateStop.text.toString() != "--/--/----") {
+                                //System.out.println(time_stop.text.toString())
+                                val date = dateStop.text.toString().split("/")
+                                    .map { if (it.length < 2) "0$it" else it }
+                                    .reduce { acc, s -> "$acc/$s" }
+                                val formatter: DateTimeFormatter =
+                                    DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                                val t = TripLocation(
+                                    locationStop.text.toString(),
+                                    LocalDateTime.parse(
+                                        date + " " + timeStop.text.toString(),
+                                        formatter
+                                    ).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                )
+                                tripEditViewModel.tripStepList.add(t)
+                                tripEditViewModel.tripStepList.sortBy { it.locationTime }
+
+                                updateDuration(view)
+
+                                dateStop.text = "--/--/----"
+                                timeStop.text = "--:--"
+                                locationStop.text.clear()
+                                layout.visibility = GONE
+
+                                depDate.text =
+                                    tripEditViewModel.tripStepList[0].locationTime.asFormattedDate("dd/MM/yyyy")
+
+                                rv.adapter?.notifyDataSetChanged()
+                            } else Toast.makeText(context, "Fill all fields!", Toast.LENGTH_LONG).show()
+
+                        }
                     }
+                }
 
+                //*****************************************************************************
 
-                    deleteStop.setOnClickListener {
-                        if (tripEditViewModel.tripStepList.size > 2) {
-                            val t = tripEditViewModel.tripStepList.find {
-                                !(it.locationTime < timeInit || it.locationTime > timeInit)
-                                        && it.location == locationInit
-                            }
-                            tripEditViewModel.tripStepList.remove(t)
-
-                            updateDuration(view)
-
-                            dateStop.text = "--/--/----"
-                            timeStop.text = "--:--"
-                            locationStop.text.clear()
-
-                            layout.visibility = GONE
-                            deleteStop.visibility = GONE
-                            rv.adapter?.notifyDataSetChanged()
-                        } else
-                            Toast.makeText(
+                val addDetail = view.findViewById<FloatingActionButton>(R.id.addDetail)
+                addDetail.setOnClickListener {
+                    val layout = view.findViewById<LinearLayout>(R.id.addDetailLayout)
+                    if (layout.visibility == VISIBLE) {
+                        view.findViewById<EditText>(R.id.insertDetail).text.clear()
+                        layout.visibility = INVISIBLE
+                    } else {
+                        layout.visibility = VISIBLE
+                        val add_button = view.findViewById<ImageButton>(R.id.addDetBut)
+                        val detText = view.findViewById<EditText>(R.id.insertDetail)
+                        add_button.setOnClickListener {
+                            if (detText.text.toString() == "") Toast.makeText(
                                 context,
-                                "Can't delete a location\nTwo stops minimum needed.",
+                                "Insert a text!",
                                 Toast.LENGTH_LONG
                             ).show()
+                            else {
+                                tripEditViewModel.tripDet.add(detText.text.toString())
+                                trip.additionalInfo.add(detText.text.toString())
+                                layout.visibility = INVISIBLE
+
+                                additionalInfoChips.addView(
+                                    getChip(
+                                        additionalInfoChips,
+                                        detText.text.toString()
+                                    )
+                                )
+                                detText.text.clear()
+                            }
+                        }
                     }
                 }
-            })
 
+                setUpRemoveButton(view)
+                setUpInterestedUsers(view)
+
+                tripEditViewModel.selectedTripLocationId.observe(viewLifecycleOwner,
+                    { locationId ->
+                        if (locationId != null) {
+                            val layout = view.findViewById<LinearLayout>(R.id.add_fields_layout)
+                            layout.visibility = VISIBLE
+                            deleteStop.visibility = VISIBLE
+
+                            val timeInit = tripEditViewModel.tripStepList[locationId].locationTime
+                            val locationInit = tripEditViewModel.tripStepList[locationId].location
+
+                            dateStop.text =
+                                tripEditViewModel.tripStepList[locationId].locationTime.asFormattedDate("dd/MM/yyyy")
+
+                            timeStop.text = tripEditViewModel.tripStepList[locationId].timeFormatted()
+                            locationStop.setText(tripEditViewModel.tripStepList[locationId].location)
+
+                            dateStop.setOnClickListener {
+                                openDatePicker(timeInit.toLocalDateTime(), dateStop)
+                            }
+
+                            timeStop.setOnClickListener {
+                                openTimePicker(timeInit.toLocalDateTime(), timeStop)
+                            }
+
+                            saveButton.setOnClickListener {
+                                val t = tripEditViewModel.tripStepList.find {
+                                    !(it.locationTime < timeInit || it.locationTime > timeInit)
+                                            && it.location == locationInit
+                                }
+                                tripEditViewModel.tripStepList.remove(t)
+                                val formatter: DateTimeFormatter =
+                                    DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                                val date = dateStop.text.toString().split("/")
+                                    .map { if (it.length < 2) "0$it" else it }
+                                    .reduce { acc, s -> "$acc/$s" }
+
+                                tripEditViewModel.tripStepList.add(
+                                    TripLocation(
+                                        locationStop.text.toString(),
+                                        LocalDateTime.parse(
+                                            date + " " + timeStop.text.toString(),
+                                            formatter
+                                        ).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                    )
+                                )
+
+                                tripEditViewModel.tripStepList.sortBy { it.locationTime }
+
+                                updateDuration(view)
+
+                                dateStop.text = "--/--/----"
+                                timeStop.text = "--:--"
+                                locationStop.text.clear()
+
+                                layout.visibility = GONE
+                                depDate.text =
+                                    tripEditViewModel.tripStepList[0].locationTime.asFormattedDate("dd/MM/yyyy")
+
+                                rv.adapter?.notifyDataSetChanged()
+                            }
+
+
+                            deleteStop.setOnClickListener {
+                                if (tripEditViewModel.tripStepList.size > 2) {
+                                    val t = tripEditViewModel.tripStepList.find {
+                                        !(it.locationTime < timeInit || it.locationTime > timeInit)
+                                                && it.location == locationInit
+                                    }
+                                    tripEditViewModel.tripStepList.remove(t)
+
+                                    updateDuration(view)
+
+                                    dateStop.text = "--/--/----"
+                                    timeStop.text = "--:--"
+                                    locationStop.text.clear()
+
+                                    layout.visibility = GONE
+                                    deleteStop.visibility = GONE
+                                    rv.adapter?.notifyDataSetChanged()
+                                } else
+                                    Toast.makeText(
+                                        context,
+                                        "Can't delete a location\nTwo stops minimum needed.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                            }
+                        }
+                    })
+            }
+        })
+        val trip = tripViewModel.trip
     }
 
+    // questi due metodi sono chiamati
     fun setUpInterestedUsers(view: View) {
         val rv = view.findViewById<RecyclerView>(R.id.userList)
         rv.layoutManager = LinearLayoutManager(context)
         rv.adapter = TripUsersEditAdapter(
-            tripViewModel.trip.interestedUsers.toList(),
+            tripViewModel.trip.value!!.interestedUsers.toList(),
             tripEditViewModel.interestedUsersTmp
         )
 
@@ -384,7 +394,7 @@ abstract class TripEditFragment(
     fun setUpRemoveButton(view: View) {
         val remove_button = view.findViewById<Button>(R.id.remove_button)
         remove_button.setOnClickListener {
-            tripListViewModel.removeTrip(tripViewModel.trip)
+            tripListViewModel.removeTrip(tripViewModel.trip.value!!)
             view.findNavController().navigate(R.id.TripListFragment)
         }
 
@@ -437,8 +447,18 @@ abstract class TripEditFragment(
         if (!(carNameLayout.isCompliant() && priceLayout.isCompliant() && seatsLayout.isCompliant()))
             return false
 
-        val tripSel = tripViewModel.trip
-
+        val tripDb = tripViewModel.trip.value!!
+        val tripSel = Trip()
+        tripSel.id = tripDb.id
+        tripSel.carName = tripDb.carName
+        tripSel.additionalInfo = tripDb.additionalInfo
+        tripSel.carPic = tripDb.carPic
+        tripSel.interestedUsers = tripDb.interestedUsers
+        tripSel.locations = tripDb.locations
+        tripSel.ownerId = tripDb.ownerId
+        tripSel.price = tripDb.price
+        tripSel.seats = tripDb.seats
+        tripSel.tripStartDate = tripDb.tripStartDate
 
         if (tripEditViewModel.tripStepList
                 .minByOrNull { l -> l.locationTime }?.locationTime?.let { it < System.currentTimeMillis() } == true
@@ -509,7 +529,8 @@ abstract class TripEditFragment(
 
         tripSel.ownerId = authenticationContext.userId()
 
-        tripListViewModel.putTrip(tripSel)
+        if (tripDb.id == null) tripListViewModel.putTrip(tripSel)
+        else tripViewModel.trip.value = tripSel
 
         return true
     }
