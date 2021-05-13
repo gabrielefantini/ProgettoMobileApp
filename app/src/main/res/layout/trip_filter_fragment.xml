@@ -11,6 +11,24 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/departureLocationLayout"
+            android:layout_width="240dp"
+            android:layout_height="51dp"
+            android:layout_marginEnd="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/departurePlaceTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/departurePlaceTitle"
+            app:layout_constraintTop_toTopOf="@+id/departurePlaceTitle">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/departurePlace"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="departure" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <TextView
             android:id="@+id/DepartureTitle"
             android:layout_width="wrap_content"
@@ -28,33 +46,18 @@
             android:id="@+id/departurePlaceTitle"
             android:layout_width="49dp"
             android:layout_height="29dp"
+            android:layout_marginTop="32dp"
+            android:gravity="center_vertical"
             android:text="Place"
             app:layout_constraintBottom_toTopOf="@+id/departureStartDateTitle"
-            app:layout_constraintEnd_toStartOf="@+id/departureLocation"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/departureStartDateTitle"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/departureLocation"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="216dp"
-            android:layout_height="31dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            app:endIconMode="clear_text"
-            app:errorEnabled="true"
-            app:helperTextEnabled="true"
-            app:layout_constraintBottom_toBottomOf="@+id/departurePlaceTitle"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/departurePlaceTitle"
-            app:layout_constraintTop_toTopOf="@+id/departurePlaceTitle" />
 
         <TextView
             android:id="@+id/departureStartDateTitle"
             android:layout_width="93dp"
             android:layout_height="33dp"
+            android:gravity="center_vertical"
             android:text="Starting From"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/departurePlaceTitle"
@@ -76,7 +79,7 @@
             app:layout_constraintEnd_toStartOf="@+id/departureStartTime"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/departureStartDateTitle"
-            app:layout_constraintTop_toBottomOf="@+id/departureLocation" />
+            app:layout_constraintTop_toBottomOf="@+id/departureLocationLayout" />
 
         <TextView
             android:id="@+id/departureStartTime"
@@ -90,7 +93,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/departureStartDate"
-            app:layout_constraintTop_toBottomOf="@+id/departureLocation" />
+            app:layout_constraintTop_toBottomOf="@+id/departureLocationLayout" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -123,33 +126,18 @@
             android:id="@+id/arrivalPlaceTitle"
             android:layout_width="49dp"
             android:layout_height="29dp"
+            android:layout_marginTop="32dp"
+            android:gravity="center_vertical"
             android:text="Place"
             app:layout_constraintBottom_toTopOf="@+id/arrivalStartDateTitle"
-            app:layout_constraintEnd_toStartOf="@+id/arrivalLocation"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/arrivalStartDateTitle"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/arrivalLocation"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="216dp"
-            android:layout_height="31dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            app:endIconMode="clear_text"
-            app:errorEnabled="true"
-            app:helperTextEnabled="true"
-            app:layout_constraintBottom_toBottomOf="@+id/arrivalPlaceTitle"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/arrivalPlaceTitle"
-            app:layout_constraintTop_toTopOf="@+id/arrivalPlaceTitle" />
 
         <TextView
             android:id="@+id/arrivalStartDateTitle"
             android:layout_width="93dp"
             android:layout_height="33dp"
+            android:gravity="center_vertical"
             android:text="Starting From"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/arrivalPlaceTitle"
@@ -171,7 +159,7 @@
             app:layout_constraintEnd_toStartOf="@+id/arrivalStartTime"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/arrivalStartDateTitle"
-            app:layout_constraintTop_toBottomOf="@+id/arrivalLocation" />
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout5" />
 
         <TextView
             android:id="@+id/arrivalStartTime"
@@ -185,7 +173,25 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/arrivalStartDate"
-            app:layout_constraintTop_toBottomOf="@+id/arrivalLocation" />
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout5" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout5"
+            android:layout_width="240dp"
+            android:layout_height="51dp"
+            android:layout_marginEnd="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/arrivalPlaceTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/arrivalPlaceTitle"
+            app:layout_constraintTop_toTopOf="@+id/arrivalPlaceTitle">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/arrivalPlace"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="arrival" />
+        </com.google.android.material.textfield.TextInputLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -201,69 +207,66 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/price"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="70dp"
-            android:layout_height="41dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            app:endIconMode="clear_text"
-            app:errorEnabled="true"
-            app:helperTextEnabled="true"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/priceInputLayout"
+            android:layout_width="116dp"
+            android:layout_height="63dp"
+            android:layout_marginBottom="32dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/duration"
+            app:layout_constraintEnd_toStartOf="@+id/durationInputLayout"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.381" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/duration"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="70dp"
-            android:layout_height="41dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            app:endIconMode="clear_text"
-            app:errorEnabled="true"
-            app:helperTextEnabled="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/seats"
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="115dp"
+                android:layout_height="match_parent"
+                android:hint="Price" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/durationInputLayout"
+            android:layout_width="116dp"
+            android:layout_height="63dp"
+            app:layout_constraintBottom_toBottomOf="@+id/priceInputLayout"
+            app:layout_constraintEnd_toStartOf="@+id/seatsInputLayout"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/price"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.381" />
+            app:layout_constraintStart_toEndOf="@+id/priceInputLayout"
+            app:layout_constraintTop_toTopOf="@+id/priceInputLayout">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/seats"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="70dp"
-            android:layout_height="41dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            app:endIconMode="clear_text"
-            app:errorEnabled="true"
-            app:helperTextEnabled="true"
-            app:layout_constraintBottom_toBottomOf="parent"
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="115dp"
+                android:layout_height="match_parent"
+                android:hint="Duration" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/seatsInputLayout"
+            android:layout_width="116dp"
+            android:layout_height="63dp"
+            app:layout_constraintBottom_toBottomOf="@+id/durationInputLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/duration"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.381" />
+            app:layout_constraintStart_toEndOf="@+id/durationInputLayout"
+            app:layout_constraintTop_toTopOf="@+id/durationInputLayout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="115dp"
+                android:layout_height="match_parent"
+                android:hint="Seats" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/apply"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="37dp"
+            android:layout_marginTop="16dp"
             android:text="Apply filters"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/duration"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/durationInputLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
