@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.Blob
 import it.polito.mad.group25.lab.utils.datastructure.Identifiable
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
+import it.polito.mad.group25.lab.utils.persistence.extractPersistor
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
 import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
@@ -41,8 +42,8 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
         authUser as MutableLiveData<FirebaseUser?>
         authUser.value = user
 
-        val persistor = (this::userData.apply { isAccessible = true }
-            .getDelegate() as FirestoreLivePersistorDelegate<MutableLiveData<UserProfile?>, AuthenticationContext>)
+        val persistor: FirestoreLivePersistorDelegate<MutableLiveData<UserProfile?>, AuthenticationContext> =
+            extractPersistor(this::userData)
 
         // check if the user is already saved on the db by loading it.
         // if it is absent then save it.

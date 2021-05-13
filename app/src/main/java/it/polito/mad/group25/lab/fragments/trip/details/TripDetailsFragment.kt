@@ -44,7 +44,7 @@ abstract class TripDetailsFragment(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        if(authenticationContext.userId() == tripViewModel.trip.ownerId)
+        if(authenticationContext.userId() == tripViewModel.trip.value.ownerId)
             isOwner = true
     }
 
