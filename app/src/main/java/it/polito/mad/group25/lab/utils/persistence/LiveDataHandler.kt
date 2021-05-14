@@ -3,6 +3,7 @@ package it.polito.mad.group25.lab.utils.persistence
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import it.polito.mad.group25.lab.utils.persistence.awareds.*
 
 interface LiveDataPersistenceObserver<T> {
 
@@ -28,7 +29,7 @@ class LiveDataPersistenceHandler<T, L : LiveData<T>?>(
     private val clazz: Class<L>,
     private val innerType: Class<T>,
     private val observer: LiveDataPersistenceObserver<T> = object :
-        LiveDataPersistenceObserver<T>{},
+        LiveDataPersistenceObserver<T> {},
     nextHandler: PersistenceHandler<T>? = null,
 ) : AbstractPersistenceHandler<L, T>(nextHandler) {
 
@@ -58,6 +59,15 @@ class LiveDataPersistenceHandler<T, L : LiveData<T>?>(
         }
         if (MediatorLiveData::class.java == clazz)
             return MediatorLiveData<T>().apply { value = innerValue } as L
+
+        if (PersistenceAwareMutableLiveMap::class.java == clazz)
+            return innerValue as L
+
+        if (PersistenceAwareMutableLiveList::class.java == clazz)
+            return innerValue as L
+
+        if (PersistenceAwareMutableLiveSet::class.java == clazz)
+            return innerValue as L
 
         throw NotImplementedError("Unknown type of LiveData ${clazz.canonicalName}")
     }

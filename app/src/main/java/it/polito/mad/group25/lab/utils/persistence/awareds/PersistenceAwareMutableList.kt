@@ -5,6 +5,9 @@ import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
 fun <T> persistenceAwareMutableListOf(vararg elements: T): PersistenceAwareMutableList<T> =
     PersistenceAwareMutableList(mutableListOf(*elements))
 
+fun <T> persistenceAwareMutableLiveListOf(vararg elements: T): PersistenceAwareMutableLiveList<T> =
+    PersistenceAwareMutableLiveList(persistenceAwareMutableListOf(*elements))
+
 class PersistenceAwareMutableList<T>(private val innerList: MutableList<T>) :
     MutableList<T> by innerList, AbstractPersistenceAware() {
 
@@ -76,4 +79,11 @@ class PersistenceAwareMutableList<T>(private val innerList: MutableList<T>) :
         return toRet
     }
 
+}
+
+class PersistenceAwareMutableLiveList<T>(private val innerList: PersistenceAwareMutableList<T>) :
+    MutableList<T> by innerList,
+    AbstractPersistenceAwareLiveDataStructure<PersistenceAwareMutableLiveList<T>>(innerList) {
+
+    constructor() : this(persistenceAwareMutableListOf())
 }

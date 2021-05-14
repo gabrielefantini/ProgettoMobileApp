@@ -3,10 +3,7 @@ package it.polito.mad.group25.lab.utils.persistence.instantiator
 import androidx.lifecycle.LiveData
 import it.polito.mad.group25.lab.utils.getAllFields
 import it.polito.mad.group25.lab.utils.isStatic
-import it.polito.mad.group25.lab.utils.persistence.PersistenceAware
-import it.polito.mad.group25.lab.utils.persistence.PersistenceContext
-import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
-import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
+import it.polito.mad.group25.lab.utils.persistence.*
 import java.lang.reflect.Field
 
 //Subscribes to all LiveData of the object and injects all persistence context!
@@ -46,12 +43,16 @@ private object FieldsIntrospector {
 class FieldsIntrospectorObserver<T, C>(
     baseObserver: PersistenceObserver<T>,
     private val persistor: SimplePersistor<T, C>
-) :
-    PersistenceObserver<T> by baseObserver {
+) : PersistenceObserver<T> by baseObserver, LiveDataPersistenceObserver<Any?> {
 
-    override fun afterValueChanges(value: T) {
-        super.afterValueChanges(value)
-        FieldsIntrospector.introspect(value, persistor)
+    override fun beforeValueChanges(oldValue: T, newValue: T): T? {
+        val supComp = super.beforeValueChanges(oldValue, newValue)
+        return if (supComp === oldValue) supComp
+        else supComp.apply { FieldsIntrospector.introspect(supComp, persistor) }
+    }
+
+    override fun onLiveValueChanges(newValue: Any?) {
+        FieldsIntrospector.introspect(newValue, persistor)
     }
 
 }

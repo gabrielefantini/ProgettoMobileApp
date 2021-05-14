@@ -61,17 +61,29 @@ interface PersistenceAware {
         }
 
 }
+
 @IgnoreExtraProperties
 abstract class AbstractPersistenceAware : PersistenceAware {
-    @get:JsonIgnore
+    @field:JsonIgnore
     @get:Exclude
+    @field:Exclude
     override lateinit var persistenceContext: PersistenceContext
-    @get:JsonIgnore
+
+    @field:JsonIgnore
     @get:Exclude
+    @field:Exclude
     override var isInTransaction: AtomicBoolean = AtomicBoolean(false)
+
+    @field:JsonIgnore
+    @get:Exclude
+    @field:Exclude
+    var onStatusUpdateListeners: MutableList<() -> Unit> = mutableListOf()
+
     override fun statusUpdated() {
-        if (this.isInitialized())
+        if (this.isInitialized()) {
             super.statusUpdated()
+            onStatusUpdateListeners.forEach { it() }
+        }
     }
 
     override fun isInitialized() = this::persistenceContext.isInitialized

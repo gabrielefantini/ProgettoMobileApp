@@ -3,15 +3,14 @@ package it.polito.mad.group25.lab.utils.persistence.impl.firestore
 import android.util.Log
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.*
 import it.polito.mad.group25.lab.utils.datastructure.Identifiable
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
 import it.polito.mad.group25.lab.utils.toJavaType
 
+@Suppress("UNCHECKED_CAST")
 abstract class AbstractFirestoreMultiValuePersistorDelegate<IC, T, C>(
     thisRef: C,
     id: String,
@@ -26,9 +25,7 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<IC, T, C>(
     handler: AbstractPersistenceHandler<T, *>?,
 ) : SimplePersistor<T, C>(thisRef, id, targetClass, default, observer, handler) {
 
-    protected var toParse: Collection<DocumentSnapshot> = mutableListOf()
-
-    protected val NULL_VALUE = "null"
+    protected val store: CollectionReference
 
     protected val valueType: JavaType
 
@@ -43,32 +40,81 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<IC, T, C>(
         this.collection = collection ?: id
         Log.i(LOG_TAG, "${javaClass.simpleName} will try using ${this.collection} for $id")
 
-        getStore().get().addOnCompleteListener {
+        store = FirebaseFirestore.getInstance().collection(this.collection)
+        store.addSnapshotListener { value, error ->
             Log.i(LOG_TAG, "Received async value for $id.")
 
-            if(observer is FirestoreLivePersistenceObserver<*,*>){
+
+
+            if (observer is FirestoreLivePersistenceObserver<*, *>) {
                 (observer as FirestoreLivePersistenceObserver<QuerySnapshot, T>)
-                    .onAsyncValueReceived(it.result, it.exception)
+                    .onAsyncValueReceived(value, error)
             }
 
-            if (it.result == null)
+            if (value == null)
                 throw IllegalArgumentException(
                     "Received value is null! " +
                             "This should never happen, check error handling of the observer!"
                 )
-            toParse = it.result!!.documents
-            loadPersistenceAndSaveIt()
+
+            handler!!.notifyPersistenceLoading()
+
+            retainOnly(value.documents.map { it.id })
+
+            value.documentChanges.forEach {
+                when (it.type) {
+                    DocumentChange.Type.REMOVED -> remove(it.document.id)
+                    DocumentChange.Type.ADDED -> insertElement(
+                        it.document.id,
+                        parseValue(it.document)
+                    )
+                    DocumentChange.Type.MODIFIED -> {
+                        val parsed = parseValue(it.document)
+                        findLocalElementWithId(it.document.id)?.let { it1 ->
+                            changeElement(
+                                it.document.id,
+                                it1,
+                                parsed
+                            )
+                        } ?: insertElement(it.document.id, parsed)
+                    }
+
+
+                }
+                /*if (it.type == DocumentChange.Type.REMOVED) {
+                    remove(it.document.id)
+                    return@forEach
+                }
+
+                val localStored = findLocalElementWithId(it.document.id)
+                val remoteStored = parseValue(it.document)
+                if (localStored == null)
+                    insertElement(it.document.id, remoteStored)
+                else if (localStored != remoteStored) {
+                    changeElement(
+                        it.document.id,
+                        localStored,
+                        remoteStored
+                    )
+                }*/
+            }
+            handler.notifyPersistenceLoadingCompleted()
+            //loadPersistenceAndSaveIt()
         }
     }
 
-    protected fun getStore() = FirebaseFirestore.getInstance().collection(this.collection)
-
-    protected abstract fun parseValues(
-        clazz: Class<IC>,
-        q: Collection<DocumentSnapshot>
-    ): IC?
 
     protected abstract fun tryCreateDataStructure(clazz: Class<IC>): IC
+
+    protected abstract fun findLocalElementWithId(id: String): Identifiable?
+
+    protected abstract fun insertElement(id: String, element: Identifiable)
+
+    protected abstract fun changeElement(id: String, old: Identifiable, new: Identifiable)
+
+    protected abstract fun retainOnly(ids: List<String>)
+
+    protected abstract fun remove(id: String)
 
     private fun searchForCollectionValueType(
         targetTypeReference: TypeReference<*>,
@@ -78,6 +124,39 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<IC, T, C>(
         val type = targetTypeReference.toJavaType()
         return searchForCollectionValueTypeRecursively(type, targetCollectionClass, parameterIndex)
             ?: throw IllegalStateException("Couldn't find Identifiable collection value type starting from ${targetTypeReference.type.typeName}")
+    }
+
+    protected fun remoteInsert(identifiable: Identifiable) {
+        if (identifiable.id == null) {
+            //it does not exist. insert it and update the id.
+            store.add(identifiable).addOnCompleteListener {
+                if (it.isSuccessful)
+                    identifiable.id = it.result!!.id
+                else
+                    throw RuntimeException(it.exception)
+            }
+        } else {
+            //it may exist, so update the old one or add it with the given id
+            store.document(identifiable.id!!).get().addOnCompleteListener { task ->
+                task.result!!.reference.set(identifiable).addOnCompleteListener {
+                    if (!it.isSuccessful) throw RuntimeException(it.exception)
+                }
+            }
+        }
+    }
+
+    protected fun mirrorOnRemote(objs: Set<Identifiable>) {
+        val groupedIds: Map<String, Identifiable> = objs.map { it.id!! to it }.toMap()
+        store.get().addOnSuccessListener { task ->
+            task.documents.filter { !groupedIds.contains(it.id) }
+                .forEach { it.reference.delete() }
+            objs.forEach(this::remoteInsert)
+        }
+    }
+
+
+    protected fun parseValue(ds: DocumentSnapshot): Identifiable {
+        return ds.toObject(valueType.rawClass as Class<Identifiable>)!!
     }
 
     private fun searchForCollectionValueTypeRecursively(
@@ -103,38 +182,5 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<IC, T, C>(
         return null
     }
 
-    protected fun insert(identifiable: Identifiable) {
-        if (identifiable.id == null) {
-            //it does not exist. insert it and update the id.
-            getStore().add(identifiable).addOnCompleteListener {
-                if (it.isSuccessful)
-                    identifiable.id = it.result!!.id
-                else
-                    throw RuntimeException(it.exception)
-            }
-        } else {
-            //it may exist, so update the old one or add it with the given id
-            insert(identifiable.id!!, identifiable)
-        }
-    }
-
-    protected fun insert(forceId: String, identifiable: Identifiable?) {
-        getStore().document(forceId).addSnapshotListener { ds, error ->
-            if (error != null) throw error
-            ds!!.reference.set(identifiable ?: NULL_VALUE).addOnCompleteListener {
-                if (it.isSuccessful)
-                    identifiable?.id = forceId
-                else Log.e(
-                    LOG_TAG, "Error saving ${identifiable?.id} of $id on Firestore",
-                    it.exception
-                )
-            }
-        }
-    }
-
-    protected fun parseNullableValue(ds: DocumentSnapshot): Identifiable? {
-        return if (ds.toString() == NULL_VALUE) null
-        else ds.toObject(valueType.rawClass as Class<Identifiable>)
-    }
 
 }

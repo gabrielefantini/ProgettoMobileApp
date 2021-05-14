@@ -5,6 +5,9 @@ import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
 fun <T> persistenceAwareMutableSetOf(vararg elements: T): PersistenceAwareMutableSet<T> =
     PersistenceAwareMutableSet(mutableSetOf(*elements))
 
+fun <T> persistenceAwareMutableLiveSetOf(vararg elements: T): PersistenceAwareMutableLiveSet<T> =
+    PersistenceAwareMutableLiveSet(persistenceAwareMutableSetOf(*elements))
+
 
 class PersistenceAwareMutableSet<T>(private val innerSet: MutableSet<T>) :
     AbstractPersistenceAware(), MutableSet<T> by innerSet {
@@ -37,4 +40,10 @@ class PersistenceAwareMutableSet<T>(private val innerSet: MutableSet<T>) :
         return result
     }
 
+}
+
+class PersistenceAwareMutableLiveSet<T>(private val innerSet: PersistenceAwareMutableSet<T>) :
+    AbstractPersistenceAwareLiveDataStructure<PersistenceAwareMutableLiveSet<T>>(innerSet),
+    MutableSet<T> by innerSet {
+    constructor() : this(persistenceAwareMutableSetOf())
 }

@@ -6,4 +6,10 @@ interface Identifiable {
 
 abstract class IdentifiableObject : Identifiable {
     override var id: String? = null
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is Identifiable) return false
+        return id != null && id == other.id
+    }
+
 }

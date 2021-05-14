@@ -3,20 +3,18 @@ package it.polito.mad.group25.lab.fragments.trip.list
 import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import it.polito.mad.group25.lab.fragments.trip.Trip
+import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareMutableLiveMap
+import it.polito.mad.group25.lab.utils.persistence.awareds.persistenceAwareMutableLiveMapOf
 import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
-import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareMutableMap
-import it.polito.mad.group25.lab.utils.persistence.awareds.persistenceAwareMutableMapOf
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 import java.util.*
 
 class TripListViewModel(application: Application) : PersistableViewModel(application) {
-    val trips: LiveData<PersistenceAwareMutableMap<String, Trip>>
+    val trips: PersistenceAwareMutableLiveMap<String, Trip>
             by Persistors.liveFirestore(
                 collection = "trips",
-                default = MutableLiveData(persistenceAwareMutableMapOf())
+                default = persistenceAwareMutableLiveMapOf()
             )
 
     @RequiresApi(Build.VERSION_CODES.O)

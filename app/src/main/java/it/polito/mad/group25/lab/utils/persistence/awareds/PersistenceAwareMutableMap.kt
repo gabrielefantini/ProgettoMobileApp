@@ -5,6 +5,9 @@ import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
 fun <K, V> persistenceAwareMutableMapOf(vararg pairs: Pair<K, V>): PersistenceAwareMutableMap<K, V> =
     PersistenceAwareMutableMap(mutableMapOf(*pairs))
 
+fun <K, V> persistenceAwareMutableLiveMapOf(vararg pairs: Pair<K, V>): PersistenceAwareMutableLiveMap<K, V> =
+    PersistenceAwareMutableLiveMap(persistenceAwareMutableMapOf(*pairs))
+
 class PersistenceAwareMutableMap<K, V>(private val innerMap: MutableMap<K, V>) :
     AbstractPersistenceAware(), MutableMap<K, V> by innerMap {
 
@@ -31,4 +34,10 @@ class PersistenceAwareMutableMap<K, V>(private val innerMap: MutableMap<K, V>) :
         statusUpdated()
         return result
     }
+}
+
+class PersistenceAwareMutableLiveMap<K, V>(private val innerMap: PersistenceAwareMutableMap<K, V>) :
+    AbstractPersistenceAwareLiveDataStructure<PersistenceAwareMutableLiveMap<K, V>>(innerMap),
+    MutableMap<K, V> by innerMap {
+    constructor() : this(persistenceAwareMutableMapOf())
 }

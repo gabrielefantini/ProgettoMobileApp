@@ -32,7 +32,8 @@ class OnLiveDataValueChangesLoadDocumentFirestoreObserver<T : Identifiable?, L :
 
     override lateinit var persistor: FirestoreLivePersistorDelegate<L, Any?>
 
-    override fun beforeValueChanges(oldValue: L, newValue: L): L? {
+    override fun beforeValueChanges(oldValue: L, newValue: L): L {
+        if (oldValue == newValue) return newValue
         newValue.value?.id?.let { persistor.loadAnotherDocument(it) }
         newValue.observeForever {
             if (it?.id != null) {
@@ -40,6 +41,10 @@ class OnLiveDataValueChangesLoadDocumentFirestoreObserver<T : Identifiable?, L :
             }
         }
         return newValue
+    }
+
+    override fun onLiveValueChanges(newValue: T) {
+        persistor.loadAnotherDocument(newValue?.id ?: "null")
     }
 
     override fun beforePerformingPersistence(value: L): L? = null //don't persist

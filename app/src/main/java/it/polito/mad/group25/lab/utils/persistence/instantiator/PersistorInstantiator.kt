@@ -18,23 +18,27 @@ object PersistorInstantiator {
     private fun <T> customHandler(
         targetType: JavaType,
         id: String,
-        observer: PersistenceObserver<T>
+        observer: PersistenceObserver<T>,
+        //alreadyHandled: MutableSet<JavaType> = mutableSetOf()
     ): AbstractPersistenceHandler<T, *>? {
         var handler: AbstractPersistenceHandler<T, *>? = null
 
+        //if (targetType is ResolvedRecursiveType && alreadyHandled.contains(targetType.selfReferencedType)) return handler
+
         val targetClass = targetType.rawClass
+
+        if (PersistenceAware::class.java.isAssignableFrom(targetClass)) {
+            handler = persistenceAwareHandler(
+                id, handler as AbstractPersistenceHandler<PersistenceAware, *>?
+            ) as AbstractPersistenceHandler<T, *>
+        }
 
         if (LiveData::class.java.isAssignableFrom(targetClass)) {
             handler = liveDataHandler(
                 targetClass as Class<LiveData<Any?>>,
                 targetType,
-                id, observer as PersistenceObserver<LiveData<Any?>>
-            ) as AbstractPersistenceHandler<T, *>
-        }
-
-        if (PersistenceAware::class.java.isAssignableFrom(targetClass)) {
-            handler = persistenceAwareHandler(
-                id, handler as AbstractPersistenceHandler<PersistenceAware, *>?
+                id, observer as PersistenceObserver<LiveData<Any?>>,
+                handler as AbstractPersistenceHandler<Any?, *>?
             ) as AbstractPersistenceHandler<T, *>
         }
 
@@ -45,15 +49,28 @@ object PersistorInstantiator {
         targetClass: Class<L>,
         targetType: JavaType,
         id: String,
-        observer: PersistenceObserver<L>
+        observer: PersistenceObserver<L>,
+        //alreadyHandled: MutableSet<JavaType>,
+        handler: AbstractPersistenceHandler<T, *>?
     ): AbstractPersistenceHandler<L, T> {
         Log.d(LOG_TAG, "Persisted type $id is a Live Data, providing custom handling.")
 
-        val innerJavaType = targetType.bindings.typeParameters[0]
+        var liveDataType: JavaType? = targetType
+
+        while (liveDataType != null && liveDataType.rawClass != LiveData::class.java)
+            liveDataType = liveDataType.superClass
+
+        if (liveDataType == null)
+            throw IllegalStateException("Couldn't find LiveData java type. This should never happen.")
+
+        val innerJavaType = liveDataType.bindings.typeParameters[0]
         val innerType = innerJavaType.rawClass as Class<T>
 
-        val innerHandler = customHandler(
-            innerJavaType, id, object : PersistenceObserver<T> {}) as PersistenceHandler<T>?
+        val innerHandler = handler ?: customHandler(
+            innerJavaType, id,
+            object : PersistenceObserver<T> {},
+            //alreadyHandled.apply { add(targetType) },
+        ) as PersistenceHandler<T>?
 
         if (!LiveDataPersistenceObserver::class.java.isAssignableFrom(observer::class.java)) {
             Log.e(

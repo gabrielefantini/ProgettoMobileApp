@@ -40,7 +40,7 @@ class OthersTripListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? = inflater.inflate(R.layout.trip_list_fragment, container, false)
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater){
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_filter_trip_list, menu)
     }
 
@@ -76,7 +76,11 @@ class OthersTripListFragment : Fragment() {
                         columnCount <= 1 -> LinearLayoutManager(context)
                         else -> GridLayoutManager(context, columnCount)
                     }
-                    adapter = TripCardRecyclerViewAdapter(tripList.filter { trip ->  trip.ownerId != userId}, tripViewModel, userId)
+                    adapter = TripCardRecyclerViewAdapter(
+                        tripList.filter { trip -> trip.ownerId != userId },
+                        tripViewModel,
+                        userId
+                    )
                 }
             }
         })

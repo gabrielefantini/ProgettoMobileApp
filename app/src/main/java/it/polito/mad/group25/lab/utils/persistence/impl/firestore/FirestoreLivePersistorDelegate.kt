@@ -10,7 +10,7 @@ import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
 
-interface FirestoreLivePersistenceObserver<SF, T>{
+interface FirestoreLivePersistenceObserver<SF, T> {
     /**
      * Intercepts an async value receiving. Has to handle the eventual error or to interrupt the processing.
      */
@@ -21,6 +21,7 @@ interface FirestoreLivePersistenceObserver<SF, T>{
 }
 
 
+@Suppress("UNCHECKED_CAST")
 class FirestoreLivePersistorDelegate<T, C>(
     thisRef: C,
     id: String,
@@ -72,23 +73,28 @@ class FirestoreLivePersistorDelegate<T, C>(
 
     override fun <R> doPersist(value: R) {
         Log.i(LOG_TAG, "Persisting value for $id on firestore")
-        if (!this::store.isInitialized) {
-            if (value is Identifiable) {
-                if (value.id == null) {
-                    FirebaseFirestore.getInstance()
-                        .collection(this.collection!!).add(value)
-                        .addOnCompleteListener { t ->
-                            if (t.isSuccessful) value.id = t.result!!.id
-                        }
-                } else {
-                    initializeStore(value.id!!)
-                    store.set(value)
-                }
-            } else if (value != null) {
+        if (value is Identifiable) {
+            if (value.id == null) {
                 FirebaseFirestore.getInstance()
                     .collection(this.collection!!).add(value)
+                    .addOnCompleteListener { t ->
+                        if (t.isSuccessful) value.id = t.result!!.id
+                    }
+            } else {
+                if (!this::store.isInitialized)
+                    initializeStore(value.id!!)
+                if (this.store.id != value.id!!)
+                    throw IllegalStateException(
+                        "Referencing a document with id ${store.id} " +
+                                "but trying to persist an object with id ${value.id!!}"
+                    )
+                store.set(value)
             }
-        } else store.set(value ?: NULL_VALUE)
+        } else {
+            if (!this::store.isInitialized)
+                throw IllegalStateException("Trying to persist an object which is not identifiable with a non initialized store")
+            store.set(value ?: NULL_VALUE)
+        }
     }
 
     private fun initializeStore(document: String) {
@@ -100,7 +106,12 @@ class FirestoreLivePersistorDelegate<T, C>(
         listenerRegistration = store.addSnapshotListener { value, error ->
             Log.i(LOG_TAG, "Received async value for $id.")
 
-            if(observer is FirestoreLivePersistenceObserver<*,*>){
+            if (value?.metadata?.hasPendingWrites() == true) {
+                Log.i(LOG_TAG, "Ignored async value received since it's a local modification")
+                return@addSnapshotListener
+            }
+
+            if (observer is FirestoreLivePersistenceObserver<*, *>) {
                 (observer as FirestoreLivePersistenceObserver<DocumentSnapshot, T>)
                     .onAsyncValueReceived(value, error)
             }
