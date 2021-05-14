@@ -10,9 +10,7 @@ import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
 
-interface FirestoreLivePersistenceObserver<SF, T> :
-    PersistenceObserver<T> {
-
+interface FirestoreLivePersistenceObserver<SF, T>{
     /**
      * Intercepts an async value receiving. Has to handle the eventual error or to interrupt the processing.
      */
@@ -22,6 +20,7 @@ interface FirestoreLivePersistenceObserver<SF, T> :
     }
 }
 
+
 class FirestoreLivePersistorDelegate<T, C>(
     thisRef: C,
     id: String,
@@ -30,7 +29,7 @@ class FirestoreLivePersistorDelegate<T, C>(
     private var lazyInit: Boolean,
     targetClass: Class<T>,
     default: T,
-    observer: FirestoreLivePersistenceObserver<DocumentSnapshot, T>,
+    observer: PersistenceObserver<T>,
     handler: AbstractPersistenceHandler<T, *>?
 ) : SimplePersistor<T, C>(
     thisRef, id, targetClass,
@@ -100,8 +99,12 @@ class FirestoreLivePersistorDelegate<T, C>(
 
         listenerRegistration = store.addSnapshotListener { value, error ->
             Log.i(LOG_TAG, "Received async value for $id.")
-            (observer as FirestoreLivePersistenceObserver<DocumentSnapshot, T>)
-                .onAsyncValueReceived(value, error)
+
+            if(observer is FirestoreLivePersistenceObserver<*,*>){
+                (observer as FirestoreLivePersistenceObserver<DocumentSnapshot, T>)
+                    .onAsyncValueReceived(value, error)
+            }
+
             if (value == null)
                 throw IllegalArgumentException(
                     "Received value is null! " +

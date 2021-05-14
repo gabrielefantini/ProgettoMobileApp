@@ -7,7 +7,6 @@ import it.polito.mad.group25.lab.utils.persistence.PersistenceAware
 import it.polito.mad.group25.lab.utils.persistence.PersistenceContext
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
-import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistenceObserver
 import java.lang.reflect.Field
 
 //Subscribes to all LiveData of the object and injects all persistence context!
@@ -44,7 +43,7 @@ private object FieldsIntrospector {
     }
 }
 
-class SimpleFieldsIntrospectorObserver<T, C>(
+class FieldsIntrospectorObserver<T, C>(
     baseObserver: PersistenceObserver<T>,
     private val persistor: SimplePersistor<T, C>
 ) :
@@ -57,14 +56,3 @@ class SimpleFieldsIntrospectorObserver<T, C>(
 
 }
 
-class LiveFirestoreFieldsIntrospectorObserver<T, C>(
-    baseObserver: FirestoreLivePersistenceObserver<Any?, T>,
-    private val persistor: SimplePersistor<T, C>
-) : FirestoreLivePersistenceObserver<Any?, T> by baseObserver {
-
-    override fun afterValueChanges(value: T) {
-        super.afterValueChanges(value)
-        FieldsIntrospector.introspect(value, persistor)
-    }
-
-}

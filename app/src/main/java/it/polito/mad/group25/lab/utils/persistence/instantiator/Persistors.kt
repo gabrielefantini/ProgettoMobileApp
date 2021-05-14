@@ -3,8 +3,6 @@ package it.polito.mad.group25.lab.utils.persistence.instantiator
 import androidx.lifecycle.LiveData
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.QuerySnapshot
 import it.polito.mad.group25.lab.utils.datastructure.Identifiable
 import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.Persistor
@@ -12,7 +10,6 @@ import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersist
 import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistorDelegate
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLiveCollectionPersistorDelegate
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLiveMapPersistorDelegate
-import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
 import it.polito.mad.group25.lab.utils.toJavaType
 import kotlin.properties.PropertyDelegateProvider
@@ -50,8 +47,7 @@ object Persistors {
         default: T,
         id: String? = null,
         typeReference: TypeReference<T>,
-        observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
-            FirestoreLivePersistenceObserver<QuerySnapshot, T> {},
+        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
     ): PropertyDelegateProvider<C, FirestoreLiveCollectionPersistorDelegate<T, C>> {
         return PersistorInstantiator.createThroughProvider(typeReference, default, id, observer)
         { id, container, targetClass, handler ->
@@ -66,8 +62,7 @@ object Persistors {
         collection: String? = null,
         default: T,
         id: String? = null,
-        observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
-            FirestoreLivePersistenceObserver<QuerySnapshot, T> {},
+        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
     ): PropertyDelegateProvider<C, FirestoreLiveCollectionPersistorDelegate<T, C>> =
         liveFirestoreCollection(collection, default, id, object : TypeReference<T>() {}, observer)
 
@@ -77,8 +72,7 @@ object Persistors {
         default: T,
         id: String? = null,
         typeReference: TypeReference<T>,
-        observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
-            FirestoreLivePersistenceObserver<QuerySnapshot, T> {}
+        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
     ): PropertyDelegateProvider<C, FirestoreLiveMapPersistorDelegate<T, C>> {
         return PersistorInstantiator.createThroughProvider(typeReference, default, id, observer)
         { id, container, targetClass, handler ->
@@ -93,8 +87,7 @@ object Persistors {
         collection: String? = null,
         default: T,
         id: String? = null,
-        observer: FirestoreLivePersistenceObserver<QuerySnapshot, T> = object :
-            FirestoreLivePersistenceObserver<QuerySnapshot, T> {}
+        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
     ): PropertyDelegateProvider<C, FirestoreLiveMapPersistorDelegate<T, C>> =
         liveFirestoreMap(collection, default, id, object : TypeReference<T>() {}, observer)
 
@@ -106,8 +99,7 @@ object Persistors {
         default: T,
         id: String? = null,
         typeReference: TypeReference<T>,
-        observer: FirestoreLivePersistenceObserver<DocumentSnapshot, T> = object :
-            FirestoreLivePersistenceObserver<DocumentSnapshot, T> {},
+        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
     ): PropertyDelegateProvider<C, FirestoreLivePersistorDelegate<T, C>> {
         return PersistorInstantiator.createThroughProvider(typeReference, default, id, observer)
         { id, container, targetClass, handler ->
@@ -124,8 +116,7 @@ object Persistors {
         lazyInit: Boolean = false,
         default: T,
         id: String? = null,
-        observer: FirestoreLivePersistenceObserver<DocumentSnapshot, T> = object :
-            FirestoreLivePersistenceObserver<DocumentSnapshot, T> {},
+        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
     ): PropertyDelegateProvider<C, FirestoreLivePersistorDelegate<T, C>> =
         simpleLiveFirestore(
             collection, document, lazyInit,
@@ -139,25 +130,19 @@ object Persistors {
         default: T,
         id: String? = null,
         lazyInit: Boolean? = null,
-        observer: FirestoreLivePersistenceObserver<Any?, T> = object :
-            FirestoreLivePersistenceObserver<Any?, T> {},
+        observer: PersistenceObserver<T> = object : PersistenceObserver<T> {}
     ): PropertyDelegateProvider<C, Persistor<T, C>> =
         object : TypeReference<T>() {}.toJavaType().let { type ->
             when {
                 isEligibleAsFirestoreCollection(document, lazyInit, type) ->
-                    liveFirestoreCollection(
-                        collection, default, id,
-                        observer as FirestoreLivePersistenceObserver<QuerySnapshot, T>
-                    )
+                    liveFirestoreCollection(collection, default, id, observer)
                 isEligibleAsFirestoreMap(document, lazyInit, type) ->
-                    liveFirestoreMap(
-                        collection, default, id,
-                        observer as FirestoreLivePersistenceObserver<QuerySnapshot, T>
+                    liveFirestoreMap(collection, default, id, observer
                     )
                 else -> simpleLiveFirestore(
                     collection,
                     document, lazyInit!!,
-                    default, id, observer as FirestoreLivePersistenceObserver<DocumentSnapshot, T>
+                    default, id, observer
                 )
             }
         }

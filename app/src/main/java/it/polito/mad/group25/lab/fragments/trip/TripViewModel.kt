@@ -2,7 +2,7 @@ package it.polito.mad.group25.lab.fragments.trip
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import it.polito.mad.group25.lab.utils.persistence.impl.firestore.observers.MakeReadOnlyFirestoreLivePersistenceObserver
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.observers.OnLiveDataValueChangesLoadDocumentFirestoreObserver
 import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
 
 class TripViewModel : ViewModel() {
@@ -10,7 +10,7 @@ class TripViewModel : ViewModel() {
         collection = "trips",
         default = MutableLiveData(null),
         lazyInit = true,
-        observer = MakeReadOnlyFirestoreLivePersistenceObserver(this::trip)
+        observer = OnLiveDataValueChangesLoadDocumentFirestoreObserver()
     )
 
     fun addCurrentUserToSet(userId: String) {

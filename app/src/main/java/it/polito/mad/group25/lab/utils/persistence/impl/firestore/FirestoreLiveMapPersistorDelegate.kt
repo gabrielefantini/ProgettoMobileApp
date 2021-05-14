@@ -3,9 +3,9 @@ package it.polito.mad.group25.lab.utils.persistence.impl.firestore
 import android.util.Log
 import com.fasterxml.jackson.core.type.TypeReference
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.QuerySnapshot
 import it.polito.mad.group25.lab.utils.datastructure.Identifiable
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
+import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 
 class FirestoreLiveMapPersistorDelegate<T, C>(
     thisRef: C,
@@ -14,7 +14,7 @@ class FirestoreLiveMapPersistorDelegate<T, C>(
     targetClass: Class<T>,
     targetTypeReference: TypeReference<T>,
     default: T,
-    observer: FirestoreLivePersistenceObserver<QuerySnapshot, T>,
+    observer: PersistenceObserver<T>,
     handler: AbstractPersistenceHandler<T, *>?,
 ) : AbstractFirestoreMultiValuePersistorDelegate<MutableMap<String, Identifiable?>, T, C>(
     thisRef, id, collection, targetClass, targetTypeReference,

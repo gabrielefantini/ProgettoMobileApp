@@ -72,7 +72,6 @@ abstract class TripEditFragment(
     private lateinit var seatsLayout: TextInputLayout
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         tripEditViewModel = ViewModelProvider(this).get(TripEditViewModel::class.java)
@@ -143,7 +142,8 @@ abstract class TripEditFragment(
                 updateDuration(view)
 
                 view.findViewById<EditText>(R.id.carName).setText(trip.carName)
-                depDate.text = tripEditViewModel.tripStepList[0].locationTime.asFormattedDate("dd/MM/yyyy")
+                depDate.text =
+                    tripEditViewModel.tripStepList[0].locationTime.asFormattedDate("dd/MM/yyyy")
                 view.findViewById<EditText>(R.id.seatsText).setText(trip.seats.toString())
                 view.findViewById<EditText>(R.id.priceText).setText(trip.price.toString())
 
@@ -243,7 +243,8 @@ abstract class TripEditFragment(
                                     tripEditViewModel.tripStepList[0].locationTime.asFormattedDate("dd/MM/yyyy")
 
                                 rv.adapter?.notifyDataSetChanged()
-                            } else Toast.makeText(context, "Fill all fields!", Toast.LENGTH_LONG).show()
+                            } else Toast.makeText(context, "Fill all fields!", Toast.LENGTH_LONG)
+                                .show()
 
                         }
                     }
@@ -298,9 +299,12 @@ abstract class TripEditFragment(
                             val locationInit = tripEditViewModel.tripStepList[locationId].location
 
                             dateStop.text =
-                                tripEditViewModel.tripStepList[locationId].locationTime.asFormattedDate("dd/MM/yyyy")
+                                tripEditViewModel.tripStepList[locationId].locationTime.asFormattedDate(
+                                    "dd/MM/yyyy"
+                                )
 
-                            timeStop.text = tripEditViewModel.tripStepList[locationId].timeFormatted()
+                            timeStop.text =
+                                tripEditViewModel.tripStepList[locationId].timeFormatted()
                             locationStop.setText(tripEditViewModel.tripStepList[locationId].location)
 
                             dateStop.setOnClickListener {
@@ -498,8 +502,8 @@ abstract class TripEditFragment(
         }
         // se il controllo è andato a buon fine aggiorno il numero di posti disponibili
         seats.also {
-            if (tripSel.seats != it-tripEditViewModel.interestedUsersTmp.size) {
-                tripSel.seats = it-tripEditViewModel.interestedUsersTmp.size
+            if (tripSel.seats != it - tripEditViewModel.interestedUsersTmp.size) {
+                tripSel.seats = it - tripEditViewModel.interestedUsersTmp.size
             }
         }
 
@@ -530,8 +534,20 @@ abstract class TripEditFragment(
         tripSel.ownerId = authenticationContext.userId()
 
         if (tripDb.id == null) tripListViewModel.putTrip(tripSel)
-        else tripViewModel.trip.value = tripSel
-
+        else tripViewModel.trip.value!!.apply {
+            this.doOnTransaction {
+                this.id = tripSel.id
+                this.carPic = tripSel.carPic
+                this.carName = tripSel.carName
+                this.tripStartDate = tripSel.tripStartDate
+                this.locations = tripSel.locations
+                this.seats = tripSel.seats
+                this.price = tripSel.price
+                this.additionalInfo = tripSel.additionalInfo
+                this.ownerId = tripSel.ownerId
+                this.interestedUsers = tripSel.interestedUsers
+            }
+        }
         return true
     }
 
@@ -670,10 +686,14 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
 
 }
 
-class TripUsersEditAdapter(private val list: List<String>, val interestedUsersTmp: MutableList<String>) :
+class TripUsersEditAdapter(
+    private val list: List<String>,
+    val interestedUsersTmp: MutableList<String>
+) :
     RecyclerView.Adapter<TripUsersEditAdapter.TripUsersViewHolder>() {
 
-    class TripUsersViewHolder(v: View, interestedUsersTmp: MutableList<String>) : RecyclerView.ViewHolder(v) {
+    class TripUsersViewHolder(v: View, interestedUsersTmp: MutableList<String>) :
+        RecyclerView.ViewHolder(v) {
         private val username: TextView = v.findViewById(R.id.username)
         private val checkBox = v.findViewById<CheckBox>(R.id.confirm_user)
 
@@ -681,13 +701,13 @@ class TripUsersEditAdapter(private val list: List<String>, val interestedUsersTm
             username.text = "user $t"
             var i = 0
             // if (!t.isConfirmed) {
-                checkBox.visibility = VISIBLE
-                checkBox.setOnClickListener {
-                    if(i%2 == 0) interestedUsersTmp.add(t)
-                    else interestedUsersTmp.remove(t)
-                    i++
-                    Log.d("checkBox", interestedUsersTmp.toString())
-                }
+            checkBox.visibility = VISIBLE
+            checkBox.setOnClickListener {
+                if (i % 2 == 0) interestedUsersTmp.add(t)
+                else interestedUsersTmp.remove(t)
+                i++
+                Log.d("checkBox", interestedUsersTmp.toString())
+            }
             //}
         }
     }

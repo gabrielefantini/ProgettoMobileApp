@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import it.polito.mad.group25.lab.utils.datastructure.Identifiable
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceHandler
+import it.polito.mad.group25.lab.utils.persistence.PersistenceObserver
 import it.polito.mad.group25.lab.utils.persistence.SimplePersistor
 import it.polito.mad.group25.lab.utils.toJavaType
 
@@ -21,7 +22,7 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<IC, T, C>(
     // index for value type in collection signature. Ex we are looking for X index: in List<X> is 0, in Map<String,X> is 1
     valueTypeIndexInDSGenericParameters: Int,
     default: T,
-    observer: FirestoreLivePersistenceObserver<QuerySnapshot, T>,
+    observer: PersistenceObserver<T>,
     handler: AbstractPersistenceHandler<T, *>?,
 ) : SimplePersistor<T, C>(thisRef, id, targetClass, default, observer, handler) {
 
@@ -44,7 +45,12 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<IC, T, C>(
 
         getStore().get().addOnCompleteListener {
             Log.i(LOG_TAG, "Received async value for $id.")
-            observer.onAsyncValueReceived(it.result, it.exception)
+
+            if(observer is FirestoreLivePersistenceObserver<*,*>){
+                (observer as FirestoreLivePersistenceObserver<QuerySnapshot, T>)
+                    .onAsyncValueReceived(it.result, it.exception)
+            }
+
             if (it.result == null)
                 throw IllegalArgumentException(
                     "Received value is null! " +

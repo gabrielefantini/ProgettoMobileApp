@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JavaType
 import it.polito.mad.group25.lab.utils.persistence.*
-import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistenceObserver
 import it.polito.mad.group25.lab.utils.toJavaType
 import it.polito.mad.group25.lab.utils.type
 import kotlin.properties.PropertyDelegateProvider
@@ -103,14 +102,7 @@ object PersistorInstantiator {
                     typeReference.toJavaType(), computedID, observer
                 )
             )
-            if (persistor.observer is FirestoreLivePersistenceObserver<*, *>) {
-                persistor.observer = LiveFirestoreFieldsIntrospectorObserver(
-                    persistor.observer as FirestoreLivePersistenceObserver<Any?, T>,
-                    persistor
-                )
-            } else {
-                persistor.observer = SimpleFieldsIntrospectorObserver(persistor.observer, persistor)
-            }
+            persistor.observer = FieldsIntrospectorObserver(persistor.observer, persistor)
             persistor
         }
     }

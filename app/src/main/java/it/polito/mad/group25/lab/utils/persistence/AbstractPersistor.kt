@@ -53,6 +53,18 @@ interface PersistenceObserver<T> {
 
 }
 
+abstract class PersistenceObserverWrapper<T>(val wrapped: PersistenceObserver<T>) :
+    PersistenceObserver<T> by wrapped {
+
+    inline fun <reified P, T> delegateOnWrappedIfIs(action: P.() -> T) {
+        if (wrapped is P)
+            wrapped.action()
+    }
+}
+
+interface PersistorAware<T, C, P : SimplePersistor<T, C>> {
+    var persistor: P
+}
 
 /**
  * Generic class  which purpose is to hold the strategies to handle persistence
@@ -180,7 +192,7 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
     ) {
         this.default = default
         this.thisRef = thisRef
-        this.observer = observer
+        this.observer = observer.apply(this::injectPersistorAware)
         this.id = id
         this.targetClass = targetClass
         this.handler = initializeHandler(handler)
@@ -198,8 +210,16 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
         notifyingPersistenceLoading { loadPersistenceAndSaveIt() }
     }
 
-    private fun initializeHandler(handler: AbstractPersistenceHandler<T, *>?): PersistenceHandler<T> =
-        handler?.apply(this::doInitializeHandlerRecursively) ?: basicHandler()
+    private fun initializeHandler(handler: AbstractPersistenceHandler<T, *>?): PersistenceHandler<T> {
+        val h = handler?.apply(this::doInitializeHandlerRecursively) ?: basicHandler()
+        return h.apply(this::injectPersistorAware)
+    }
+
+    private fun injectPersistorAware(obj: Any) {
+        if (PersistorAware::class.java.isAssignableFrom(obj::class.java)) {
+            (obj as PersistorAware<T, C, SimplePersistor<T, C>>).persistor = this
+        }
+    }
 
     private fun <A, B> doInitializeHandlerRecursively(handler: AbstractPersistenceHandler<A, B>) {
         if (!handler.isInitialized())

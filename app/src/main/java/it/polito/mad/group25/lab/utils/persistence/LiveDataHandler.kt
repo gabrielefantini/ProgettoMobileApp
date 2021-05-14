@@ -4,32 +4,31 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 
-abstract class LiveDataPersistenceObserver<T>(inner: PersistenceObserver<LiveData<T>>) :
-    PersistenceObserver<LiveData<T>> by inner {
+interface LiveDataPersistenceObserver<T> {
 
     /**
      * Intercepts the live value changes.
      */
-    open fun onLiveValueChanges(newValue: T) {}
+    fun onLiveValueChanges(newValue: T) {}
 
     /**
      * Intercepts the attempt to persist a live value changing.
      * Can customize the persisted value by returning a new one
      */
-    open fun beforePerformingLiveValuePersistency(value: T): T? = value
+    fun beforePerformingLiveValuePersistency(value: T): T? = value
 
     /**
      * Intercepts the instant after a persistency attempt was made on the new live value.
      * If an exception was thrown during the persistency attempt it is received by the observer which can handle it or rethrow it.
      */
-    open fun afterPerformingLiveValuePersistency(value: T, ex: Exception?) {}
+    fun afterPerformingLiveValuePersistency(value: T, ex: Exception?) {}
 }
 
 class LiveDataPersistenceHandler<T, L : LiveData<T>?>(
     private val clazz: Class<L>,
     private val innerType: Class<T>,
     private val observer: LiveDataPersistenceObserver<T> = object :
-        LiveDataPersistenceObserver<T>(object : PersistenceObserver<LiveData<T>> {}) {},
+        LiveDataPersistenceObserver<T>{},
     nextHandler: PersistenceHandler<T>? = null,
 ) : AbstractPersistenceHandler<L, T>(nextHandler) {
 

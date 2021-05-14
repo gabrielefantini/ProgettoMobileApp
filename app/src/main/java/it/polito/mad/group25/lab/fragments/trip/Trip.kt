@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.firebase.firestore.Blob
 import it.polito.mad.group25.lab.utils.datastructure.Identifiable
-import it.polito.mad.group25.lab.utils.datastructure.IdentifiableObject
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
 import java.time.Instant
 import java.time.ZoneId
@@ -12,26 +11,66 @@ import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 class Trip : AbstractPersistenceAware(), Identifiable {
-    override var id: String? by onChangeUpdateStatus(null)
-    var carPic: Blob? by onChangeUpdateStatus(null)
-    var carName: String? by onChangeUpdateStatus(null)
-    var tripStartDate: Long by onChangeUpdateStatus(System.currentTimeMillis())
-    var locations: MutableList<TripLocation> by onChangeUpdateStatus(
-        mutableListOf(
-            TripLocation(),
-            TripLocation(locationTime = Instant.now().plusSeconds(30 * 60).toEpochMilli())
-        )
+    override var id: String? = null
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+    var carPic: Blob? = null
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+    var carName: String? = null
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+    var tripStartDate: Long = System.currentTimeMillis()
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+    var locations: MutableList<TripLocation> = mutableListOf(
+        TripLocation(),
+        TripLocation(locationTime = Instant.now().plusSeconds(30 * 60).toEpochMilli())
     )
-    var seats: Int by onChangeUpdateStatus(0)
-    var price: Double by onChangeUpdateStatus(0.0)
-    var additionalInfo: MutableList<String> by onChangeUpdateStatus(mutableListOf())
-    var ownerId: String? by onChangeUpdateStatus(null)
-    var interestedUsers: MutableList<String> by onChangeUpdateStatus(mutableListOf())
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+    var seats: Int = 0
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+    var price: Double = 0.0
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+    var additionalInfo: MutableList<String> = mutableListOf()
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+    var ownerId: String? = null
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+    var interestedUsers: MutableList<String> = mutableListOf()
+        set(value) {
+            field = value
+            statusUpdated()
+        }
+
     fun getType(): Boolean {
         //TODO
         return true
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun Trip.startDateFormatted(): String =

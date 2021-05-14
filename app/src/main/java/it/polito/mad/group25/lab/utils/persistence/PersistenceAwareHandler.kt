@@ -1,6 +1,9 @@
 package it.polito.mad.group25.lab.utils.persistence
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.google.firebase.firestore.Exclude
+import com.google.firebase.firestore.IgnoreExtraProperties
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -8,11 +11,38 @@ data class PersistenceContext(private val persistenceExecutor: (PersistenceAware
     fun persist(instance: PersistenceAware) = persistenceExecutor(instance)
 }
 
+@IgnoreExtraProperties
 interface PersistenceAware {
     @get:JsonIgnore
+    @get:Exclude
     var persistenceContext: PersistenceContext
-    fun statusUpdated() = persistenceContext.persist(this)
+
+    @get:JsonIgnore
+    @get:Exclude
+    var isInTransaction: AtomicBoolean
+    fun statusUpdated() {
+        if (!isInTransaction.get())
+            persistenceContext.persist(this)
+    }
+
     fun isInitialized(): Boolean
+
+    fun startTransaction() {
+        isInTransaction.set(true)
+    }
+
+    fun commitTransaction() {
+        if (isInTransaction.get()) {
+            persistenceContext.persist(this)
+            isInTransaction.set(false)
+        }
+    }
+
+    fun doOnTransaction(actions: () -> Unit) {
+        startTransaction()
+        actions()
+        commitTransaction()
+    }
 
     // use to delegate on object fields which changes implies status update.
     fun <T, C> onChangeUpdateStatus(default: T) =
@@ -31,9 +61,14 @@ interface PersistenceAware {
         }
 
 }
-
+@IgnoreExtraProperties
 abstract class AbstractPersistenceAware : PersistenceAware {
+    @get:JsonIgnore
+    @get:Exclude
     override lateinit var persistenceContext: PersistenceContext
+    @get:JsonIgnore
+    @get:Exclude
+    override var isInTransaction: AtomicBoolean = AtomicBoolean(false)
     override fun statusUpdated() {
         if (this.isInitialized())
             super.statusUpdated()
