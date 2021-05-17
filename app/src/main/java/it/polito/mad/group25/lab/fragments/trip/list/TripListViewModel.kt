@@ -7,6 +7,7 @@ import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.utils.persistence.awareds.PersistenceAwareMutableLiveMap
 import it.polito.mad.group25.lab.utils.persistence.awareds.persistenceAwareMutableLiveMapOf
 import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
+import it.polito.mad.group25.lab.utils.persistence.observers.ToastOnErrorPersistenceObserver
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 import java.util.*
 
@@ -14,7 +15,8 @@ class TripListViewModel(application: Application) : PersistableViewModel(applica
     val trips: PersistenceAwareMutableLiveMap<String, Trip>
             by Persistors.liveFirestore(
                 collection = "trips",
-                default = persistenceAwareMutableLiveMapOf()
+                default = persistenceAwareMutableLiveMapOf(),
+                observer = ToastOnErrorPersistenceObserver(application)
             )
 
     @RequiresApi(Build.VERSION_CODES.O)

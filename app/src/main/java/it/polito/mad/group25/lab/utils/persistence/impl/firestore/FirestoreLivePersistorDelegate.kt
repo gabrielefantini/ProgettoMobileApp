@@ -84,15 +84,18 @@ class FirestoreLivePersistorDelegate<T, C>(
                 if (!this::store.isInitialized)
                     initializeStore(value.id!!)
                 if (this.store.id != value.id!!)
-                    throw IllegalStateException(
+                    throw Error(
                         "Referencing a document with id ${store.id} " +
                                 "but trying to persist an object with id ${value.id!!}"
                     )
-                store.set(value)
+                store.set(value).addOnCompleteListener {
+                    if (!it.isSuccessful)
+                        observer.handleGenericException(it.exception!!)
+                }
             }
         } else {
             if (!this::store.isInitialized)
-                throw IllegalStateException("Trying to persist an object which is not identifiable with a non initialized store")
+                throw Error("Trying to persist an object which is not identifiable with a non initialized store")
             store.set(value ?: NULL_VALUE)
         }
     }
@@ -114,6 +117,7 @@ class FirestoreLivePersistorDelegate<T, C>(
             if (observer is FirestoreLivePersistenceObserver<*, *>) {
                 (observer as FirestoreLivePersistenceObserver<DocumentSnapshot, T>)
                     .onAsyncValueReceived(value, error)
+                if (error != null) return@addSnapshotListener
             }
 
             if (value == null)

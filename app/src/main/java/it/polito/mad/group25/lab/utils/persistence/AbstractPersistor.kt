@@ -51,6 +51,10 @@ interface PersistenceObserver<T> {
         if (ex != null) throw ex
     }
 
+
+    fun handleGenericException(ex: Exception) {
+        throw ex
+    }
 }
 
 abstract class PersistenceObserverWrapper<T>(val wrapped: PersistenceObserver<T>) :
@@ -63,7 +67,7 @@ abstract class PersistenceObserverWrapper<T>(val wrapped: PersistenceObserver<T>
 }
 
 interface PersistorAware<T, C, P : SimplePersistor<T, C>> {
-    var persistor: P
+    fun setPersistor(persistor: P)
 }
 
 /**
@@ -217,7 +221,7 @@ abstract class SimplePersistor<T, C> : Persistor<T, C> {
 
     private fun injectPersistorAware(obj: Any) {
         if (PersistorAware::class.java.isAssignableFrom(obj::class.java)) {
-            (obj as PersistorAware<T, C, SimplePersistor<T, C>>).persistor = this
+            (obj as PersistorAware<T, C, SimplePersistor<T, C>>).setPersistor(this)
         }
     }
 

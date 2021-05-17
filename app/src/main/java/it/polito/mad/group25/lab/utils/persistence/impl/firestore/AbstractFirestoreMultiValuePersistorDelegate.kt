@@ -49,6 +49,7 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<IC, T, C>(
             if (observer is FirestoreLivePersistenceObserver<*, *>) {
                 (observer as FirestoreLivePersistenceObserver<QuerySnapshot, T>)
                     .onAsyncValueReceived(value, error)
+                if (error != null) return@addSnapshotListener
             }
 
             if (value == null)
@@ -133,7 +134,7 @@ abstract class AbstractFirestoreMultiValuePersistorDelegate<IC, T, C>(
                 if (it.isSuccessful)
                     identifiable.id = it.result!!.id
                 else
-                    throw RuntimeException(it.exception)
+                    observer.handleGenericException(it.exception!!)
             }
         } else {
             //it may exist, so update the old one or add it with the given id
