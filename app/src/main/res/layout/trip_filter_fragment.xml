@@ -26,6 +26,7 @@
                 android:id="@+id/departurePlace"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:hint="departure" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,13 +69,13 @@
 
         <TextView
             android:id="@+id/departureStartDate"
-            android:layout_width="48dp"
-            android:layout_height="23dp"
-            android:layout_gravity="center_vertical"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
             android:layout_weight="0.6"
-            android:gravity="center_horizontal"
+            android:gravity="center_horizontal|center_vertical"
             android:text="@string/date_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/departureStartTime"
             app:layout_constraintHorizontal_bias="0.5"
@@ -83,12 +84,13 @@
 
         <TextView
             android:id="@+id/departureStartTime"
-            android:layout_width="57dp"
-            android:layout_height="23dp"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
             android:layout_weight="0.4"
             android:gravity="center"
             android:text="@string/time_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -148,32 +150,35 @@
 
         <TextView
             android:id="@+id/arrivalStartDate"
-            android:layout_width="48dp"
-            android:layout_height="23dp"
-            android:layout_gravity="center_vertical"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
             android:layout_weight="0.6"
-            android:gravity="center_horizontal"
+            android:gravity="center_horizontal|center_vertical"
             android:text="@string/date_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/arrivalStartTime"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/arrivalStartDateTitle"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout5" />
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout5"
+            app:layout_constraintVertical_bias="0.431" />
 
         <TextView
             android:id="@+id/arrivalStartTime"
-            android:layout_width="57dp"
-            android:layout_height="23dp"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
             android:layout_weight="0.4"
             android:gravity="center"
             android:text="@string/time_text"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/arrivalStartDate"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout5" />
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout5"
+            app:layout_constraintVertical_bias="0.426" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout5"
@@ -190,6 +195,7 @@
                 android:id="@+id/arrivalPlace"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:hint="arrival" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -219,8 +225,10 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/price"
                 android:layout_width="115dp"
                 android:layout_height="match_parent"
+                android:gravity="center_horizontal"
                 android:hint="Price" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -235,8 +243,10 @@
             app:layout_constraintTop_toTopOf="@+id/priceInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/duration"
                 android:layout_width="115dp"
                 android:layout_height="match_parent"
+                android:gravity="center_horizontal"
                 android:hint="Duration" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -251,8 +261,10 @@
             app:layout_constraintTop_toTopOf="@+id/durationInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/seats"
                 android:layout_width="115dp"
                 android:layout_height="match_parent"
+                android:gravity="center_horizontal"
                 android:hint="Seats" />
         </com.google.android.material.textfield.TextInputLayout>
 
