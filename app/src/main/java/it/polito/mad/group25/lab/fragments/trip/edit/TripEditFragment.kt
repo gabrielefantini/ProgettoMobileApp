@@ -92,7 +92,6 @@ abstract class TripEditFragment(
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //con requireActivity() crasha dopo la rotazione
         carNameLayout = view.findViewById(R.id.carNameLayout)
         priceLayout = view.findViewById(R.id.priceTextLayout)
         seatsLayout = view.findViewById(R.id.seatsTextLayout)
@@ -109,18 +108,6 @@ abstract class TripEditFragment(
             true,
             CharSequence::isNotBlank
         )
-        var seatsTaken = 0
-        tripViewModel.trip.observe(viewLifecycleOwner, { trip ->
-            if (trip != null) {
-                seatsTaken = trip.interestedUsers.filter { it.isConfirmed }.size
-            }
-        })
-        seatsLayout.setConstraints(
-            R.id.seatsText,
-            "Please provide valid seats between 0 and 7 (considering also the assigned ones)",
-            true
-        ) { it.isNotBlank() && it.toString().toInt().let { s -> s in 0..7 - seatsTaken } }
-
 
         val context = this.context
 
@@ -131,7 +118,15 @@ abstract class TripEditFragment(
 
         tripViewModel.trip.observe(viewLifecycleOwner, { trip ->
             if (trip != null) {
-                Log.d("tripNotNull!", trip.interestedUsers.size.toString())
+
+                var seatsTaken = trip.interestedUsers.filter { it.isConfirmed }.size
+                if (seatsTaken == 0) seatsTaken = 1 //minimum seats
+                seatsLayout.setConstraints(
+                    R.id.seatsText,
+                    "Please provide valid seats between $seatsTaken and 7 (considering also the assigned ones)",
+                    true
+                ) { it.isNotBlank() && it.toString().toInt().let { s -> s in seatsTaken..7 } }
+
                 if (tripEditViewModel.tripStepList.isEmpty())
                     trip.locations.forEach {
                         tripEditViewModel.tripStepList.add(it)
@@ -378,7 +373,6 @@ abstract class TripEditFragment(
                     })
             }
         })
-        val trip = tripViewModel.trip
     }
 
     fun setUpInterestedUsers(view: View) {
@@ -480,9 +474,6 @@ abstract class TripEditFragment(
             }
         }
 
-
-        val seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
-
         view?.findViewById<EditText>(R.id.carName)?.text.toString().also {
             if (tripSel.carName != it) {
                 tripSel.carName = it
@@ -493,16 +484,18 @@ abstract class TripEditFragment(
             tripSel.carPic = it.toBlob()
         }
 
-        if (tripEditViewModel.interestedUsersTmp.filter { it.isConfirmed }.size > tripDb.interestedUsers.filter { it.isConfirmed }.size + seats) {
+        val seats = view?.findViewById<EditText>(R.id.seatsText)?.text.toString().toInt()
+        val confirmedSeats = tripEditViewModel.interestedUsersTmp.filter { it.isConfirmed }.size
+        val oldConfirmedSeats = tripDb.interestedUsers.filter { it.isConfirmed }.size
+
+        if ( confirmedSeats > oldConfirmedSeats + seats) {
             showError("Please select a proper number of user to add to the trip")
             return false
         }
-        // se il controllo è andato a buon fine aggiorno il numero di posti disponibili
-        seats.also {
-            if (tripSel.seats != it - tripEditViewModel.interestedUsersTmp.filter{it.isConfirmed}.size) {
-                tripSel.seats = it - tripEditViewModel.interestedUsersTmp.filter{it.isConfirmed}.size
-            }
-        }
+        // se il controllo è andato a buon fine (ed il numero di prenotazioni è effettivamente cambiato) aggiorno il numero di posti disponibili
+
+        if(tripSel.seats != seats || tripEditViewModel.interestedUsersTmp != tripDb.interestedUsers)
+            tripSel.seats = seats - confirmedSeats
 
         tripSel.interestedUsers.addAll(tripEditViewModel.interestedUsersTmp)
 
