@@ -31,12 +31,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.fragments.trip.Trip
-import it.polito.mad.group25.lab.fragments.trip.TripLocation
-import it.polito.mad.group25.lab.fragments.trip.TripViewModel
+import it.polito.mad.group25.lab.fragments.trip.*
 import it.polito.mad.group25.lab.fragments.trip.details.getDurationFormatted
 import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
-import it.polito.mad.group25.lab.fragments.trip.timeFormatted
 import it.polito.mad.group25.lab.utils.asFormattedDate
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistableContainer
@@ -70,7 +67,6 @@ abstract class TripEditFragment(
     private lateinit var carNameLayout: TextInputLayout
     private lateinit var priceLayout: TextInputLayout
     private lateinit var seatsLayout: TextInputLayout
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,9 +117,9 @@ abstract class TripEditFragment(
         })
         seatsLayout.setConstraints(
             R.id.seatsText,
-            "Please provide valid seats between 1 and 7 (considering also the assigned ones)",
+            "Please provide valid seats between 0 and 7 (considering also the assigned ones)",
             true
-        ) { it.isNotBlank() && it.toString().toInt().let { s -> s in 1..7 - seatsTaken } }
+        ) { it.isNotBlank() && it.toString().toInt().let { s -> s in 0..7 - seatsTaken } }
 
 
         val context = this.context
@@ -135,6 +131,7 @@ abstract class TripEditFragment(
 
         tripViewModel.trip.observe(viewLifecycleOwner, { trip ->
             if (trip != null) {
+                Log.d("tripNotNull!", trip.interestedUsers.size.toString())
                 if (tripEditViewModel.tripStepList.isEmpty())
                     trip.locations.forEach {
                         tripEditViewModel.tripStepList.add(it)
@@ -384,12 +381,12 @@ abstract class TripEditFragment(
         val trip = tripViewModel.trip
     }
 
-    // questi due metodi sono chiamati
     fun setUpInterestedUsers(view: View) {
         val rv = view.findViewById<RecyclerView>(R.id.userList)
         rv.layoutManager = LinearLayoutManager(context)
+        tripEditViewModel.interestedUsersTmp.addAll(tripViewModel.trip.value!!.interestedUsers)
         rv.adapter = TripUsersEditAdapter(
-            tripViewModel.trip.value!!.interestedUsers.toList(),
+            tripViewModel.trip.value!!.interestedUsers,
             tripEditViewModel.interestedUsersTmp
         )
 
@@ -457,7 +454,7 @@ abstract class TripEditFragment(
         tripSel.carName = tripDb.carName
         tripSel.additionalInfo = tripDb.additionalInfo
         tripSel.carPic = tripDb.carPic
-        tripSel.interestedUsers = tripDb.interestedUsers
+        tripSel.interestedUsers = mutableListOf()
         tripSel.locations = tripDb.locations
         tripSel.ownerId = tripDb.ownerId
         tripSel.price = tripDb.price
@@ -507,8 +504,7 @@ abstract class TripEditFragment(
             }
         }
 
-        // se non ho posti liberi non potrò aggiungere altri utenti
-        //if (tripSel.seats == 0) tripViewModel.trip.interestedUsers = mutableListOf()
+        tripSel.interestedUsers.addAll(tripEditViewModel.interestedUsersTmp)
 
         view?.findViewById<EditText>(R.id.priceText)?.text.toString().toDouble().also {
             if (tripSel.price != it) {
@@ -671,7 +667,7 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
     SharedPreferencesPersistableContainer {
 
     private var _selectedTripLocationId = MutableLiveData<Int>(null)
-    val interestedUsersTmp = mutableListOf<String>()
+    val interestedUsersTmp = mutableListOf<TripUser>()
     val selectedTripLocationId: LiveData<Int> = _selectedTripLocationId
     fun selectTripLocation(id: Int) {
         _selectedTripLocationId.value = id
@@ -687,28 +683,35 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
 }
 
 class TripUsersEditAdapter(
-    private val list: List<String>,
-    val interestedUsersTmp: MutableList<String>
+    private val list: List<TripUser>,
+    val interestedUsersTmp: MutableList<TripUser>
 ) :
     RecyclerView.Adapter<TripUsersEditAdapter.TripUsersViewHolder>() {
 
-    class TripUsersViewHolder(v: View, interestedUsersTmp: MutableList<String>) :
+    class TripUsersViewHolder(v: View, interestedUsersTmp: MutableList<TripUser>) :
         RecyclerView.ViewHolder(v) {
         private val username: TextView = v.findViewById(R.id.username)
         private val checkBox = v.findViewById<CheckBox>(R.id.confirm_user)
 
-        fun bind(t: String, interestedUsersTmp: MutableList<String>) {
-            username.text = "user $t"
+        @SuppressLint("SetTextI18n")
+        fun bind(t: TripUser, interestedUsersTmp: MutableList<TripUser>) {
+            Log.d("bindFun", interestedUsersTmp.size.toString())
+            username.text = "user ${t.userId}"
             var i = 0
-            // if (!t.isConfirmed) {
-            checkBox.visibility = VISIBLE
-            checkBox.setOnClickListener {
-                if (i % 2 == 0) interestedUsersTmp.add(t)
-                else interestedUsersTmp.remove(t)
-                i++
-                Log.d("checkBox", interestedUsersTmp.toString())
+            if (!t.isConfirmed) {
+                Log.d("bind", "!isConfirmed user ${t.userId}")
+                checkBox.visibility = VISIBLE
+                checkBox.setOnClickListener {
+                    if (i % 2 == 0) interestedUsersTmp.find { it.userId == t.userId }?.isConfirmed = true
+                    else interestedUsersTmp.find { it.userId == t.userId }?.isConfirmed = false
+                    i++
+                    Log.d("checkBox", interestedUsersTmp.toString())
+                }
             }
-            //}
+            else {
+                Log.d("bind", "isConfirmed user ${t.userId}")
+                checkBox.visibility = INVISIBLE
+            }
         }
     }
 

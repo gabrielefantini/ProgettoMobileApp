@@ -26,7 +26,7 @@ class Trip : AbstractPersistenceAware(), Identifiable, Serializable {
     var price: Double by onChangeUpdateStatus(0.0)
     var additionalInfo: MutableList<String> by onChangeUpdateStatus(mutableListOf())
     var ownerId: String? by onChangeUpdateStatus(null)
-    var interestedUsers: MutableSet<TripUser> by onChangeUpdateStatus(mutableSetOf())
+    var interestedUsers: MutableList<TripUser> by onChangeUpdateStatus(mutableListOf())
     fun getType(): Boolean {
         //TODO
         return true
