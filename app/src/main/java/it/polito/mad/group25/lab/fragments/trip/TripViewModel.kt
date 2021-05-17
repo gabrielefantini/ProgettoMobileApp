@@ -20,6 +20,10 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
     )
 
     fun addCurrentUserToSet(userId: String) {
-        trip.value!!.interestedUsers.add(userId)
+        trip.value!!.apply {
+            this.doOnTransaction {
+                this.interestedUsers.add(TripUser(userId))
+            }
+        }
     }
 }
