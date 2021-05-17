@@ -111,6 +111,12 @@ class TripFilterFragment: Fragment() {
                 //doNothing
             }
         }
+        val dischargeFilterButton = view.findViewById<Button>(R.id.discharge)
+        dischargeFilterButton.setOnClickListener{
+            tripFilterViewModel.flushFilter()
+            activity?.findNavController(R.id.nav_host_fragment_content_main)
+                ?.popBackStack()
+        }
     }
     //funzioni utili per time and data picker
 

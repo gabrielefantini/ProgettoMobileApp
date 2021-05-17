@@ -81,12 +81,11 @@ class TripListFragment : Fragment() {
                 val filteredTrip =
                     tripList
                         .filter{ trip ->
-                            //tripFilter ---> Map<String, String>
-                            // key -> tipo
-                            // value -> valore
+
                             tripFilter.keys.fold(true) { acc, key ->
                                 acc && enumValueOf<FilterField>(key).operator(trip, tripFilter[key]!!)
                             }
+
                         }
                 view.findViewById<TextView>(R.id.textView2).visibility = View.GONE
                 list.visibility = View.VISIBLE

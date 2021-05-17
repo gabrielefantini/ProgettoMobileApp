@@ -222,14 +222,17 @@
             app:layout_constraintEnd_toStartOf="@+id/durationInputLayout"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:startIconDrawable="@drawable/ic_price">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/price"
                 android:layout_width="115dp"
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
-                android:hint="Price" />
+                android:hint="or less "
+                android:singleLine="false"
+                android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -240,14 +243,17 @@
             app:layout_constraintEnd_toStartOf="@+id/seatsInputLayout"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/priceInputLayout"
-            app:layout_constraintTop_toTopOf="@+id/priceInputLayout">
+            app:layout_constraintTop_toTopOf="@+id/priceInputLayout"
+            app:startIconDrawable="@drawable/ic_duration">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/duration"
                 android:layout_width="115dp"
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
-                android:hint="Duration" />
+                android:hint="or less"
+                android:textAlignment="center"
+                android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -258,14 +264,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/durationInputLayout"
-            app:layout_constraintTop_toTopOf="@+id/durationInputLayout">
+            app:layout_constraintTop_toTopOf="@+id/durationInputLayout"
+            app:startIconDrawable="@drawable/ic_seat">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/seats"
                 android:layout_width="115dp"
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
-                android:hint="Seats" />
+                android:hint="Seats"
+                android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -273,12 +281,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Apply filters"
+            android:text="Apply "
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/discharge"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/durationInputLayout"
+            app:layout_constraintVertical_bias="0.38" />
+
+        <Button
+            android:id="@+id/discharge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="33dp"
+            android:layout_marginBottom="25dp"
+            android:text="Discharge"
+            android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/durationInputLayout" />
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/apply"
+            app:layout_constraintTop_toBottomOf="@+id/durationInputLayout"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

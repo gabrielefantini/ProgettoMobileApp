@@ -1,6 +1,8 @@
 package it.polito.mad.group25.lab.fragments.trip.filter
 
 import it.polito.mad.group25.lab.fragments.trip.Trip
+import java.util.*
+
 
 enum class FilterField {
     departureDate{
@@ -26,7 +28,7 @@ enum class FilterField {
     },
     departurePlace {
          override fun operator(trip: Trip, filterValue: String): Boolean {
-            return trip.locations[0].location === filterValue
+            return trip.locations[0].location == filterValue
         }
 
     },
@@ -47,7 +49,7 @@ enum class FilterField {
     },
     seats {
          override fun operator(trip: Trip, filterValue: String): Boolean {
-            TODO("Not yet implemented")
+            return trip.seats == filterValue.toInt()
         }
     };
     abstract fun operator(trip: Trip, filterValue: String): Boolean
