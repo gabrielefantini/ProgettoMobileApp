@@ -13,9 +13,9 @@ import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
 import it.polito.mad.group25.lab.utils.persistence.extractPersistor
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
 import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
+import it.polito.mad.group25.lab.utils.persistence.observers.ToastOnErrorPersistenceObserver
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 import it.polito.mad.group25.lab.utils.views.toBlob
-import kotlin.reflect.jvm.isAccessible
 
 
 class AuthenticationContext(application: Application) : PersistableViewModel(application) {
@@ -26,7 +26,8 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
     var userData: MutableLiveData<UserProfile?> by Persistors.simpleLiveFirestore(
         collection = "users",
         default = MutableLiveData(null),
-        lazyInit = true
+        lazyInit = true,
+        observer = ToastOnErrorPersistenceObserver(application)
     )
 
     var rememberMe: Boolean by Persistors.sharedPreferences(default = false)

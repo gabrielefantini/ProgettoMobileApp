@@ -14,7 +14,11 @@ class OnValueChangesLoadDocumentFirestoreObserver<T : Identifiable?>
     FirestoreLivePersistenceObserver<DocumentSnapshot, T>,
     PersistorAware<T, Any?, FirestoreLivePersistorDelegate<T, Any?>> {
 
-    override lateinit var persistor: FirestoreLivePersistorDelegate<T, Any?>
+    private lateinit var persistor: FirestoreLivePersistorDelegate<T, Any?>
+
+    override fun setPersistor(persistor: FirestoreLivePersistorDelegate<T, Any?>) {
+        this.persistor = persistor
+    }
 
     override fun beforeValueChanges(oldValue: T, newValue: T): T? =
         super.beforeValueChanges(oldValue, newValue)
@@ -30,7 +34,11 @@ class OnLiveDataValueChangesLoadDocumentFirestoreObserver<T : Identifiable?, L :
     LiveDataPersistenceObserver<T>,
     PersistorAware<L, Any?, FirestoreLivePersistorDelegate<L, Any?>> {
 
-    override lateinit var persistor: FirestoreLivePersistorDelegate<L, Any?>
+    private lateinit var persistor: FirestoreLivePersistorDelegate<L, Any?>
+
+    override fun setPersistor(persistor: FirestoreLivePersistorDelegate<L, Any?>) {
+        this.persistor = persistor
+    }
 
     override fun beforeValueChanges(oldValue: L, newValue: L): L {
         if (oldValue == newValue) return newValue

@@ -186,6 +186,7 @@ class EditUserProfileFragment :
         )
 
         authenticationContext.userData.value = userProfile
+        userProfileViewModel.shownUser.value = userProfile
         return true
     }
 

@@ -8,14 +8,15 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
-import com.google.firebase.firestore.DocumentSnapshot
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.UserProfile
 import it.polito.mad.group25.lab.utils.persistence.extractPersistor
 import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
 import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
+import it.polito.mad.group25.lab.utils.persistence.observers.ChainedObserver
 import it.polito.mad.group25.lab.utils.persistence.observers.MakeReadOnlyObserver
+import it.polito.mad.group25.lab.utils.persistence.observers.ToastOnErrorPersistenceObserver
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
 import it.polito.mad.group25.lab.utils.views.fromBlob
 
@@ -62,7 +63,8 @@ class UserProfileViewModel(application: Application) : PersistableViewModel(appl
                 collection = "users",
                 lazyInit = true,
                 default = MutableLiveData(),
-                observer = MakeReadOnlyObserver<DocumentSnapshot, MutableLiveData<UserProfile>>()
+                observer = ChainedObserver.startingFrom(MakeReadOnlyObserver<MutableLiveData<UserProfile>>())
+                    .wrappedBy { ToastOnErrorPersistenceObserver(application, it) }.build()
             )
 
 
