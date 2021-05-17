@@ -32,7 +32,7 @@ enum class FilterField {
     },
     arrivalPlace{
          override fun operator(trip: Trip, filterValue: String): Boolean {
-            return trip.locations[trip.locations.size - 1].location === filterValue
+            return trip.locations[trip.locations.size - 1].location == filterValue
         }
     },
     price {
