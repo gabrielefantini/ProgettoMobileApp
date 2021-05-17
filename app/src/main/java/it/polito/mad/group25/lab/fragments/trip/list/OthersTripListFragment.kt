@@ -15,6 +15,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
+import it.polito.mad.group25.lab.fragments.trip.filter.FilterField
 import it.polito.mad.group25.lab.fragments.trip.filter.TripFilterViewModel
 
 
@@ -76,6 +77,17 @@ class OthersTripListFragment : Fragment() {
                 view.findViewById<TextView>(R.id.textView2).visibility = View.VISIBLE
                 list.visibility = View.GONE
             } else {
+                //filtro in base al filtro attivo
+                val tripFilter = tripFilterViewModel.getFilter()
+                val filteredTrip =
+                    tripList
+                        .filter{ trip ->
+
+                            tripFilter.keys.fold(true) { acc, key ->
+                                acc && enumValueOf<FilterField>(key).operator(trip, tripFilter[key]!!)
+                            }
+
+                        }
                 view.findViewById<TextView>(R.id.textView2).visibility = View.GONE
                 list.visibility = View.VISIBLE
                 with(list) {
@@ -84,7 +96,7 @@ class OthersTripListFragment : Fragment() {
                         else -> GridLayoutManager(context, columnCount)
                     }
                     adapter = TripCardRecyclerViewAdapter(
-                        tripList,
+                        filteredTrip,
                         tripViewModel,
                         userId
                     )

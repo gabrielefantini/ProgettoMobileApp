@@ -218,8 +218,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/priceInputLayout"
             android:layout_width="116dp"
-            android:layout_height="63dp"
-            android:layout_marginBottom="32dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="40dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/durationInputLayout"
             app:layout_constraintHorizontal_bias="0.5"
@@ -240,7 +240,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/durationInputLayout"
             android:layout_width="116dp"
-            android:layout_height="63dp"
+            android:layout_height="50dp"
             app:layout_constraintBottom_toBottomOf="@+id/priceInputLayout"
             app:layout_constraintEnd_toStartOf="@+id/seatsInputLayout"
             app:layout_constraintHorizontal_bias="0.5"
@@ -262,7 +262,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/seatsInputLayout"
             android:layout_width="116dp"
-            android:layout_height="63dp"
+            android:layout_height="50dp"
             app:layout_constraintBottom_toBottomOf="@+id/durationInputLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -285,6 +285,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
             android:text="Apply "
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -292,7 +293,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/durationInputLayout"
-            app:layout_constraintVertical_bias="0.38" />
+            app:layout_constraintVertical_bias="1.0" />
 
         <Button
             android:id="@+id/discharge"
