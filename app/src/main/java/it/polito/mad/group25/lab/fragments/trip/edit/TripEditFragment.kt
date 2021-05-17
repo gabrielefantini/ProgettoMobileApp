@@ -493,7 +493,7 @@ abstract class TripEditFragment(
             tripSel.carPic = it.toBlob()
         }
 
-        if (tripEditViewModel.interestedUsersTmp.size > seats) {
+        if (tripEditViewModel.interestedUsersTmp.filter { it.isConfirmed }.size > tripDb.interestedUsers.filter { it.isConfirmed }.size + seats) {
             showError("Please select a proper number of user to add to the trip")
             return false
         }
