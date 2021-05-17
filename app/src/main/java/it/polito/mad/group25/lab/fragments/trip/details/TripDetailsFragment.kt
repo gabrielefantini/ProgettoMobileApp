@@ -108,8 +108,12 @@ abstract class TripDetailsFragment(
                     intUserText.visibility = GONE
 
                     fab.setOnClickListener {
-                        if(trip.interestedUsers.find { it.userId == authenticationContext.userId()!! }?.isConfirmed == false)
-                            showError("Request already sent, still waiting for confirmation")
+                        val user = trip.interestedUsers.find { it.userId == authenticationContext.userId()!! }
+                        if(user != null)
+                            if(user.isConfirmed)
+                                showError("Request confirmed, you already are in!")
+                            else
+                                showError("Request already sent, still waiting for confirmation")
                         else{
                             showError("Sent confirmation request to the trip's owner")
                             tripViewModel.addCurrentUserToSet(authenticationContext.userId()!!)
