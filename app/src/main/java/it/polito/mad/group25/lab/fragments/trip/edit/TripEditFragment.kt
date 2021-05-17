@@ -702,8 +702,7 @@ class TripUsersEditAdapter(
                 Log.d("bind", "!isConfirmed user ${t.userId}")
                 checkBox.visibility = VISIBLE
                 checkBox.setOnClickListener {
-                    if (i % 2 == 0) interestedUsersTmp.find { it.userId == t.userId }?.isConfirmed = true
-                    else interestedUsersTmp.find { it.userId == t.userId }?.isConfirmed = false
+                    interestedUsersTmp.find { it.userId == t.userId }?.isConfirmed = i % 2 == 0
                     i++
                     Log.d("checkBox", interestedUsersTmp.toString())
                 }
