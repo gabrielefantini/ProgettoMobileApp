@@ -112,7 +112,7 @@ abstract class TripEditFragment(
         var seatsTaken = 0
         tripViewModel.trip.observe(viewLifecycleOwner, { trip ->
             if (trip != null) {
-                seatsTaken = trip.interestedUsers.size
+                seatsTaken = trip.interestedUsers.filter { it.isConfirmed }.size
             }
         })
         seatsLayout.setConstraints(
@@ -499,8 +499,8 @@ abstract class TripEditFragment(
         }
         // se il controllo è andato a buon fine aggiorno il numero di posti disponibili
         seats.also {
-            if (tripSel.seats != it - tripEditViewModel.interestedUsersTmp.size) {
-                tripSel.seats = it - tripEditViewModel.interestedUsersTmp.size
+            if (tripSel.seats != it - tripEditViewModel.interestedUsersTmp.filter{it.isConfirmed}.size) {
+                tripSel.seats = it - tripEditViewModel.interestedUsersTmp.filter{it.isConfirmed}.size
             }
         }
 
