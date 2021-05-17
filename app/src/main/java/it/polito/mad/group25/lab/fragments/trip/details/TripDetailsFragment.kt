@@ -197,12 +197,11 @@ abstract class TripDetailsFragment(
 @RequiresApi(Build.VERSION_CODES.O)
 fun getDurationFormatted(first: LocalDateTime, last: LocalDateTime): String {
     val durationMin = ChronoUnit.MINUTES.between(first, last).toInt()
-    var hours = durationMin / 60
-    val min = durationMin % 60
+    val minDay = 24*60
 
-    val days = hours / 24
-    if (days != 0)
-        hours -= 24
+    val days = durationMin / minDay
+    val hours = durationMin % minDay / 60
+    val min = durationMin % minDay % 60
 
     return "${if (days != 0) "${days}d" else ""} ${if (hours != 0) "${hours}h" else ""} ${if (min != 0) "${min}min" else ""}"
 }
