@@ -26,7 +26,7 @@ class Trip : AbstractPersistenceAware(), Identifiable, Serializable {
     var price: Double by onChangeUpdateStatus(0.0)
     var additionalInfo: MutableList<String> by onChangeUpdateStatus(mutableListOf())
     var ownerId: String? by onChangeUpdateStatus(null)
-    var interestedUsers: MutableList<String> by onChangeUpdateStatus(mutableListOf())
+    var interestedUsers: MutableSet<TripUser> by onChangeUpdateStatus(mutableSetOf())
     fun getType(): Boolean {
         //TODO
         return true
@@ -94,3 +94,8 @@ fun Trip.addTripLocationOrdered(location: String, locationTime: Instant) {
     locations.add(trip)
     locations.sortBy { it.locationTime }
 }
+
+data class TripUser(
+    val userId: String = "",
+    var isConfirmed: Boolean = false
+)

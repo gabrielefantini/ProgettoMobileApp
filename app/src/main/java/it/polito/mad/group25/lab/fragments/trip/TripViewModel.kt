@@ -14,6 +14,6 @@ class TripViewModel : ViewModel() {
     )
 
     fun addCurrentUserToSet(userId: String) {
-        trip.value!!.interestedUsers.add(userId)
+        trip.value!!.interestedUsers.add(TripUser(userId))
     }
 }

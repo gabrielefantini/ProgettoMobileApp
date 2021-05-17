@@ -3,8 +3,8 @@ package it.polito.mad.group25.lab.fragments.trip.details
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.view.View.GONE
-import android.view.View.VISIBLE
+import android.view.View.*
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -18,11 +18,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.fragments.trip.TripLocation
-import it.polito.mad.group25.lab.fragments.trip.TripViewModel
-import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
-import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
-import it.polito.mad.group25.lab.fragments.trip.timeFormatted
+import it.polito.mad.group25.lab.fragments.trip.*
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.toLocalDateTime
@@ -104,7 +100,7 @@ abstract class TripDetailsFragment(
 
                 if(!isOwner) {
                     //normal user
-                    var fab = view.findViewById<FloatingActionButton>(R.id.tripDetailsFab)
+                    val fab = view.findViewById<FloatingActionButton>(R.id.tripDetailsFab)
 
                     fab.visibility = VISIBLE
                     rv2.visibility = GONE
@@ -112,9 +108,12 @@ abstract class TripDetailsFragment(
                     intUserText.visibility = GONE
 
                     fab.setOnClickListener {
-                        showError("Sent confirmation request to the trip's owner!")
-                        /*tripViewModel.addCurrentUserToSet(authenticationContext.userId()!!)
-                        tripListViewModel.putTrip(tripViewModel.trip)*/
+                        if(trip.interestedUsers.find { it.userId == authenticationContext.userId()!! }?.isConfirmed == false)
+                            showError("Request already sent, still waiting for confirmation")
+                        else{
+                            showError("Sent confirmation request to the trip's owner")
+                            tripViewModel.addCurrentUserToSet(authenticationContext.userId()!!)
+                        }
                     }
 
                 }else{
@@ -146,23 +145,30 @@ abstract class TripDetailsFragment(
             .navigate(R.id.action_showTripDetailsFragment_to_showUserProfileFragment)
     }
 
-    inner class TripUsersAdapter(private val list: List<String>, private val usersData: UserProfileViewModel) :
+    inner class TripUsersAdapter(private val list: List<TripUser>, private val usersData: UserProfileViewModel) :
         RecyclerView.Adapter<TripUsersAdapter.TripUsersViewHolder>() {
 
         inner class TripUsersViewHolder(v: View, private val usersData: UserProfileViewModel) : RecyclerView.ViewHolder(v) {
             private val username: TextView = v.findViewById(R.id.username)
             private val proPic: ImageView = v.findViewById(R.id.proPic)
+            private val confirmCheck: CheckBox = v.findViewById(R.id.confirm_user)
+            private val confirmedIcon: ImageView = v.findViewById(R.id.confirmedIcon)
 
-            fun bind(userId: String) {
-                usersData.showUser(userId)
-                usersData.shownUser.observe(viewLifecycleOwner,{ user ->
-                    user.fullName?.let { username.text = it }
-                    user.userProfilePhotoFile?.let { proPic.fromBlob(it) }
+            fun bind(user: TripUser) {
+                usersData.showUser(user.userId)
+                usersData.shownUser.observe(viewLifecycleOwner,{ user_ ->
+                    user_.fullName?.let { username.text = it }
+                    user_.userProfilePhotoFile?.let { proPic.fromBlob(it) }
                 })
 
                 username.setOnClickListener {
-                    navigateToUserProfile(userId)
+                    navigateToUserProfile(user.userId)
                 }
+
+                confirmCheck.visibility = INVISIBLE
+
+                if(user.isConfirmed)
+                    confirmedIcon.visibility = VISIBLE
 
             }
         }
@@ -235,9 +241,4 @@ class TripLocationAdapter(private val list: List<TripLocation>) :
     }
 }
 
-/*data class TripUser(
-    val userId: String
-    var isConfirmed: Boolean = false
-    )
-*/
 
