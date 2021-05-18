@@ -52,7 +52,11 @@
         android:name="it.polito.mad.group25.lab.fragments.trip.edit.ShowTripEditFragment"
         android:label="Trip Edit"
         tools:layout="@layout/trip_edit_fragment"
-        />
+        >
+        <action
+            android:id="@+id/action_showTripEditFragment_to_showUserProfileFragment"
+            app:destination="@id/showUserProfileFragment" />
+    </fragment>
     <fragment
         android:id="@+id/TripListFragment"
         android:name="it.polito.mad.group25.lab.fragments.trip.list.TripListFragment"

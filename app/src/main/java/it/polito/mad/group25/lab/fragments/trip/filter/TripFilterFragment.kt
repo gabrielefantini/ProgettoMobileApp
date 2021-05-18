@@ -5,20 +5,21 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Build
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.text.isDigitsOnly
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.utils.views.setConstraints
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -52,6 +53,7 @@ class TripFilterFragment: Fragment() {
         temporaryMap[FilterField.price.name] = TemporaryMapValue(view.findViewById(R.id.price),false)
         temporaryMap[FilterField.duration.name] = TemporaryMapValue(view.findViewById(R.id.duration),false)
         temporaryMap[FilterField.seats.name] = TemporaryMapValue(view.findViewById(R.id.seats),false)
+
 
         val filter = tripFilterViewModel.getFilter()
 
@@ -111,8 +113,8 @@ class TripFilterFragment: Fragment() {
                 //doNothing
             }
         }
-        val dischargeFilterButton = view.findViewById<Button>(R.id.discharge)
-        dischargeFilterButton.setOnClickListener{
+        val discardFilterButton = view.findViewById<Button>(R.id.discard)
+        discardFilterButton.setOnClickListener{
             tripFilterViewModel.flushFilter()
             activity?.findNavController(R.id.nav_host_fragment_content_main)
                 ?.popBackStack()

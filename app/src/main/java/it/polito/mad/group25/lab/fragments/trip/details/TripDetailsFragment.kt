@@ -115,8 +115,11 @@ abstract class TripDetailsFragment(
                             else
                                 showError("Request already sent, still waiting for confirmation")
                         else{
-                            showError("Sent confirmation request to the trip's owner")
-                            tripViewModel.addCurrentUserToSet(authenticationContext.userId()!!)
+                            if(trip.seats > 0) {
+                                showError("Sent confirmation request to the trip's owner")
+                                tripViewModel.addCurrentUserToSet(authenticationContext.userId()!!)
+                            }
+                            else showError("No more seats available!")
                         }
                     }
 
