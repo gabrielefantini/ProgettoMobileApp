@@ -38,20 +38,18 @@ abstract class GenericUserProfileFragment(
             if (it == null)
                 return@observe
 
-            view.findViewById<TextView>(R.id.nickName).text = it.nickName
             it.userProfilePhotoFile?.let { it1 ->
                 view.findViewById<ImageView>(R.id.profilePic)
                     .fromBlob(it1)
             }
+            view.findViewById<TextView>(R.id.fullName).text = it.fullName
+            view.findViewById<TextView>(R.id.email).text = it.email
 
             if (hideSensitiveDataIfNecessary && it.id != authenticationContext.userId())
                 return@observe
 
-            view.findViewById<TextView>(R.id.fullName).text = it.fullName
-            view.findViewById<TextView>(R.id.email).text = it.email
+            view.findViewById<TextView>(R.id.nickName).text = it.nickName
             view.findViewById<TextView>(R.id.location).text = it.location
-
-
         }
     }
 }

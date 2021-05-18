@@ -70,8 +70,9 @@ class OthersTripListFragment : Fragment() {
             val userId = authenticationContext.userId()
             val tripList =
                 tripMap.values
-                .toList()
-                .filter { trip -> trip.ownerId != userId }
+                    .toList()
+                    .filter { trip -> trip.ownerId != userId }
+                    .filter { trip -> trip.tripStartDate > System.currentTimeMillis()+5*1000 /*margine ragionevole in cui l'utente non può intranprendere un viaggio*/ }
 
             if (tripList.isEmpty()) {
                 view.findViewById<TextView>(R.id.textView2).visibility = View.VISIBLE
@@ -81,10 +82,13 @@ class OthersTripListFragment : Fragment() {
                 val tripFilter = tripFilterViewModel.getFilter()
                 val filteredTrip =
                     tripList
-                        .filter{ trip ->
+                        .filter { trip ->
 
                             tripFilter.keys.fold(true) { acc, key ->
-                                acc && enumValueOf<FilterField>(key).operator(trip, tripFilter[key]!!)
+                                acc && enumValueOf<FilterField>(key).operator(
+                                    trip,
+                                    tripFilter[key]!!
+                                )
                             }
 
                         }
