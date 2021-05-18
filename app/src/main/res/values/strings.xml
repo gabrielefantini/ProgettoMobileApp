@@ -68,4 +68,7 @@
     <string name="Seats">Seats</string>
     <string name="Apply">Apply</string>
     <string name="Discard">Discard</string>
+
+    <string name="Welcome">Welcome</string>
+    <string name="car_logo_description">Car logo</string>
 </resources>
