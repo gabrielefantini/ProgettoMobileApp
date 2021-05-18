@@ -378,7 +378,10 @@ abstract class TripEditFragment(
     fun setUpInterestedUsers(view: View) {
         val rv = view.findViewById<RecyclerView>(R.id.userList)
         rv.layoutManager = LinearLayoutManager(context)
-        tripEditViewModel.interestedUsersTmp.addAll(tripViewModel.trip.value!!.interestedUsers)
+        if(tripEditViewModel.interestedUsersTmp != tripViewModel.trip.value!!.interestedUsers) {
+            tripEditViewModel.interestedUsersTmp = mutableListOf()
+            tripEditViewModel.interestedUsersTmp.addAll(tripViewModel.trip.value!!.interestedUsers)
+        }
         rv.adapter = TripUsersEditAdapter(
             tripViewModel.trip.value!!.interestedUsers,
             tripEditViewModel.interestedUsersTmp,
@@ -679,7 +682,7 @@ abstract class TripEditFragment(
                 username.setOnClickListener {
                     userProfileViewModel.showUser(t.userId)
                     requireActivity().findNavController(R.id.nav_host_fragment_content_main)
-                        .navigate(R.id.action_showTripDetailsFragment_to_showUserProfileFragment)
+                        .navigate(R.id.action_showTripEditFragment_to_showUserProfileFragment)
                 }
                 var i = 0
                 if (!t.isConfirmed) {
@@ -720,7 +723,7 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
     SharedPreferencesPersistableContainer {
 
     private var _selectedTripLocationId = MutableLiveData<Int>(null)
-    val interestedUsersTmp = mutableListOf<TripUser>()
+    var interestedUsersTmp = mutableListOf<TripUser>()
     val selectedTripLocationId: LiveData<Int> = _selectedTripLocationId
     fun selectTripLocation(id: Int) {
         _selectedTripLocationId.value = id
