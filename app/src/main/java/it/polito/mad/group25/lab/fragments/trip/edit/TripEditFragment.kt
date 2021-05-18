@@ -32,17 +32,16 @@ import com.google.android.material.textfield.TextInputLayout
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.fragments.trip.*
+import it.polito.mad.group25.lab.fragments.trip.details.TripDetailsFragment
 import it.polito.mad.group25.lab.fragments.trip.details.getDurationFormatted
 import it.polito.mad.group25.lab.fragments.trip.list.TripListViewModel
+import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 import it.polito.mad.group25.lab.utils.asFormattedDate
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersistableContainer
 import it.polito.mad.group25.lab.utils.toLocalDate
 import it.polito.mad.group25.lab.utils.toLocalDateTime
-import it.polito.mad.group25.lab.utils.views.fromFile
-import it.polito.mad.group25.lab.utils.views.isCompliant
-import it.polito.mad.group25.lab.utils.views.setConstraints
-import it.polito.mad.group25.lab.utils.views.toBlob
+import it.polito.mad.group25.lab.utils.views.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -60,6 +59,7 @@ abstract class TripEditFragment(
     private val tripViewModel: TripViewModel by activityViewModels()
     private val tripListViewModel: TripListViewModel by activityViewModels()
     private val authenticationContext: AuthenticationContext by activityViewModels()
+    private val userProfileViewModel: UserProfileViewModel by activityViewModels()
 
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void>
     private lateinit var pickPictureLauncher: ActivityResultLauncher<String>
@@ -378,10 +378,14 @@ abstract class TripEditFragment(
     fun setUpInterestedUsers(view: View) {
         val rv = view.findViewById<RecyclerView>(R.id.userList)
         rv.layoutManager = LinearLayoutManager(context)
-        tripEditViewModel.interestedUsersTmp.addAll(tripViewModel.trip.value!!.interestedUsers)
+        if(tripEditViewModel.interestedUsersTmp != tripViewModel.trip.value!!.interestedUsers) {
+            tripEditViewModel.interestedUsersTmp = mutableListOf()
+            tripEditViewModel.interestedUsersTmp.addAll(tripViewModel.trip.value!!.interestedUsers)
+        }
         rv.adapter = TripUsersEditAdapter(
             tripViewModel.trip.value!!.interestedUsers,
-            tripEditViewModel.interestedUsersTmp
+            tripEditViewModel.interestedUsersTmp,
+            userProfileViewModel
         )
 
     }
@@ -654,13 +658,72 @@ abstract class TripEditFragment(
         )
     }
 
+    inner class TripUsersEditAdapter(
+        private val list: List<TripUser>,
+        val interestedUsersTmp: MutableList<TripUser>,
+        private val usersData: UserProfileViewModel
+    ) :
+        RecyclerView.Adapter<TripUsersEditAdapter.TripUsersViewHolder>() {
+
+        inner class TripUsersViewHolder(v: View, interestedUsersTmp: MutableList<TripUser>, private val usersData: UserProfileViewModel) :
+            RecyclerView.ViewHolder(v) {
+            private val username: TextView = v.findViewById(R.id.username)
+            private val proPic: ImageView = v.findViewById(R.id.proPic)
+            private val checkBox = v.findViewById<CheckBox>(R.id.confirm_user)
+
+            fun bind(t: TripUser, interestedUsersTmp: MutableList<TripUser>) {
+                Log.d("bindFun", interestedUsersTmp.size.toString())
+                usersData.showUser(t.userId)
+                usersData.shownUser.observe(viewLifecycleOwner,{ user_ ->
+                    user_.fullName?.let { username.text = it }
+                    user_.userProfilePhotoFile?.let { proPic.fromBlob(it) }
+                })
+
+                username.setOnClickListener {
+                    userProfileViewModel.showUser(t.userId)
+                    requireActivity().findNavController(R.id.nav_host_fragment_content_main)
+                        .navigate(R.id.action_showTripEditFragment_to_showUserProfileFragment)
+                }
+                var i = 0
+                if (!t.isConfirmed) {
+                    Log.d("bind", "!isConfirmed user ${t.userId}")
+                    checkBox.visibility = VISIBLE
+                    checkBox.setOnClickListener {
+                        interestedUsersTmp.find { it.userId == t.userId }?.isConfirmed = i % 2 == 0
+                        i++
+                        Log.d("checkBox", interestedUsersTmp.toString())
+                    }
+                }
+                else {
+                    Log.d("bind", "isConfirmed user ${t.userId}")
+                    checkBox.visibility = INVISIBLE
+                }
+            }
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripUsersViewHolder {
+            val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
+            return TripUsersViewHolder(layout, interestedUsersTmp, usersData)
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        override fun onBindViewHolder(holder: TripUsersViewHolder, position: Int) {
+            holder.bind(list[position], interestedUsersTmp)
+        }
+
+        override fun getItemCount(): Int = list.size
+
+        override fun getItemViewType(position: Int): Int = R.layout.trip_user_line
+
+    }
+
 }
 
 class TripEditViewModel(application: Application) : AndroidViewModel(application),
     SharedPreferencesPersistableContainer {
 
     private var _selectedTripLocationId = MutableLiveData<Int>(null)
-    val interestedUsersTmp = mutableListOf<TripUser>()
+    var interestedUsersTmp = mutableListOf<TripUser>()
     val selectedTripLocationId: LiveData<Int> = _selectedTripLocationId
     fun selectTripLocation(id: Int) {
         _selectedTripLocationId.value = id
@@ -675,50 +738,3 @@ class TripEditViewModel(application: Application) : AndroidViewModel(application
 
 }
 
-class TripUsersEditAdapter(
-    private val list: List<TripUser>,
-    val interestedUsersTmp: MutableList<TripUser>
-) :
-    RecyclerView.Adapter<TripUsersEditAdapter.TripUsersViewHolder>() {
-
-    class TripUsersViewHolder(v: View, interestedUsersTmp: MutableList<TripUser>) :
-        RecyclerView.ViewHolder(v) {
-        private val username: TextView = v.findViewById(R.id.username)
-        private val checkBox = v.findViewById<CheckBox>(R.id.confirm_user)
-
-        @SuppressLint("SetTextI18n")
-        fun bind(t: TripUser, interestedUsersTmp: MutableList<TripUser>) {
-            Log.d("bindFun", interestedUsersTmp.size.toString())
-            username.text = "user ${t.userId}"
-            var i = 0
-            if (!t.isConfirmed) {
-                Log.d("bind", "!isConfirmed user ${t.userId}")
-                checkBox.visibility = VISIBLE
-                checkBox.setOnClickListener {
-                    interestedUsersTmp.find { it.userId == t.userId }?.isConfirmed = i % 2 == 0
-                    i++
-                    Log.d("checkBox", interestedUsersTmp.toString())
-                }
-            }
-            else {
-                Log.d("bind", "isConfirmed user ${t.userId}")
-                checkBox.visibility = INVISIBLE
-            }
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripUsersViewHolder {
-        val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        return TripUsersViewHolder(layout, interestedUsersTmp)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onBindViewHolder(holder: TripUsersViewHolder, position: Int) {
-        holder.bind(list[position], interestedUsersTmp)
-    }
-
-    override fun getItemCount(): Int = list.size
-
-    override fun getItemViewType(position: Int): Int = R.layout.trip_user_line
-
-}
