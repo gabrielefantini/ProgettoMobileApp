@@ -10,8 +10,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.Blob
 import it.polito.mad.group25.lab.utils.datastructure.Identifiable
 import it.polito.mad.group25.lab.utils.persistence.AbstractPersistenceAware
-import it.polito.mad.group25.lab.utils.persistence.extractPersistor
-import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreDocumentChanger
 import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
 import it.polito.mad.group25.lab.utils.persistence.observers.ToastOnErrorPersistenceObserver
 import it.polito.mad.group25.lab.utils.viewmodel.PersistableViewModel
@@ -23,10 +22,14 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
 
     val authUser: LiveData<FirebaseUser?> = MutableLiveData(null)
 
+    private val userDataDocumentChanger: FirestoreDocumentChanger<MutableLiveData<UserProfile?>> =
+        FirestoreDocumentChanger()
+
     var userData: MutableLiveData<UserProfile?> by Persistors.simpleLiveFirestore(
         collection = "users",
         default = MutableLiveData(null),
         lazyInit = true,
+        documentChanger = userDataDocumentChanger,
         observer = ToastOnErrorPersistenceObserver(application)
     )
 
@@ -42,13 +45,9 @@ class AuthenticationContext(application: Application) : PersistableViewModel(app
     fun loginUser(user: FirebaseUser) {
         authUser as MutableLiveData<FirebaseUser?>
         authUser.value = user
-
-        val persistor: FirestoreLivePersistorDelegate<MutableLiveData<UserProfile?>, AuthenticationContext> =
-            extractPersistor(this::userData)
-
         // check if the user is already saved on the db by loading it.
         // if it is absent then save it.
-        persistor.loadAnotherDocument(user.uid).get().addOnCompleteListener {
+        userDataDocumentChanger.changeDocument(user.uid).get().addOnCompleteListener {
             if (!it.isSuccessful) throw it.exception!!
             if (!it.result!!.exists()) {
                 userData.value =

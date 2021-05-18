@@ -22,7 +22,7 @@ class OnValueChangesLoadDocumentFirestoreObserver<T : Identifiable?>
 
     override fun beforeValueChanges(oldValue: T, newValue: T): T? =
         super.beforeValueChanges(oldValue, newValue)
-            ?.apply { this.id?.let { persistor.loadAnotherDocument(it) } }
+            ?.apply { this.id?.let { persistor.documentChanger.changeDocument(it) } }
 
     override fun beforePerformingPersistence(value: T): T? = null //do not persist
 
@@ -42,17 +42,17 @@ class OnLiveDataValueChangesLoadDocumentFirestoreObserver<T : Identifiable?, L :
 
     override fun beforeValueChanges(oldValue: L, newValue: L): L {
         if (oldValue == newValue) return newValue
-        newValue.value?.id?.let { persistor.loadAnotherDocument(it) }
+        newValue.value?.id?.let { persistor.documentChanger.changeDocument(it) }
         newValue.observeForever {
             if (it?.id != null) {
-                persistor.loadAnotherDocument(it.id!!)
+                persistor.documentChanger.changeDocument(it.id!!)
             }
         }
         return newValue
     }
 
     override fun onLiveValueChanges(newValue: T) {
-        persistor.loadAnotherDocument(newValue?.id ?: "null")
+        persistor.documentChanger.changeDocument(newValue?.id ?: "null")
     }
 
     override fun beforePerformingPersistence(value: L): L? = null //don't persist

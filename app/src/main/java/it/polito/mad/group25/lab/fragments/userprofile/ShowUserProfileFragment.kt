@@ -18,7 +18,7 @@ class ShowUserProfileFragment :
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        userProfileViewModel.shownUser.value?.let {
+        userProfileViewModel.shownUser.observe(this){
             if (it.id == authenticationContext.userId())
                 inflater.inflate(R.menu.menu, menu)
         }

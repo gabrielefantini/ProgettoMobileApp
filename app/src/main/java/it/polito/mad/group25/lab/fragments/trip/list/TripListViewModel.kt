@@ -13,7 +13,7 @@ import java.util.*
 
 class TripListViewModel(application: Application) : PersistableViewModel(application) {
     val trips: PersistenceAwareMutableLiveMap<String, Trip>
-            by Persistors.liveFirestore(
+            by Persistors.liveFirestoreMap(
                 collection = "trips",
                 default = persistenceAwareMutableLiveMapOf(),
                 observer = ToastOnErrorPersistenceObserver(application)

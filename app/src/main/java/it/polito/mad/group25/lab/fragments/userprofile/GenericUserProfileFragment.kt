@@ -11,8 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.UserProfile
-import it.polito.mad.group25.lab.utils.persistence.extractPersistor
-import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreLivePersistorDelegate
+import it.polito.mad.group25.lab.utils.persistence.impl.firestore.FirestoreDocumentChanger
 import it.polito.mad.group25.lab.utils.persistence.instantiator.Persistors
 import it.polito.mad.group25.lab.utils.persistence.observers.ChainedObserver
 import it.polito.mad.group25.lab.utils.persistence.observers.MakeReadOnlyObserver
@@ -56,21 +55,21 @@ abstract class GenericUserProfileFragment(
 
 class UserProfileViewModel(application: Application) : PersistableViewModel(application) {
 
+    private val shownUserDocumentChanger: FirestoreDocumentChanger<MutableLiveData<UserProfile>> =
+        FirestoreDocumentChanger()
+
     val shownUser: MutableLiveData<UserProfile>
             by Persistors.simpleLiveFirestore(
                 collection = "users",
                 lazyInit = true,
                 default = MutableLiveData(),
+                documentChanger = shownUserDocumentChanger,
                 observer = ChainedObserver.startingFrom(MakeReadOnlyObserver<MutableLiveData<UserProfile>>())
                     .wrappedBy { ToastOnErrorPersistenceObserver(application, it) }.build()
             )
 
-
-    private val persistor: FirestoreLivePersistorDelegate<MutableLiveData<UserProfile?>, UserProfileViewModel> =
-        extractPersistor(this::shownUser)
-
     fun showUser(id: String) {
-        persistor.loadAnotherDocument(id)
+        shownUserDocumentChanger.changeDocument(id)
     }
 
 }

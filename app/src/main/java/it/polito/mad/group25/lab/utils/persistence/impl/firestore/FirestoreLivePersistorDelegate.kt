@@ -20,6 +20,21 @@ interface FirestoreLivePersistenceObserver<SF, T> {
     }
 }
 
+class FirestoreDocumentChanger<T> {
+
+    private lateinit var documentChanger: (String) -> DocumentReference
+
+    fun setDocumentChanger(documentChanger: (String) -> DocumentReference) {
+        if (this::documentChanger.isInitialized) {
+            if (this.documentChanger != documentChanger)
+                throw Error("Document changer can be bound to only one persistor at time!")
+            else return
+        }
+        this.documentChanger = documentChanger
+    }
+
+    fun changeDocument(documentId: String): DocumentReference = documentChanger(documentId)
+}
 
 @Suppress("UNCHECKED_CAST")
 class FirestoreLivePersistorDelegate<T, C>(
@@ -28,6 +43,7 @@ class FirestoreLivePersistorDelegate<T, C>(
     private var collection: String? = null,
     private var document: String? = null,
     private var lazyInit: Boolean,
+    val documentChanger: FirestoreDocumentChanger<T>,
     targetClass: Class<T>,
     default: T,
     observer: PersistenceObserver<T>,
@@ -45,6 +61,7 @@ class FirestoreLivePersistorDelegate<T, C>(
     private lateinit var listenerRegistration: ListenerRegistration
 
     init {
+        documentChanger.setDocumentChanger(this::loadAnotherDocument)
         // Prendo la collection data oppure il l'id del field in questione
         // Prendo il documento dato oppure quello che appartiene all'utente selezionato.
         // Esempio pratico per gli utenti: Collection di utenti in cui l'oggetto che mi interessa è quello dell'utente x.
@@ -130,7 +147,7 @@ class FirestoreLivePersistorDelegate<T, C>(
         }
     }
 
-    fun loadAnotherDocument(document: String): DocumentReference {
+    private fun loadAnotherDocument(document: String): DocumentReference {
         if (this::listenerRegistration.isInitialized)
             listenerRegistration.remove()
         initializeStore(document)
