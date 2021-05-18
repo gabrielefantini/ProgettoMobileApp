@@ -58,4 +58,13 @@
     <string name="NoIntUsers">No interested users at the moment...</string>
     <string name="rememberMe">Remember me</string>
     <string name="others_trip_list">Others Trip List</string>
+    <string name="Until">Until</string>
+    <string name="Departure">Departure</string>
+    <string name="Place">Place</string>
+    <string name="StartingFrom">Starting From</string>
+    <string name="Arrival">Arrival</string>
+    <string name="OrLess">Or less</string>
+    <string name="Seats">Seats</string>
+    <string name="Apply">Apply</string>
+    <string name="Discard">Discard</string>
 </resources>

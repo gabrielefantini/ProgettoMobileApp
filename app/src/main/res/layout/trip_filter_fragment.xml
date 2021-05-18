@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:hint="departure"
+                android:hint="@string/Departure"
                 android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -35,7 +35,7 @@
             android:id="@+id/DepartureTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Departure"
+            android:text="@string/Departure"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -50,7 +50,7 @@
             android:layout_height="29dp"
             android:layout_marginTop="32dp"
             android:gravity="center_vertical"
-            android:text="Place"
+            android:text="@string/Place"
             app:layout_constraintBottom_toTopOf="@+id/departureStartDateTitle"
             app:layout_constraintStart_toStartOf="@+id/departureStartDateTitle"
             app:layout_constraintTop_toTopOf="parent" />
@@ -60,7 +60,7 @@
             android:layout_width="93dp"
             android:layout_height="33dp"
             android:gravity="center_vertical"
-            android:text="Starting From"
+            android:text="@string/StartingFrom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/departurePlaceTitle"
             app:layout_constraintEnd_toStartOf="@+id/departureStartDate"
@@ -116,7 +116,7 @@
             android:id="@+id/ArrivalTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Arrival"
+            android:text="@string/Arrival"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -131,7 +131,7 @@
             android:layout_height="29dp"
             android:layout_marginTop="32dp"
             android:gravity="center_vertical"
-            android:text="Place"
+            android:text="@string/Place"
             app:layout_constraintBottom_toTopOf="@+id/arrivalStartDateTitle"
             app:layout_constraintStart_toStartOf="@+id/arrivalStartDateTitle"
             app:layout_constraintTop_toTopOf="parent" />
@@ -141,7 +141,7 @@
             android:layout_width="93dp"
             android:layout_height="33dp"
             android:gravity="center_vertical"
-            android:text="Starting From"
+            android:text="@string/Until"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/arrivalPlaceTitle"
             app:layout_constraintEnd_toStartOf="@+id/arrivalStartDate"
@@ -197,7 +197,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:hint="arrival"
+                android:hint="@string/Arrival"
                 android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -232,9 +232,10 @@
                 android:layout_width="115dp"
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
-                android:hint="or less "
+                android:hint="@string/OrLess"
                 android:singleLine="true"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:inputType="number"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -253,7 +254,8 @@
                 android:layout_width="115dp"
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
-                android:hint="or less"
+                android:hint="@string/OrLess"
+                android:inputType="number"
                 android:singleLine="true"
                 android:textAlignment="center"
                 android:textSize="14sp" />
@@ -275,9 +277,10 @@
                 android:layout_width="115dp"
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
-                android:hint="Seats"
+                android:hint="@string/Seats"
                 android:singleLine="true"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:inputType="number"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -285,20 +288,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Apply "
+            android:text="@string/Apply"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/discharge"
+            app:layout_constraintEnd_toStartOf="@+id/discard"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/durationInputLayout"
             app:layout_constraintVertical_bias="0.38" />
 
         <Button
-            android:id="@+id/discharge"
+            android:id="@+id/discard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Discharge"
+            android:text="@string/Discard"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="@+id/apply"
             app:layout_constraintEnd_toEndOf="parent"
