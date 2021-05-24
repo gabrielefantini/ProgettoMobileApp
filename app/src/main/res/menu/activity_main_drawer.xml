@@ -13,6 +13,14 @@
             android:icon="@drawable/ic_menu_gallery"
             android:title="@string/trip_list" />
         <item
+            android:id="@+id/nav_interested_trip_list"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="@string/interested_trip_list" />
+        <item
+            android:id="@+id/nav_bought_trip_list"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="@string/bought_trip_list" />
+        <item
             android:id="@+id/nav_others_trip_list"
             android:icon="@drawable/ic_menu_gallery"
             android:title="@string/others_trip_list" />

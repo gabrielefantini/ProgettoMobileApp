@@ -23,7 +23,7 @@
             android:layerType="none"
             app:layoutManager="LinearLayoutManager"
             app:layout_constraintTop_toTopOf="parent"
-            tools:context=".fragments.trip.list.TripListFragment"
+            tools:context=".fragments.trip.list.impl.TripListFragment"
             tools:layout_editor_absoluteX="8dp"
             tools:listitem="@layout/trip_card_fragment" />
 

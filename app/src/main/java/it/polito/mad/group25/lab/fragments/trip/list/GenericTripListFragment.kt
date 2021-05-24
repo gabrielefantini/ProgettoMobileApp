@@ -14,27 +14,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.filter.FilterField
 import it.polito.mad.group25.lab.fragments.trip.filter.TripFilterViewModel
 
-
-class OthersTripListFragment : Fragment() {
-
+abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
     //Initializing sharedViewModel
-    private val tripFilterViewModel: TripFilterViewModel by activityViewModels()
-    private val tripListViewModel: TripListViewModel by activityViewModels()
-    private val tripViewModel: TripViewModel by activityViewModels()
-    private val authenticationContext: AuthenticationContext by activityViewModels()
+    protected val tripListViewModel: TripListViewModel by activityViewModels()
+    protected val tripViewModel: TripViewModel by activityViewModels()
+    protected val authenticationContext: AuthenticationContext by activityViewModels()
+    protected val tripFilterViewModel: TripFilterViewModel by activityViewModels()
 
     private var columnCount = 1
 
+    abstract fun filterTrip(trip: Trip): Boolean
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            columnCount = it.getInt(ARG_COLUMN_COUNT)
-        }
         setHasOptionsMenu(true)
         tripFilterViewModel.flushFilter()
     }
@@ -52,7 +49,7 @@ class OthersTripListFragment : Fragment() {
         return when (item.itemId) {
             R.id.edit_trip_list_filter -> {
                 activity?.findNavController(R.id.nav_host_fragment_content_main)
-                    ?.navigate(R.id.action_OthersTripListFragment_to_TripFilterFragment)
+                    ?.navigate(R.id.TripFilterFragment)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -70,9 +67,8 @@ class OthersTripListFragment : Fragment() {
             val userId = authenticationContext.userId()
             val tripList =
                 tripMap.values
-                    .toList()
-                    .filter { trip -> trip.ownerId != userId }
-                    .filter { trip -> trip.tripStartDate > System.currentTimeMillis()+5*1000 /*margine ragionevole in cui l'utente non può intranprendere un viaggio*/ }
+                    .toList().filter(this::filterTrip)
+
 
             if (tripList.isEmpty()) {
                 view.findViewById<TextView>(R.id.textView2).visibility = View.VISIBLE
@@ -99,31 +95,18 @@ class OthersTripListFragment : Fragment() {
                         columnCount <= 1 -> LinearLayoutManager(context)
                         else -> GridLayoutManager(context, columnCount)
                     }
-                    adapter = TripCardRecyclerViewAdapter(
-                        filteredTrip,
-                        tripViewModel,
-                        userId
-                    )
+                    adapter = TripCardRecyclerViewAdapter(filteredTrip, tripViewModel, userId)
                 }
             }
         })
 
         val addNewTripButton = view.findViewById<FloatingActionButton>(R.id.addTrip)
-        addNewTripButton.visibility = View.GONE
-    }
-
-    companion object {
-
-        // TODO: Customize parameter argument names
-        const val ARG_COLUMN_COUNT = "column-count"
-
-        // TODO: Customize parameter initialization
-        @JvmStatic
-        fun newInstance(columnCount: Int) =
-            OthersTripListFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(ARG_COLUMN_COUNT, columnCount)
-                }
+        if (allowAdding)
+            addNewTripButton.setOnClickListener {
+                tripViewModel.trip.value = tripListViewModel.createNewTrip()
+                view.findNavController().navigate(R.id.showTripEditFragment)
             }
+        else addNewTripButton.visibility = View.GONE
+
     }
 }

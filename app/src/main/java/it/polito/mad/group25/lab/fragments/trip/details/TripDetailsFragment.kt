@@ -39,12 +39,12 @@ abstract class TripDetailsFragment(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        if(authenticationContext.userId() == tripViewModel.trip.value?.ownerId)
+        if (authenticationContext.userId() == tripViewModel.trip.value?.ownerId)
             isOwner = true
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater){
-        if(isOwner)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        if (isOwner && tripViewModel.trip.value?.let { it.tripStartDate > System.currentTimeMillis() } == true)
             inflater.inflate(R.menu.menu, menu)
     }
 
@@ -57,8 +57,8 @@ abstract class TripDetailsFragment(
         val rv = view.findViewById<RecyclerView>(R.id.tripList)
         val additionalInfoChips = view.findViewById<ChipGroup>(R.id.additionalInfoChips)
 
-        tripViewModel.trip.observe(viewLifecycleOwner,{ trip ->
-            if(trip != null){
+        tripViewModel.trip.observe(viewLifecycleOwner, { trip ->
+            if (trip != null) {
 
                 //populate view with trip **********************************************************
                 view.findViewById<TextView>(R.id.carName).text = trip.carName
@@ -79,10 +79,10 @@ abstract class TripDetailsFragment(
                 if (additionalInfoChips.childCount != 0)
                     additionalInfoChips.removeAllViews()
 
-                if(trip.additionalInfo.size == 0){
+                if (trip.additionalInfo.size == 0) {
                     additionalInfoChips.visibility = GONE
                     view.findViewById<TextView>(R.id.noOtherInfos).visibility = VISIBLE
-                }else {
+                } else {
                     trip.additionalInfo.forEach {
                         val chip = Chip(context)
                         chip.text = it
@@ -98,7 +98,7 @@ abstract class TripDetailsFragment(
                 val intUserText = view.findViewById<TextView>(R.id.interestedUsers)
                 val rv2 = view.findViewById<RecyclerView>(R.id.userList)
 
-                if(!isOwner) {
+                if (!isOwner) {
                     //normal user
                     val fab = view.findViewById<FloatingActionButton>(R.id.tripDetailsFab)
 
@@ -108,29 +108,29 @@ abstract class TripDetailsFragment(
                     intUserText.visibility = GONE
 
                     fab.setOnClickListener {
-                        val user = trip.interestedUsers.find { it.userId == authenticationContext.userId()!! }
-                        if(user != null)
-                            if(user.isConfirmed)
+                        val user =
+                            trip.interestedUsers.find { it.userId == authenticationContext.userId()!! }
+                        if (user != null)
+                            if (user.isConfirmed)
                                 showError("Request confirmed, you already are in!")
                             else
                                 showError("Request already sent, still waiting for confirmation")
-                        else{
-                            if(trip.seats > 0) {
+                        else {
+                            if (trip.seats > 0) {
                                 showError("Sent confirmation request to the trip's owner")
                                 tripViewModel.addCurrentUserToSet(authenticationContext.userId()!!)
-                            }
-                            else showError("No more seats available!")
+                            } else showError("No more seats available!")
                         }
                     }
 
-                }else{
+                } else {
                     //trip owner
-                    if(trip.interestedUsers.size == 0){
+                    if (trip.interestedUsers.size == 0) {
                         //no interested users
                         view.findViewById<TextView>(R.id.noIntUsers).visibility = VISIBLE
                         rv2.visibility = GONE
 
-                    }else {
+                    } else {
                         //at least one interested user
                         rv2.layoutManager = LinearLayoutManager(context)
                         rv2.adapter = TripUsersAdapter(
@@ -146,16 +146,20 @@ abstract class TripDetailsFragment(
         })
     }
 
-    fun navigateToUserProfile(userId: String){
+    fun navigateToUserProfile(userId: String) {
         userProfileViewModel.showUser(userId)
         requireActivity().findNavController(R.id.nav_host_fragment_content_main)
             .navigate(R.id.action_showTripDetailsFragment_to_showUserProfileFragment)
     }
 
-    inner class TripUsersAdapter(private val list: List<TripUser>, private val usersData: UserProfileViewModel) :
+    inner class TripUsersAdapter(
+        private val list: List<TripUser>,
+        private val usersData: UserProfileViewModel
+    ) :
         RecyclerView.Adapter<TripUsersAdapter.TripUsersViewHolder>() {
 
-        inner class TripUsersViewHolder(v: View, private val usersData: UserProfileViewModel) : RecyclerView.ViewHolder(v) {
+        inner class TripUsersViewHolder(v: View, private val usersData: UserProfileViewModel) :
+            RecyclerView.ViewHolder(v) {
             private val username: TextView = v.findViewById(R.id.username)
             private val proPic: ImageView = v.findViewById(R.id.proPic)
             private val confirmCheck: CheckBox = v.findViewById(R.id.confirm_user)
@@ -163,7 +167,7 @@ abstract class TripDetailsFragment(
 
             fun bind(user: TripUser) {
                 usersData.showUser(user.userId)
-                usersData.shownUser.observe(viewLifecycleOwner,{ user_ ->
+                usersData.shownUser.observe(viewLifecycleOwner, { user_ ->
                     user_.fullName?.let { username.text = it }
                     user_.userProfilePhotoFile?.let { proPic.fromBlob(it) }
                 })
@@ -174,7 +178,7 @@ abstract class TripDetailsFragment(
 
                 confirmCheck.visibility = INVISIBLE
 
-                if(user.isConfirmed)
+                if (user.isConfirmed)
                     confirmedIcon.visibility = VISIBLE
 
             }
@@ -182,7 +186,7 @@ abstract class TripDetailsFragment(
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripUsersViewHolder {
             val layout = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-            return TripUsersViewHolder(layout,usersData)
+            return TripUsersViewHolder(layout, usersData)
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
@@ -200,7 +204,7 @@ abstract class TripDetailsFragment(
 @RequiresApi(Build.VERSION_CODES.O)
 fun getDurationFormatted(first: LocalDateTime, last: LocalDateTime): String {
     val durationMin = ChronoUnit.MINUTES.between(first, last).toInt()
-    val minDay = 24*60
+    val minDay = 24 * 60
 
     val days = durationMin / minDay
     val hours = durationMin % minDay / 60

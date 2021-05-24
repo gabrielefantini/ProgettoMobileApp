@@ -19,7 +19,6 @@
     <string name="menu_slideshow">Slideshow</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="user_profile_title">User Profile</string>
-    <string name="trip_list">Trip List</string>
 
     <string name="fullNameHelper">Enter your full name</string>
     <string name="nicknameHelper">Enter the username you want to associate with your account</string>
@@ -57,7 +56,6 @@
     <string name="NoOtherInfos">No additional info available.</string>
     <string name="NoIntUsers">No interested users at the moment...</string>
     <string name="rememberMe">Remember me</string>
-    <string name="others_trip_list">Others Trip List</string>
     <string name="remove_trip">Remove trip</string>
     <string name="Until">Until</string>
     <string name="Departure">Departure</string>
@@ -68,4 +66,9 @@
     <string name="Seats">Seats</string>
     <string name="Apply">Apply</string>
     <string name="Discard">Discard</string>
+
+    <string name="trip_list">My Trips</string>
+    <string name="interested_trip_list">Trips I\'m interested on</string>
+    <string name="bought_trip_list">Trips I bought</string>
+    <string name="others_trip_list">Others Trips</string>
 </resources>

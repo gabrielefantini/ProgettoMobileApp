@@ -49,7 +49,9 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.showUserProfileFragment,
                 R.id.TripListFragment,
-                R.id.OthersTripListFragment
+                R.id.OthersTripListFragment,
+                R.id.TripsOfInterestFragment,
+                R.id.BoughtTripsListFragment
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -68,11 +70,23 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        navView.menu.findItem(R.id.nav_interested_trip_list).setOnMenuItemClickListener {
+            navController.navigate(R.id.TripsOfInterestFragment)
+            drawerLayout.closeDrawers()
+            true
+        }
+
+        navView.menu.findItem(R.id.nav_bought_trip_list).setOnMenuItemClickListener {
+            navController.navigate(R.id.BoughtTripsListFragment)
+            drawerLayout.closeDrawers()
+            true
+        }
         navView.menu.findItem(R.id.nav_others_trip_list).setOnMenuItemClickListener {
             navController.navigate(R.id.OthersTripListFragment)
             drawerLayout.closeDrawers()
             true
         }
+
 
         authenticationContext = ViewModelProvider(this).get(AuthenticationContext::class.java)
         authenticationContext.authUser.observe(this, { user ->

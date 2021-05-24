@@ -59,7 +59,7 @@
     </fragment>
     <fragment
         android:id="@+id/TripListFragment"
-        android:name="it.polito.mad.group25.lab.fragments.trip.list.TripListFragment"
+        android:name="it.polito.mad.group25.lab.fragments.trip.list.impl.TripListFragment"
         android:label="@string/trip_list"
         tools:layout="@layout/trip_list_fragment">
         <action
@@ -74,11 +74,11 @@
     </fragment>
     <fragment
         android:id="@+id/OthersTripListFragment"
-        android:name="it.polito.mad.group25.lab.fragments.trip.list.OthersTripListFragment"
+        android:name="it.polito.mad.group25.lab.fragments.trip.list.impl.OthersTripListFragment"
         android:label="@string/others_trip_list"
         tools:layout="@layout/trip_list_fragment">
         <action
-            android:id="@+id/action_TripListFragment_to_showTripDetailsFragment"
+            android:id="@+id/action_OthersTripListFragment_to_showTripDetailsFragment"
             app:destination="@id/showTripDetailsFragment" />
         <action
             android:id="@+id/action_OthersTripListFragment_to_TripFilterFragment"
@@ -88,10 +88,33 @@
         android:id="@+id/LoginFragment"
         android:name="it.polito.mad.group25.lab.fragments.login.LoginFragment"
         android:label="Login"
-        tools:layout="@layout/login_fragment"
-        >
+        tools:layout="@layout/login_fragment">
         <action
             android:id="@+id/action_LoginFragment_to_OthersTripListFragment"
             app:destination="@id/OthersTripListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/TripsOfInterestFragment"
+        android:name="it.polito.mad.group25.lab.fragments.trip.list.impl.TripsOfInterestListFragment"
+        android:label="@string/interested_trip_list"
+        tools:layout="@layout/trip_list_fragment">
+        <action
+            android:id="@+id/action_TripsOfInterestFragment_to_showTripDetailsFragment"
+            app:destination="@id/showTripDetailsFragment" />
+        <action
+            android:id="@+id/action_TripsOfInterestFragment_to_TripFilterFragment"
+            app:destination="@id/TripFilterFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/BoughtTripsListFragment"
+        android:name="it.polito.mad.group25.lab.fragments.trip.list.impl.BoughtTripsListFragment"
+        android:label="@string/bought_trip_list"
+        tools:layout="@layout/trip_list_fragment">
+        <action
+            android:id="@+id/action_BoughtTripsListFragment_to_showTripDetailsFragment"
+            app:destination="@id/showTripDetailsFragment" />
+        <action
+            android:id="@+id/action_BoughtTripsListFragment_to_TripFilterFragment"
+            app:destination="@id/TripFilterFragment" />
     </fragment>
 </navigation>
