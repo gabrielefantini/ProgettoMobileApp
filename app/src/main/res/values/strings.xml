@@ -67,6 +67,9 @@
     <string name="Apply">Apply</string>
     <string name="Discard">Discard</string>
 
+    <string name="Welcome">Welcome</string>
+    <string name="car_logo_description">Car logo</string>
+
     <string name="trip_list">My Trips</string>
     <string name="interested_trip_list">Trips I\'m interested on</string>
     <string name="bought_trip_list">Trips I bought</string>

@@ -64,7 +64,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/fullName"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display3" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Display3"
+                android:textSize="50sp" />
 
             <TextView
                 android:id="@+id/nickName"
@@ -72,7 +73,8 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:textSize="30sp" />
 
             <TextView
                 android:id="@+id/email"
@@ -80,7 +82,8 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:textSize="30sp" />
 
             <TextView
                 android:id="@+id/location"
@@ -88,7 +91,8 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:textSize="30sp" />
         </LinearLayout>
 
     </LinearLayout>
