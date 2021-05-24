@@ -10,19 +10,19 @@
             android:title="@string/menu_profile" />
         <item
             android:id="@+id/nav_trip_list"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/trip_icon"
             android:title="@string/trip_list" />
         <item
             android:id="@+id/nav_interested_trip_list"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/trip_icon"
             android:title="@string/interested_trip_list" />
         <item
             android:id="@+id/nav_bought_trip_list"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/trip_icon"
             android:title="@string/bought_trip_list" />
         <item
             android:id="@+id/nav_others_trip_list"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/trip_icon"
             android:title="@string/others_trip_list" />
     </group>
 </menu>
