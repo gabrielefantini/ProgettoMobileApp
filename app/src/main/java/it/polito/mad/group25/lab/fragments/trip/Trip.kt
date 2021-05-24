@@ -95,6 +95,8 @@ fun Trip.addTripLocationOrdered(location: String, locationTime: Instant) {
     locations.sortBy { it.locationTime }
 }
 
+fun Trip.isEditable() = this.tripStartDate > System.currentTimeMillis()
+
 data class TripUser(
     val userId: String = "",
     var isConfirmed: Boolean = false

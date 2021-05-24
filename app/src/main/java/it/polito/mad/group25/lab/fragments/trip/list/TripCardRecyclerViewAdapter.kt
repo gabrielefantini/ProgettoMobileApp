@@ -12,10 +12,7 @@ import androidx.cardview.widget.CardView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.fragments.trip.Trip
-import it.polito.mad.group25.lab.fragments.trip.TripViewModel
-import it.polito.mad.group25.lab.fragments.trip.startDateFormatted
-import it.polito.mad.group25.lab.fragments.trip.timeFormatted
+import it.polito.mad.group25.lab.fragments.trip.*
 import it.polito.mad.group25.lab.utils.views.fromBlob
 
 
@@ -102,7 +99,7 @@ class TripCardRecyclerViewAdapter(
             }
 
             val editButton = itemView.findViewById<Button>(R.id.editTrip)
-            if (item.tripStartDate > System.currentTimeMillis())
+            if (item.isEditable())
                 editButton.setOnClickListener { view ->
                     currentTrip.trip.value = item
                     view.findNavController().navigate(R.id.showTripEditFragment)

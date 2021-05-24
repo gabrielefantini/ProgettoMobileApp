@@ -44,7 +44,7 @@ abstract class TripDetailsFragment(
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        if (isOwner && tripViewModel.trip.value?.let { it.tripStartDate > System.currentTimeMillis() } == true)
+        if (isOwner && tripViewModel.trip.value?.isEditable() == true)
             inflater.inflate(R.menu.menu, menu)
     }
 
