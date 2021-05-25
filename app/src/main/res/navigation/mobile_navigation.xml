@@ -12,6 +12,12 @@
         <action
             android:id="@+id/action_showUserProfileFragment_to_editUserProfileFragment"
             app:destination="@id/editUserProfileFragment" />
+        <action
+            android:id="@+id/action_showUserProfileFragment_to_TripListFragment"
+            app:destination="@id/TripListFragment" />
+        <action
+            android:id="@+id/action_showUserProfileFragment_to_BoughtTripsListFragment"
+            app:destination="@id/BoughtTripsListFragment" />
     </fragment>
     <fragment
         android:id="@+id/editUserProfileFragment"

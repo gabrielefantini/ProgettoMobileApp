@@ -46,7 +46,7 @@
     <string name="emptyDuration">-</string>
     <string name="nome_macchina">nome macchina</string>
     <string name="other_infos">Other infos</string>
-    <string name = "null_value">"null"</string>
+    <string name="null_value">"null"</string>
     <string name="EmptyDuration">-</string>
     <string name="EmptyPrice">0.0</string>
     <string name="EmptySeats">0</string>
@@ -74,4 +74,7 @@
     <string name="interested_trip_list">Trips I\'m interested on</string>
     <string name="bought_trip_list">Trips I bought</string>
     <string name="others_trip_list">Others Trips</string>
+    <string name="nicknameSection">Nickname</string>
+    <string name="emailSection">Email</string>
+    <string name="locationSection">Location</string>
 </resources>
