@@ -120,11 +120,16 @@ abstract class TripEditFragment(
         tripViewModel.trip.observe(viewLifecycleOwner, { trip ->
             if (trip != null) {
 
+                trip.carPic?.let {
+                    view.findViewById<ImageView>(R.id.carImage)
+                        .fromBlob(it)
+                }
+
                 val interestedText = view.findViewById<TextView>(R.id.interestedUsers)
                 if (trip.id == null) interestedText.visibility = GONE
                 else interestedText.visibility = VISIBLE
 
-                var seatsTaken = trip.interestedUsers.filter { it.isConfirmed }.size
+                val seatsTaken = trip.interestedUsers.filter { it.isConfirmed }.size
                 seatsLayout.setConstraints(
                     R.id.seatsText,
                     "Please provide valid seats between 0 and ${7-seatsTaken} (considering also the assigned ones)",
@@ -602,12 +607,14 @@ abstract class TripEditFragment(
         return chip
     }
 
+    @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun openDatePicker(initTime: LocalDateTime? = null, tv: TextView) {
         val calendar = Calendar.getInstance()
         initTime?.also {
             calendar.time = Date.from(initTime.toInstant(ZoneOffset.UTC))
         }
+
         val sDay = calendar.get(Calendar.DAY_OF_MONTH)
         val sMonth = calendar.get(Calendar.MONTH)
         val sYear = calendar.get(Calendar.YEAR)
