@@ -229,6 +229,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:visibility="gone" />
             </LinearLayout>
+
         </com.google.android.material.card.MaterialCardView>
             <Space
                 android:layout_width="match_parent"
