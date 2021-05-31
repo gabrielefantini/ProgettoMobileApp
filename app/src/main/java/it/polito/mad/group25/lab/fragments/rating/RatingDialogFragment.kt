@@ -6,10 +6,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
+import com.google.android.material.textfield.TextInputEditText
+import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.trip.Trip
 
-class RatingDialogFragment: DialogFragment() {
+class RatingDialogFragment(
+    val trip: Trip,
+    val stars: Int
+    ): DialogFragment() {
+
+    private val authenticationContext: AuthenticationContext by activityViewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,4 +42,13 @@ class RatingDialogFragment: DialogFragment() {
         return dialog
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val comment = view.findViewById<TextInputEditText>(R.id.comment)
+        view.findViewById<Button>(R.id.submit).setOnClickListener {
+            //salva su firebase la il voto dell'utente(authentication.userId) al guidatore (trip.ownerId)
+            //voto --> stars
+            //commento --> comment
+        }
+    }
 }

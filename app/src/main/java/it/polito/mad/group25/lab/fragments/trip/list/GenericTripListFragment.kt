@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.arch.core.util.Function
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.rating.RatingDialogFragment
 import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.filter.FilterField
@@ -97,7 +99,16 @@ abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
                         columnCount <= 1 -> LinearLayoutManager(context)
                         else -> GridLayoutManager(context, columnCount)
                     }
-                    adapter = TripCardRecyclerViewAdapter(filteredTrip, tripViewModel, userId, boughtTrip())
+                    adapter =
+                        TripCardRecyclerViewAdapter(
+                            filteredTrip,
+                            tripViewModel,
+                            userId,
+                            boughtTrip(),
+                            dialog = Function {
+                                RatingDialogFragment(it.first, it.second).show(childFragmentManager, "RatingDialogFragment")
+                            }
+                        )
                 }
             }
         })
