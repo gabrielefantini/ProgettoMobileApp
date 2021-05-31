@@ -142,8 +142,9 @@ class TripCardRecyclerViewAdapter(
             }
             val ratingBar = itemView.findViewById<RatingBar>(R.id.ratingBar)
             //TODO scommentare una volta aggiunto il campo stars a trip
-            /*if(item.stars != 0){
-                ratingBar.numStars = item.stars
+            //cerca tra tutti i voti di quel viaggio se c'è un votante con lo stesso id dell'user corrente
+            /*if(){//se si, pesca le stars del voto
+                ratingBar.numStars = stars //stars pescate
                 ratingBar.setIsIndicator(true)
             } else {*/
                 if((isRatable(item) && boughTrip)){

@@ -46,9 +46,13 @@ class RatingDialogFragment(
         super.onViewCreated(view, savedInstanceState)
         val comment = view.findViewById<TextInputEditText>(R.id.comment)
         view.findViewById<Button>(R.id.submit).setOnClickListener {
-            //salva su firebase la il voto dell'utente(authentication.userId) al guidatore (trip.ownerId)
-            //voto --> stars
+            //TODO
+            //salva su firebase:
+            //voto dell'utente(authentication.userId) al guidatore (trip.ownerId) --> stars
+            //votante
+            //votato
             //commento --> comment
+            //trip
         }
     }
 }
