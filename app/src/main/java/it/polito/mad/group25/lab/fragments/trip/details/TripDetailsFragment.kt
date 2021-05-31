@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.view.View.*
 import android.widget.CheckBox
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -18,11 +19,13 @@ import com.google.android.material.chip.ChipGroup
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.map.MapViewModel
 import it.polito.mad.group25.lab.fragments.trip.*
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.toLocalDateTime
 import it.polito.mad.group25.lab.utils.views.fromBlob
+import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -33,6 +36,7 @@ abstract class TripDetailsFragment(
     private val tripViewModel: TripViewModel by activityViewModels()
     private val authenticationContext: AuthenticationContext by activityViewModels()
     private val userProfileViewModel: UserProfileViewModel by activityViewModels()
+    private val mapViewModel: MapViewModel by activityViewModels()
 
     private var isOwner = false
 
@@ -142,6 +146,9 @@ abstract class TripDetailsFragment(
                 }
                 //**********************************************************************************
 
+                view.findViewById<ImageButton>(R.id.mapButton).setOnClickListener {
+                    navigateToMapFragment()
+                }
             }
         })
     }
@@ -150,6 +157,17 @@ abstract class TripDetailsFragment(
         userProfileViewModel.showUser(userId)
         requireActivity().findNavController(R.id.nav_host_fragment_content_main)
             .navigate(R.id.action_showTripDetailsFragment_to_showUserProfileFragment)
+    }
+
+    private fun navigateToMapFragment(){
+        var exampleGeopoints = mutableListOf(
+            GeoPoint(44.9492,7.7733),
+            GeoPoint(45.0131 ,7.8208),
+            GeoPoint(45.0126 ,7.6591)
+        )
+        mapViewModel.geopoints = exampleGeopoints
+        activity?.findNavController(R.id.nav_host_fragment_content_main)
+            ?.navigate(R.id.MapFragment)
     }
 
     inner class TripUsersAdapter(
