@@ -9,9 +9,8 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.arch.core.util.Function
 import androidx.cardview.widget.CardView
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import it.polito.mad.group25.lab.R
@@ -33,7 +32,8 @@ class TripCardRecyclerViewAdapter(
     val tripList: List<Trip>,
     var currentTrip: TripViewModel,
     val currentId: String?,
-    val boughTrip: Boolean
+    val boughTrip: Boolean,
+    val dialog: Function<Pair<Trip,Int>, Unit>
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -140,20 +140,25 @@ class TripCardRecyclerViewAdapter(
             tripList[position].carPic?.let {
                 itemView.findViewById<ImageView>(R.id.card_car_image).fromBlob(it)
             }
-            if((isRatable(item) && boughTrip)){
-                itemView.findViewById<RatingBar>(R.id.ratingBar).setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
-                    val newFragment = RatingDialogFragment()
-                    //newFragment.show(childFragmentManager)
+            val ratingBar = itemView.findViewById<RatingBar>(R.id.ratingBar)
+            //TODO scommentare una volta aggiunto il campo stars a trip
+            //cerca tra tutti i voti di quel viaggio se c'è un votante con lo stesso id dell'user corrente
+            /*if(){//se si, pesca le stars del voto
+                ratingBar.numStars = stars //stars pescate
+                ratingBar.setIsIndicator(true)
+            } else {*/
+                if((isRatable(item) && boughTrip)){
+                    ratingBar.setOnRatingBarChangeListener {
+                            ratingBar, rating, fromUser -> dialog.apply(Pair(item, rating.toInt()))
+                    }
+                } else {
+                    itemView.findViewById<RatingBar>(R.id.ratingBar).visibility = View.GONE
                 }
-            } else {
-                itemView.findViewById<RatingBar>(R.id.ratingBar).visibility = View.GONE
-            }
+            //}
         }
 
         fun isRatable(trip: Trip): Boolean {
             return Date(trip.locations[trip.locations.size - 1].locationTime).before(Date())
         }
-
-
     }
 }
