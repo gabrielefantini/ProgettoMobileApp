@@ -1,23 +1,19 @@
 package it.polito.mad.group25.lab.fragments.map
 
-import android.content.Context
+import android.Manifest
 import android.graphics.Color
 import android.graphics.Paint
-import android.location.Location
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import it.polito.mad.group25.lab.BuildConfig
 import it.polito.mad.group25.lab.R
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.config.Configuration.*
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
@@ -28,36 +24,31 @@ class MapFragment: Fragment(R.layout.map_fragment) {
 
     private lateinit var map : MapView
     private lateinit var myLocationOverlay: MyLocationNewOverlay
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        map = MapView(inflater.context)
-        map.setDestroyMode(false)
-
-        return map
-    }
-
-    class MyGpsLocationProvider(context: Context?, private val viewModel: MapViewModel): GpsMyLocationProvider(context){
-        override fun onLocationChanged(location: Location) {
-            super.onLocationChanged(location)
-            if(viewModel.currentLocation != location)
-                viewModel.currentLocation = location
-        }
-    }
+    private lateinit var gpsProvider: GpsMyLocationProvider
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val context = this.context
+
+        getInstance().userAgentValue = BuildConfig.APPLICATION_ID
+
+        map = view.findViewById(R.id.map)
+        map.setDestroyMode(false)
+
+        ActivityCompat.requestPermissions(requireActivity(),
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),1)
 
         val mapController = map.controller
 
         val geopoints = mapViewModel.geopoints
 
         // my location ***
-        myLocationOverlay = MyLocationNewOverlay(MyGpsLocationProvider(context,mapViewModel),map)
+        gpsProvider = GpsMyLocationProvider(context)
+
+        myLocationOverlay = MyLocationNewOverlay(gpsProvider,map)
         myLocationOverlay.enableMyLocation()
         map.overlays.add(myLocationOverlay)
         // ******
@@ -83,7 +74,7 @@ class MapFragment: Fragment(R.layout.map_fragment) {
         // *****************
 
         // adding path ***
-        var pathOverlay = Polyline()
+        val pathOverlay = Polyline()
         geopoints.reversed().forEach {
             pathOverlay.addPoint(it)
         }
@@ -93,21 +84,22 @@ class MapFragment: Fragment(R.layout.map_fragment) {
         // *****************
 
         // last settings ***
-        cLat /= geopoints.size
-        cLong /= geopoints.size
-
         map.isTilesScaledToDpi = true
         mapController.setZoom(10.0)
 
         if(geopoints.size == 0){
-            //no locations -> set center to current position (if available, else use default)
             val lastCurrentLocation = mapViewModel.currentLocation
             if(lastCurrentLocation != null){
+                // set center to last current location
                 mapController.setCenter(GeoPoint(lastCurrentLocation.latitude,lastCurrentLocation.longitude))
             }else{
+                // default setting
                 mapController.setCenter(GeoPoint(45.0,7.0))
             }
         }else{
+            cLat /= geopoints.size
+            cLong /= geopoints.size
+
             mapController.setCenter(GeoPoint(cLat,cLong))
         }
         // *****************
@@ -121,6 +113,9 @@ class MapFragment: Fragment(R.layout.map_fragment) {
     }
 
     override fun onPause() {
+        //save last current location
+        mapViewModel.currentLocation = gpsProvider.lastKnownLocation
+
         map.onPause()
         myLocationOverlay.disableMyLocation()
         super.onPause()
