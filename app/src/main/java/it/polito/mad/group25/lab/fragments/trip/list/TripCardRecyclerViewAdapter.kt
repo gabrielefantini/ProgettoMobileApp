@@ -10,9 +10,12 @@ import android.widget.RatingBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.rating.RatingDialogFragment
 import it.polito.mad.group25.lab.fragments.trip.*
 import it.polito.mad.group25.lab.utils.views.fromBlob
 import java.util.*
@@ -138,9 +141,9 @@ class TripCardRecyclerViewAdapter(
                 itemView.findViewById<ImageView>(R.id.card_car_image).fromBlob(it)
             }
             if((isRatable(item) && boughTrip)){
-                itemView.findViewById<RatingBar>(R.id.ratingBar).setOnRatingBarChangeListener {
-                        ratingBar, rating, fromUser ->
-
+                itemView.findViewById<RatingBar>(R.id.ratingBar).setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
+                    val newFragment = RatingDialogFragment()
+                    //newFragment.show(childFragmentManager)
                 }
             } else {
                 itemView.findViewById<RatingBar>(R.id.ratingBar).visibility = View.GONE
@@ -150,5 +153,7 @@ class TripCardRecyclerViewAdapter(
         fun isRatable(trip: Trip): Boolean {
             return Date(trip.locations[trip.locations.size - 1].locationTime).before(Date())
         }
+
+
     }
 }
