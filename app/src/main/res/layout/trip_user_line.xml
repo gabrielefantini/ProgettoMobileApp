@@ -53,6 +53,23 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
+    <RatingBar
+        android:id="@+id/ratingBar2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:rating="0"
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        android:stepSize="1"
+        android:translationX="50dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.96"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/confirmedIcon"
         android:layout_width="wrap_content"

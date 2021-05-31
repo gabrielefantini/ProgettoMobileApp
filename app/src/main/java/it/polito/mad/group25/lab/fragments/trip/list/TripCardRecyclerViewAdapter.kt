@@ -14,7 +14,6 @@ import androidx.cardview.widget.CardView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import it.polito.mad.group25.lab.R
-import it.polito.mad.group25.lab.fragments.rating.RatingDialogFragment
 import it.polito.mad.group25.lab.fragments.trip.*
 import it.polito.mad.group25.lab.utils.views.fromBlob
 import java.util.*

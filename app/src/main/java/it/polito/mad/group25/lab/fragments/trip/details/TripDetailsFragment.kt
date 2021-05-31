@@ -4,10 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.view.View.*
-import android.widget.CheckBox
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -20,6 +17,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.fragments.map.MapViewModel
+import it.polito.mad.group25.lab.fragments.rating.RatingDialogFragment
 import it.polito.mad.group25.lab.fragments.trip.*
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 import it.polito.mad.group25.lab.utils.fragment.showError
@@ -28,6 +26,7 @@ import it.polito.mad.group25.lab.utils.views.fromBlob
 import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 abstract class TripDetailsFragment(
     contentLayoutId: Int
@@ -139,7 +138,8 @@ abstract class TripDetailsFragment(
                         rv2.layoutManager = LinearLayoutManager(context)
                         rv2.adapter = TripUsersAdapter(
                             trip.interestedUsers.toList(),
-                            userProfileViewModel
+                            userProfileViewModel,
+                            trip
                         )
 
                     }
@@ -172,7 +172,8 @@ abstract class TripDetailsFragment(
 
     inner class TripUsersAdapter(
         private val list: List<TripUser>,
-        private val usersData: UserProfileViewModel
+        private val usersData: UserProfileViewModel,
+        val trip: Trip
     ) :
         RecyclerView.Adapter<TripUsersAdapter.TripUsersViewHolder>() {
 
@@ -182,8 +183,10 @@ abstract class TripDetailsFragment(
             private val proPic: ImageView = v.findViewById(R.id.proPic)
             private val confirmCheck: CheckBox = v.findViewById(R.id.confirm_user)
             private val confirmedIcon: ImageView = v.findViewById(R.id.confirmedIcon)
+            private val rating = v.findViewById<RatingBar>(R.id.ratingBar2)
 
             fun bind(user: TripUser) {
+                val tripFinished = Date(trip.locations[trip.locations.size-1].locationTime).before(Date())
                 usersData.showUser(user.userId)
                 usersData.shownUser.observe(viewLifecycleOwner, { user_ ->
                     user_.fullName?.let { username.text = it }
@@ -196,9 +199,18 @@ abstract class TripDetailsFragment(
 
                 confirmCheck.visibility = INVISIBLE
 
-                if (user.isConfirmed)
+                if (user.isConfirmed && !tripFinished)
                     confirmedIcon.visibility = VISIBLE
 
+                if(tripFinished) {
+                    confirmCheck.visibility = INVISIBLE
+                    confirmedIcon.visibility = INVISIBLE
+                    rating.visibility = VISIBLE
+                    rating.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->  RatingDialogFragment(trip, rating.toInt()).show(childFragmentManager, "RatingDialogFragment") }
+                }
+                else {
+                    rating.visibility = GONE
+                }
             }
         }
 
