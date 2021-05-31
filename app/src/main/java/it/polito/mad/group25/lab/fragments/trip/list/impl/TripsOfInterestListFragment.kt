@@ -9,4 +9,8 @@ class TripsOfInterestListFragment : GenericTripListFragment(false) {
         trip.interestedUsers.filter { !it.isConfirmed }.map { it.userId }
             .contains(authenticationContext.userId())
 
+    override fun boughtTrip(): Boolean {
+        return false
+    }
+
 }

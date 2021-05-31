@@ -30,6 +30,8 @@ abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
 
     abstract fun filterTrip(trip: Trip): Boolean
 
+    abstract fun boughtTrip(): Boolean
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -95,7 +97,7 @@ abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
                         columnCount <= 1 -> LinearLayoutManager(context)
                         else -> GridLayoutManager(context, columnCount)
                     }
-                    adapter = TripCardRecyclerViewAdapter(filteredTrip, tripViewModel, userId)
+                    adapter = TripCardRecyclerViewAdapter(filteredTrip, tripViewModel, userId, boughtTrip())
                 }
             }
         })
