@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.textfield.TextInputEditText
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.review.Review
 import it.polito.mad.group25.lab.fragments.trip.Trip
 
 class RatingDialogFragment(
@@ -44,7 +45,7 @@ class RatingDialogFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val comment = view.findViewById<TextInputEditText>(R.id.comment)
+        val comment = view.findViewById<TextInputEditText>(R.id.comment).text.toString()
         view.findViewById<Button>(R.id.submit).setOnClickListener {
             //TODO
             //salva su firebase:
@@ -53,6 +54,14 @@ class RatingDialogFragment(
             //votato
             //commento --> comment
             //trip
+            Review(
+                authenticationContext.userId(),//votante
+                trip.ownerId,//votato
+                trip.id,
+                comment,
+                stars,
+                true
+            )
         }
     }
 }
