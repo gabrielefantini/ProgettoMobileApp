@@ -40,6 +40,9 @@
         <action
             android:id="@+id/action_showTripDetailsFragment_to_showUserProfileFragment"
             app:destination="@id/showUserProfileFragment" />
+        <action
+            android:id="@+id/action_showTripDetailsFragment_to_MapFragment"
+            app:destination="@id/MapFragment" />
     </fragment>
     <fragment
         android:id="@+id/TripFilterFragment"
@@ -122,5 +125,14 @@
         <action
             android:id="@+id/action_BoughtTripsListFragment_to_TripFilterFragment"
             app:destination="@id/TripFilterFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/MapFragment"
+        android:name="it.polito.mad.group25.lab.fragments.map.MapFragment"
+        android:label="Trip Map"
+        tools:layout="@layout/map_fragment">
+        <action
+            android:id="@+id/action_MapFragment_to_showTripDetailsFragment"
+            app:destination="@id/showTripDetailsFragment" />
     </fragment>
 </navigation>
