@@ -79,7 +79,9 @@ fun Trip.startDateFormatted(): String =
 @RequiresApi(Build.VERSION_CODES.O)
 data class TripLocation(
     var location: String = "loc name",
-    var locationTime: Long = System.currentTimeMillis()
+    var locationTime: Long = System.currentTimeMillis(),
+    var latitude: Double? = null,
+    var longitude: Double? = null
 )
 
 @RequiresApi(Build.VERSION_CODES.O)

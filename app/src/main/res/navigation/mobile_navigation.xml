@@ -41,8 +41,8 @@
             android:id="@+id/action_showTripDetailsFragment_to_showUserProfileFragment"
             app:destination="@id/showUserProfileFragment" />
         <action
-            android:id="@+id/action_showTripDetailsFragment_to_MapFragment"
-            app:destination="@id/MapFragment" />
+            android:id="@+id/action_showTripDetailsFragment_to_ShowDetailsMap"
+            app:destination="@id/ShowDetailsMap" />
     </fragment>
     <fragment
         android:id="@+id/TripFilterFragment"
@@ -65,6 +65,9 @@
         <action
             android:id="@+id/action_showTripEditFragment_to_showUserProfileFragment"
             app:destination="@id/showUserProfileFragment" />
+        <action
+            android:id="@+id/action_showTripEditFragment_to_ShowEditMap"
+            app:destination="@id/ShowEditMap" />
     </fragment>
     <fragment
         android:id="@+id/TripListFragment"
@@ -127,12 +130,21 @@
             app:destination="@id/TripFilterFragment" />
     </fragment>
     <fragment
-        android:id="@+id/MapFragment"
-        android:name="it.polito.mad.group25.lab.fragments.map.MapFragment"
-        android:label="Trip Map"
+        android:id="@+id/ShowDetailsMap"
+        android:name="it.polito.mad.group25.lab.fragments.map.ShowDetailsMap"
+        android:label="Generic Map"
         tools:layout="@layout/map_fragment">
         <action
-            android:id="@+id/action_MapFragment_to_showTripDetailsFragment"
+            android:id="@+id/action_ShowDetailsMap_to_showTripDetailsFragment"
             app:destination="@id/showTripDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/ShowEditMap"
+        android:name="it.polito.mad.group25.lab.fragments.map.ShowEditMap"
+        android:label="Edit fragment Map"
+        tools:layout="@layout/map_fragment">
+        <action
+            android:id="@+id/action_ShowEditMap_to_showTripEditFragment"
+            app:destination="@id/showTripEditFragment" />
     </fragment>
 </navigation>

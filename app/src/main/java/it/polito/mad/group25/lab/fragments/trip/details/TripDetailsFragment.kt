@@ -146,6 +146,7 @@ abstract class TripDetailsFragment(
                 }
                 //**********************************************************************************
 
+                // mapButton
                 view.findViewById<ImageButton>(R.id.mapButton).setOnClickListener {
                     navigateToMapFragment()
                 }
@@ -165,9 +166,10 @@ abstract class TripDetailsFragment(
             GeoPoint(45.0131 ,7.8208),
             GeoPoint(45.0126 ,7.6591)
         )
+        //TODO passare i geopoints tramite trip.locations
         mapViewModel.geopoints = exampleGeopoints
-        activity?.findNavController(R.id.nav_host_fragment_content_main)
-            ?.navigate(R.id.MapFragment)
+        requireActivity().findNavController(R.id.nav_host_fragment_content_main)
+            .navigate(R.id.action_showTripDetailsFragment_to_ShowDetailsMap)
     }
 
     inner class TripUsersAdapter(
