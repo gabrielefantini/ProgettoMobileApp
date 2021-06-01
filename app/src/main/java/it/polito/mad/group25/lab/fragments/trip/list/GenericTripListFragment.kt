@@ -106,7 +106,7 @@ abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
                             userId,
                             boughtTrip(),
                             dialog = Function {
-                                RatingDialogFragment(it.first, it.second).show(childFragmentManager, "RatingDialogFragment")
+                                RatingDialogFragment(it.first, it.second, true).show(childFragmentManager, "RatingDialogFragment")
                             }
                         )
                 }

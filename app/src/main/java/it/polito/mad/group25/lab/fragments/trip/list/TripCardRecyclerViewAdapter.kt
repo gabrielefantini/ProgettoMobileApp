@@ -151,7 +151,7 @@ class TripCardRecyclerViewAdapter(
                             ratingBar, rating, fromUser -> dialog.apply(Pair(item, rating.toInt()))
                     }
                 } else {
-                    itemView.findViewById<RatingBar>(R.id.ratingBar).visibility = View.GONE
+                   ratingBar.visibility = View.GONE
                 }
             //}
         }

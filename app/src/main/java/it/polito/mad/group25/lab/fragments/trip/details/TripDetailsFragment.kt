@@ -206,7 +206,7 @@ abstract class TripDetailsFragment(
                     confirmCheck.visibility = INVISIBLE
                     confirmedIcon.visibility = INVISIBLE
                     rating.visibility = VISIBLE
-                    rating.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->  RatingDialogFragment(trip, rating.toInt()).show(childFragmentManager, "RatingDialogFragment") }
+                    rating.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->  RatingDialogFragment(trip, rating.toInt(),false).show(childFragmentManager, "RatingDialogFragment") }
                 }
                 else {
                     rating.visibility = GONE
