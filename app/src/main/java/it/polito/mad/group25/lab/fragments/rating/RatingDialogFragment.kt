@@ -10,18 +10,22 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import com.google.android.material.textfield.TextInputEditText
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.fragments.review.Review
+import it.polito.mad.group25.lab.fragments.review.ReviewViewModel
 import it.polito.mad.group25.lab.fragments.trip.Trip
 
 class RatingDialogFragment(
     val trip: Trip,
-    val stars: Int
+    val stars: Int,
+    val isReviewedDriver: Boolean
     ): DialogFragment() {
 
     private val authenticationContext: AuthenticationContext by activityViewModels()
+    private val reviews: ReviewViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,23 +49,22 @@ class RatingDialogFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val comment = view.findViewById<TextInputEditText>(R.id.comment).text.toString()
         view.findViewById<Button>(R.id.submit).setOnClickListener {
-            //TODO
             //salva su firebase:
             //voto dell'utente(authentication.userId) al guidatore (trip.ownerId) --> stars
             //votante
             //votato
             //commento --> comment
             //trip
-            Review(
-                authenticationContext.userId(),//votante
-                trip.ownerId,//votato
-                trip.id,
-                comment,
-                stars,
-                true
-            )
+            reviews.addReview(
+                    authenticationContext.userId()!!,//votante
+                    trip.ownerId!!,//votato
+                    trip.id!!,
+                    view.findViewById<TextInputEditText>(R.id.comment).text.toString(),
+                    stars,
+                    isReviewedDriver
+                )
+            dialog?.dismiss()
         }
     }
 }
