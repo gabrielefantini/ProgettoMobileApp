@@ -21,7 +21,8 @@ import it.polito.mad.group25.lab.fragments.trip.Trip
 class RatingDialogFragment(
     val trip: Trip,
     val stars: Int,
-    val isReviewedDriver: Boolean
+    val isReviewedDriver: Boolean,
+    val userToBeReviewed: String? = null
     ): DialogFragment() {
 
     private val authenticationContext: AuthenticationContext by activityViewModels()
@@ -56,7 +57,8 @@ class RatingDialogFragment(
             //votato
             //commento --> comment
             //trip
-            reviews.addReview(
+            if (isReviewedDriver){
+                reviews.addReview(
                     authenticationContext.userId()!!,//votante
                     trip.ownerId!!,//votato
                     trip.id!!,
@@ -64,6 +66,19 @@ class RatingDialogFragment(
                     stars,
                     isReviewedDriver
                 )
+            } else {
+                if (userToBeReviewed != null) {
+                    reviews.addReview(
+                        authenticationContext.userId()!!,//votante
+                        userToBeReviewed,//votato
+                        trip.id!!,
+                        view.findViewById<TextInputEditText>(R.id.comment).text.toString(),
+                        stars,
+                        isReviewedDriver
+                    )
+                }
+            }
+
             dialog?.dismiss()
         }
     }

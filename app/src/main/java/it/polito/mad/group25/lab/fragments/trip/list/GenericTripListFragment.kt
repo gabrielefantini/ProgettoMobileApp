@@ -16,6 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import it.polito.mad.group25.lab.AuthenticationContext
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.fragments.rating.RatingDialogFragment
+import it.polito.mad.group25.lab.fragments.review.ReviewViewModel
 import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
 import it.polito.mad.group25.lab.fragments.trip.filter.FilterField
@@ -27,6 +28,7 @@ abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
     protected val tripViewModel: TripViewModel by activityViewModels()
     protected val authenticationContext: AuthenticationContext by activityViewModels()
     protected val tripFilterViewModel: TripFilterViewModel by activityViewModels()
+    protected val reviewViewModel: ReviewViewModel by activityViewModels()
 
     private var columnCount = 1
 
@@ -67,51 +69,56 @@ abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
         val list = view.findViewById<RecyclerView>(R.id.list)
         //pass an observable to MyTripCarRecyclerViewAdapter
         tripListViewModel.trips.observe(viewLifecycleOwner, { tripMap ->
-            // Set the adapter
-            val userId = authenticationContext.userId()
-            val tripList =
-                tripMap.values
-                    .toList().filter(this::filterTrip)
+            reviewViewModel.reviews.observe(viewLifecycleOwner, { reviewMap ->
+
+                // Set the adapter
+                val userId = authenticationContext.userId()
+                val tripList =
+                    tripMap.values
+                        .toList().filter(this::filterTrip)
 
 
-            if (tripList.isEmpty()) {
-                view.findViewById<TextView>(R.id.textView2).visibility = View.VISIBLE
-                list.visibility = View.GONE
-            } else {
-                //filtro in base al filtro attivo
-                val tripFilter = tripFilterViewModel.getFilter()
-                val filteredTrip =
-                    tripList
-                        .filter { trip ->
+                if (tripList.isEmpty()) {
+                    view.findViewById<TextView>(R.id.textView2).visibility = View.VISIBLE
+                    list.visibility = View.GONE
+                } else {
+                    //filtro in base al filtro attivo
+                    val tripFilter = tripFilterViewModel.getFilter()
+                    val filteredTrip =
+                        tripList
+                            .filter { trip ->
 
-                            tripFilter.keys.fold(true) { acc, key ->
-                                acc && enumValueOf<FilterField>(key).operator(
-                                    trip,
-                                    tripFilter[key]!!
-                                )
+                                tripFilter.keys.fold(true) { acc, key ->
+                                    acc && enumValueOf<FilterField>(key).operator(
+                                        trip,
+                                        tripFilter[key]!!
+                                    )
+                                }
+
                             }
-
+                    view.findViewById<TextView>(R.id.textView2).visibility = View.GONE
+                    list.visibility = View.VISIBLE
+                    with(list) {
+                        layoutManager = when {
+                            columnCount <= 1 -> LinearLayoutManager(context)
+                            else -> GridLayoutManager(context, columnCount)
                         }
-                view.findViewById<TextView>(R.id.textView2).visibility = View.GONE
-                list.visibility = View.VISIBLE
-                with(list) {
-                    layoutManager = when {
-                        columnCount <= 1 -> LinearLayoutManager(context)
-                        else -> GridLayoutManager(context, columnCount)
+                        adapter =
+                            TripCardRecyclerViewAdapter(
+                                filteredTrip,
+                                reviewMap.values.toList(),
+                                tripViewModel,
+                                userId,
+                                boughtTrip(),
+                                dialog = Function {
+                                    RatingDialogFragment(it.first, it.second, true).show(childFragmentManager, "RatingDialogFragment")
+                                }
+                            )
                     }
-                    adapter =
-                        TripCardRecyclerViewAdapter(
-                            filteredTrip,
-                            tripViewModel,
-                            userId,
-                            boughtTrip(),
-                            dialog = Function {
-                                RatingDialogFragment(it.first, it.second, true).show(childFragmentManager, "RatingDialogFragment")
-                            }
-                        )
                 }
-            }
+            })
         })
+
 
         val addNewTripButton = view.findViewById<FloatingActionButton>(R.id.addTrip)
         if (allowAdding)
