@@ -132,7 +132,7 @@
     <fragment
         android:id="@+id/ShowDetailsMap"
         android:name="it.polito.mad.group25.lab.fragments.map.ShowDetailsMap"
-        android:label="Generic Map"
+        android:label="@string/map"
         tools:layout="@layout/map_fragment">
         <action
             android:id="@+id/action_ShowDetailsMap_to_showTripDetailsFragment"
@@ -141,7 +141,7 @@
     <fragment
         android:id="@+id/ShowEditMap"
         android:name="it.polito.mad.group25.lab.fragments.map.ShowEditMap"
-        android:label="Edit fragment Map"
+        android:label="@string/map"
         tools:layout="@layout/map_fragment">
         <action
             android:id="@+id/action_ShowEditMap_to_showTripEditFragment"

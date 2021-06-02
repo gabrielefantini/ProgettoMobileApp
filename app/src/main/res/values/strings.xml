@@ -78,4 +78,7 @@
     <string name="emailSection">Email</string>
     <string name="locationSection">Location</string>
     <string name="rate_trip">Rate Trip</string>
+
+    <string name="map">Location Map</string>
+    <string name="delete">Delete</string>
 </resources>

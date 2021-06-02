@@ -141,8 +141,8 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
         val locationStop = view.findViewById<EditText>(R.id.location_stop)
         val dateStop = view.findViewById<TextView>(R.id.dateStop)
         val timeStop = view.findViewById<TextView>(R.id.time_stop)
-        val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
-        val saveStop = view.findViewById<ImageButton>(R.id.save_stop)
+        val deleteStop = view.findViewById<Button>(R.id.deleteStop)
+        val saveStop = view.findViewById<Button>(R.id.save_stop)
         // ****
 
         // other controllers ***
