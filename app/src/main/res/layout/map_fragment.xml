@@ -110,10 +110,10 @@
 
                     <ImageButton
                         android:id="@+id/deleteStop"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_weight="0.3"
+                        android:layout_marginRight="4dp"
                         android:contentDescription="@null"
                         android:src="@android:drawable/btn_dialog"
                         android:visibility="gone" />

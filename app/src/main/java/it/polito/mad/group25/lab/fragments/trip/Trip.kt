@@ -27,10 +27,6 @@ class Trip : AbstractPersistenceAware(), Identifiable, Serializable {
     var additionalInfo: MutableList<String> by onChangeUpdateStatus(mutableListOf())
     var ownerId: String? by onChangeUpdateStatus(null)
     var interestedUsers: MutableList<TripUser> by onChangeUpdateStatus(mutableListOf())
-    fun getType(): Boolean {
-        //TODO
-        return true
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -89,13 +85,6 @@ fun TripLocation.timeFormatted(): String =
     DateTimeFormatter.ofPattern("HH:mm")
         .withZone(ZoneId.systemDefault())
         .format(Instant.ofEpochMilli(this.locationTime))
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun Trip.addTripLocationOrdered(location: String, locationTime: Instant) {
-    val trip = TripLocation(location, locationTime.toEpochMilli())
-    locations.add(trip)
-    locations.sortBy { it.locationTime }
-}
 
 fun Trip.isEditable() = this.tripStartDate > System.currentTimeMillis()
 

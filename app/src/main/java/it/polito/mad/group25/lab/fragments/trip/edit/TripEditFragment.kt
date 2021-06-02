@@ -45,6 +45,7 @@ import it.polito.mad.group25.lab.utils.persistence.impl.SharedPreferencesPersist
 import it.polito.mad.group25.lab.utils.toLocalDate
 import it.polito.mad.group25.lab.utils.toLocalDateTime
 import it.polito.mad.group25.lab.utils.views.*
+import org.osmdroid.util.GeoPoint
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -58,7 +59,7 @@ abstract class TripEditFragment(
     contentLayoutId: Int
 ) : Fragment(contentLayoutId) {
 
-    private lateinit var tripEditViewModel: TripEditViewModel
+    private val tripEditViewModel: TripEditViewModel by activityViewModels()
     private val tripViewModel: TripViewModel by activityViewModels()
     private val tripListViewModel: TripListViewModel by activityViewModels()
     private val authenticationContext: AuthenticationContext by activityViewModels()
@@ -74,7 +75,6 @@ abstract class TripEditFragment(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tripEditViewModel = ViewModelProvider(this).get(TripEditViewModel::class.java)
 
         setHasOptionsMenu(true)
 
@@ -143,6 +143,7 @@ abstract class TripEditFragment(
                     trip.locations.forEach {
                         tripEditViewModel.tripStepList.add(it)
                     }
+
                 updateDuration(view)
 
                 view.findViewById<EditText>(R.id.carName).setText(trip.carName)
@@ -250,7 +251,10 @@ abstract class TripEditFragment(
     }
 
     fun navigateToMapFragment(locationId: Int?){
-        //TODO passare i geopoints tramite tripStepList
+        mapViewModel.geopoints = tripEditViewModel.tripStepList
+            .filter { tripLoc -> tripLoc.latitude != null && tripLoc.longitude != null }
+            .map { tripLoc -> GeoPoint(tripLoc.latitude!!,tripLoc.longitude!!) }
+            .toMutableList()
         mapViewModel.selectedTripLocation = if(locationId != null) {
             tripEditViewModel.tripStepList[locationId]
         } else null
@@ -363,7 +367,14 @@ abstract class TripEditFragment(
         }
 
 
+
+
         tripEditViewModel.tripStepList.also {
+            if(it.any { tripLocation -> tripLocation.location == "loc name" }){
+                    showError("'loc name' is not valid!")
+                    return false
+                }
+
             if (tripSel.locations != tripEditViewModel.tripStepList) {
                 tripSel.locations.clear()
                 tripEditViewModel.tripStepList.forEach { tl -> tripSel.locations.add(tl) }

@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
+import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
@@ -15,9 +16,12 @@ import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import com.google.android.material.textfield.TextInputLayout
 import it.polito.mad.group25.lab.BuildConfig
 import it.polito.mad.group25.lab.R
+import it.polito.mad.group25.lab.fragments.trip.TripLocation
 import it.polito.mad.group25.lab.fragments.trip.edit.TripEditViewModel
 import it.polito.mad.group25.lab.fragments.trip.edit.openDatePicker
 import it.polito.mad.group25.lab.fragments.trip.edit.openTimePicker
@@ -33,9 +37,14 @@ import org.osmdroid.config.Configuration.*
 import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragment) {
     private val mapViewModel: MapViewModel by activityViewModels()
+    private val tripEditViewModel: TripEditViewModel by activityViewModels()
+
 
     private lateinit var map : MapView
     private lateinit var myLocationOverlay: MyLocationNewOverlay
@@ -133,11 +142,15 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
         val dateStop = view.findViewById<TextView>(R.id.dateStop)
         val timeStop = view.findViewById<TextView>(R.id.time_stop)
         val deleteStop = view.findViewById<ImageButton>(R.id.deleteStop)
+        val saveStop = view.findViewById<ImageButton>(R.id.save_stop)
         // ****
 
         // other controllers ***
         geocoder = Geocoder(context)
         // ****
+
+        val newPosition = Marker(map)
+        var newAddress: Address? = null
 
         val tripLocation = mapViewModel.selectedTripLocation
         tripLocation?.let {
@@ -148,6 +161,11 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
             timeStop.text = it.timeFormatted()
             locationStop.setText(locationInit)
             deleteStop.visibility = VISIBLE
+
+            if(it.latitude != null && it.longitude != null){
+                setNewPoint(newPosition,GeoPoint(it.latitude!!,it.longitude!!))
+                geocoder.getFromLocation(it.latitude!!,it.longitude!!,1)?.let { addrs -> newAddress = addrs[0] }
+            }
         }
 
         dateStop.setOnClickListener {
@@ -158,20 +176,21 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
             openTimePicker(tv = timeStop,context = context)
         }
 
-        val newPosition = Marker(map)
-
         // textField end icon onclick -> search for a geoPoint (x,y) compatible with text input ***
         view.findViewById<TextInputLayout>(R.id.location_stopLayout).setEndIconOnClickListener {
             val locName = locationStop.text.toString()
             val address = geocoder.getFromLocationName(locName,1)
             if(address.size != 0){
-                val addr = address[0]
-                val geoPoint = GeoPoint(addr.latitude,addr.longitude)
+                newAddress = address[0]
+                val geoPoint = GeoPoint(newAddress!!.latitude,newAddress!!.longitude)
 
                 setNewPoint(newPosition, geoPoint)
-
-            }else
+                saveStop.isEnabled = true
+            }else {
                 showError("$locName not found!")
+                map.overlays.remove(newPosition)
+                saveStop.isEnabled = false
+            }
         }
 
         // map onclick -> add a marker and find location name ***
@@ -184,24 +203,87 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
 
                 var address = geocoder.getFromLocation(geoPoint.latitude,geoPoint.longitude,1)
                 address?.let {
-                    locationStop.setText(it[0].locality)
+                    newAddress = it[0]
+                    locationStop.setText(newAddress!!.locality)
                 }
+                saveStop.isEnabled = true
                 return true
             }
         })
 
         // saveButton ***
-        view.findViewById<ImageButton>(R.id.save_stop).setOnClickListener {
-            tripLocation?.let {
-                //TODO
-            }?: kotlin.run {
-                //TODO
-            }
+        saveStop.setOnClickListener {
+                if (locationStop.text.toString() != "" && timeStop.text.toString() != "--:--" && dateStop.text.toString() != "--/--/----") {
+                    if(newPosition.position.latitude == 0.0 && newPosition.position.longitude == 0.0){
+                        showError("Invalid location!")
+                        return@setOnClickListener
+                    }
+
+                    if(newAddress != null) {
+                        if (locationStop.text.toString() != newAddress!!.locality) {
+                            showError("${locationStop.text} doesn't match marker position!")
+                            return@setOnClickListener
+                        }
+                    }
+
+                    if(tripLocation != null) {
+                        val timeInit = tripLocation.locationTime
+                        val locationInit = tripLocation.location
+
+                        val t = tripEditViewModel.tripStepList.find {
+                            !(it.locationTime < timeInit || it.locationTime > timeInit)
+                                    && it.location == locationInit
+                        }
+                        tripEditViewModel.tripStepList.remove(t)
+                    }
+
+                    val formatter: DateTimeFormatter =
+                        DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                    val date = dateStop.text.toString().split("/")
+                        .map { if (it.length < 2) "0$it" else it }
+                        .reduce { acc, s -> "$acc/$s" }
+
+                    tripEditViewModel.tripStepList.add(
+                        TripLocation(
+                            locationStop.text.toString(),
+                            LocalDateTime.parse(date + " " + timeStop.text.toString(), formatter)
+                                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                            newPosition.position.latitude,
+                            newPosition.position.longitude
+                        )
+                    )
+                    tripEditViewModel.tripStepList.sortBy { it.locationTime }
+
+                    activity?.findNavController(R.id.nav_host_fragment_content_main)
+                        ?.navigateUp()
+
+                } else Toast.makeText(context, "Fill all fields!", Toast.LENGTH_LONG).show()
+
+
         }
 
         // deleteButton ***
         deleteStop.setOnClickListener {
-            //TODO
+            if (tripEditViewModel.tripStepList.size > 2) {
+                if(tripLocation != null) {
+                    val timeInit = tripLocation.locationTime
+                    val locationInit = tripLocation.location
+
+                    val t = tripEditViewModel.tripStepList.find {
+                        !(it.locationTime < timeInit || it.locationTime > timeInit)
+                                && it.location == locationInit
+                    }
+                    tripEditViewModel.tripStepList.remove(t)
+
+                    activity?.findNavController(R.id.nav_host_fragment_content_main)
+                        ?.navigateUp()
+                }
+            } else
+                Toast.makeText(
+                    context,
+                    "Can't delete a location\nTwo stops minimum needed.",
+                    Toast.LENGTH_LONG
+                ).show()
         }
 
     }

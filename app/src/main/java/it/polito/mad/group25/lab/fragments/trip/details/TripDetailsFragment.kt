@@ -168,13 +168,10 @@ abstract class TripDetailsFragment(
     }
 
     private fun navigateToMapFragment(){
-        var exampleGeopoints = mutableListOf(
-            GeoPoint(44.9492,7.7733),
-            GeoPoint(45.0131 ,7.8208),
-            GeoPoint(45.0126 ,7.6591)
-        )
-        //TODO passare i geopoints tramite trip.locations
-        mapViewModel.geopoints = exampleGeopoints
+        mapViewModel.geopoints = tripViewModel.trip.value!!.locations
+            .filter { tripLoc -> tripLoc.latitude != null && tripLoc.longitude != null }
+            .map { tripLoc -> GeoPoint(tripLoc.latitude!!,tripLoc.longitude!!) }
+            .toMutableList()
         requireActivity().findNavController(R.id.nav_host_fragment_content_main)
             .navigate(R.id.action_showTripDetailsFragment_to_ShowDetailsMap)
     }

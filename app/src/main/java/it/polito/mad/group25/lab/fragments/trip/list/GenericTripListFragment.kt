@@ -19,6 +19,7 @@ import it.polito.mad.group25.lab.fragments.rating.RatingDialogFragment
 import it.polito.mad.group25.lab.fragments.review.ReviewViewModel
 import it.polito.mad.group25.lab.fragments.trip.Trip
 import it.polito.mad.group25.lab.fragments.trip.TripViewModel
+import it.polito.mad.group25.lab.fragments.trip.edit.TripEditViewModel
 import it.polito.mad.group25.lab.fragments.trip.filter.FilterField
 import it.polito.mad.group25.lab.fragments.trip.filter.TripFilterViewModel
 
@@ -29,6 +30,7 @@ abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
     protected val authenticationContext: AuthenticationContext by activityViewModels()
     protected val tripFilterViewModel: TripFilterViewModel by activityViewModels()
     protected val reviewViewModel: ReviewViewModel by activityViewModels()
+    private val tripEditViewModel: TripEditViewModel by activityViewModels()
 
     private var columnCount = 1
 
@@ -108,6 +110,7 @@ abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
                                 filteredTrip,
                                 reviewMap.values.toList(),
                                 tripViewModel,
+                                tripEditViewModel,
                                 userId,
                                 boughtTrip(),
                                 dialog = Function {
@@ -124,6 +127,7 @@ abstract class GenericTripListFragment(val allowAdding: Boolean) : Fragment() {
         if (allowAdding)
             addNewTripButton.setOnClickListener {
                 tripViewModel.trip.value = tripListViewModel.createNewTrip()
+                tripEditViewModel.tripStepList.clear()
                 view.findNavController().navigate(R.id.showTripEditFragment)
             }
         else addNewTripButton.visibility = View.GONE

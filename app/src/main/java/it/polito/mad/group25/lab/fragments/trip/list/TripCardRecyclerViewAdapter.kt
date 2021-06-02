@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import it.polito.mad.group25.lab.R
 import it.polito.mad.group25.lab.fragments.review.Review
 import it.polito.mad.group25.lab.fragments.trip.*
+import it.polito.mad.group25.lab.fragments.trip.edit.TripEditViewModel
 import it.polito.mad.group25.lab.utils.views.fromBlob
 import java.util.*
 
@@ -32,6 +33,7 @@ class TripCardRecyclerViewAdapter(
     val tripList: List<Trip>,
     val reviews: List<Review>,
     var currentTrip: TripViewModel,
+    val editViewModel: TripEditViewModel,
     val currentId: String?,
     val boughTrip: Boolean,
     val dialog: Function<Pair<Trip,Int>, Unit>
@@ -110,6 +112,7 @@ class TripCardRecyclerViewAdapter(
             if (item.isEditable())
                 editButton.setOnClickListener { view ->
                     currentTrip.trip.value = item
+                    editViewModel.tripStepList.clear()
                     view.findNavController().navigate(R.id.showTripEditFragment)
                 }
             else editButton.visibility = View.GONE
