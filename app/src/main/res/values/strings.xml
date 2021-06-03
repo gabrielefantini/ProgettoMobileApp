@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Lab2Mobile</string>
+    <string name="app_name">CM Sharing</string>
     <string name="save_menu_option">Save</string>
     <string name="fullName">Guest</string>
     <string name="subscriptionCaption">Edit your profile in order to inspire confidence to your passengers!</string>
     <string name="profile_pic_description">User profile picture</string>
-    <string name="title_activity_main">Lab2Mobile</string>
+    <string name="title_activity_main">CM Sharing</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
