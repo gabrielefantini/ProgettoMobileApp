@@ -81,4 +81,6 @@
 
     <string name="map">Location Map</string>
     <string name="delete">Delete</string>
+    <string name="_18_30">18:30</string>
+    <string name="torino">Torino</string>
 </resources>

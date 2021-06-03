@@ -33,6 +33,7 @@ abstract class GenericUserProfileFragment(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
     }
 
 
@@ -49,33 +50,32 @@ abstract class GenericUserProfileFragment(
             view.findViewById<TextView>(R.id.fullName).text = it.fullName
             view.findViewById<TextView>(R.id.email).text = it.email
 
+            val driver_rate = reviewViewModel.reviews.values.toList().filter { reviewVM -> reviewVM.reviewed == userId && reviewVM.isReviewedDriver == true }.map { reviewVM -> reviewVM.stars }
+            if (driver_rate.isNotEmpty()) {
+                var avg = 0F
+                driver_rate.forEach{avg+=it!!}
+                avg = avg/driver_rate.size
+                view.findViewById<RatingBar>(R.id.driver_rate_bar).rating = avg
+            }
+            else
+                view.findViewById<RatingBar>(R.id.driver_rate_bar).rating = 0F
+
+            val passenger_rate = reviewViewModel.reviews.values.toList().filter { reviewVM -> reviewVM.reviewed == userId && reviewVM.isReviewedDriver == false }.map { reviewVM -> reviewVM.stars }
+            if (passenger_rate.isNotEmpty()) {
+                var avg = 0F
+                passenger_rate.forEach{avg+=it!!}
+                avg = avg/passenger_rate.size
+                view.findViewById<RatingBar>(R.id.passenger_rate_bar).rating = avg
+            }
+            else
+                view.findViewById<RatingBar>(R.id.passenger_rate_bar).rating = 0F
+
             if (hideSensitiveDataIfNecessary && it.id != authenticationContext.userId())
                 return@observe
 
             view.findViewById<TextView>(R.id.nickName).text = it.nickName
             view.findViewById<TextView>(R.id.location).text = it.location
 
-            reviewViewModel.reviews.observe(viewLifecycleOwner, { reviews ->
-                if(reviews != null) {
-                    val driver_rate = reviews.filter { reviewVM -> reviewVM.value.reviewed == userId && reviewVM.value.isReviewedDriver == true }.values.map { reviewVM -> reviewVM.stars }
-                    if (driver_rate.isNotEmpty()) {
-                        Log.d("aaaa", "Not empty driver")
-                        var avg = 0F
-                        driver_rate.forEach{avg+it!!}
-                        avg = avg/driver_rate.size
-                        view.findViewById<RatingBar>(R.id.driver_rate_bar).rating = avg
-                    }
-
-                    val passenger_rate = reviews.filter { reviewVM -> reviewVM.value.reviewed == userId && reviewVM.value.isReviewedDriver == false }.values.map { reviewVM -> reviewVM.stars }
-                    if (passenger_rate.isNotEmpty()) {
-                        Log.d("aaaa", "Not empty passenger")
-                        var avg = 0F
-                        passenger_rate.forEach{avg+it!!}
-                        avg = avg/driver_rate.size
-                        view.findViewById<RatingBar>(R.id.passenger_rate_bar).rating = avg
-                    }
-                }
-            })
 
         }
     }

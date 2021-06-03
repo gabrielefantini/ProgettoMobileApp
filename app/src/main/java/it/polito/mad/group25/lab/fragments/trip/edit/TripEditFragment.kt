@@ -415,6 +415,7 @@ abstract class TripEditFragment(
         inner class TripViewHolder(v: View) : RecyclerView.ViewHolder(v) {
             val location: TextView = v.findViewById<TextView>(R.id.trip_location)
             val time: TextView = v.findViewById<TextView>(R.id.trip_time)
+            val button: ImageButton = v.findViewById(R.id.editTripLine)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
@@ -429,13 +430,16 @@ abstract class TripEditFragment(
             holder.location.text = item.location
             holder.time.text = item.timeFormatted()
 
-            holder.location.setOnClickListener {
+            holder.button.visibility = VISIBLE
+
+            holder.button.setOnClickListener {
                 navigateToMapFragment(position)
             }
 
+            /*
             holder.time.setOnClickListener {
                 navigateToMapFragment(position)
-            }
+            }*/
         }
 
         override fun getItemCount(): Int = list.size

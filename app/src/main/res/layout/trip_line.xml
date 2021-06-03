@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -10,10 +9,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:gravity="right"
-        android:text="18:30"
+        android:gravity="end"
+        android:text="@string/_18_30"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,20 +23,22 @@
         android:layout_width="16dp"
         android:layout_height="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:src="@drawable/ic_circle"
         app:layout_constraintBottom_toBottomOf="@+id/trip_time"
         app:layout_constraintStart_toEndOf="@+id/trip_time"
-        app:layout_constraintTop_toTopOf="@+id/trip_time" />
+        app:layout_constraintTop_toTopOf="@+id/trip_time"
+        android:contentDescription="@string/null_value" />
 
     <TextView
         android:id="@+id/trip_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_weight="8"
-        android:text="Torino"
+        android:ellipsize="end"
+        android:maxLength="25"
+        android:maxLines="1"
+        android:text="@string/torino"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/trip_icon"
@@ -54,6 +54,23 @@
         app:layout_constraintEnd_toEndOf="@+id/trip_icon"
         app:layout_constraintStart_toStartOf="@+id/trip_icon"
         app:layout_constraintTop_toBottomOf="@+id/trip_icon"
-        app:srcCompat="@drawable/ic_dots" />
+        app:srcCompat="@drawable/ic_dots"
+        android:contentDescription="@string/null_value" />
+
+    <ImageButton
+        android:id="@+id/editTripLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:background="?android:selectableItemBackground"
+        android:tint="@android:color/primary_text_light"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/trip_location"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/trip_time"
+        app:layout_constraintTop_toTopOf="@+id/trip_location"
+        app:srcCompat="@drawable/ic_edit_pencil"
+        android:contentDescription="@string/null_value" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
