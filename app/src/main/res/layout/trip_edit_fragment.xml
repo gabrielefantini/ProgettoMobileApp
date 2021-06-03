@@ -12,29 +12,27 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/changeCarPicButton"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:contentDescription="@null"
-            app:srcCompat="@android:drawable/ic_menu_camera" />
+            android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/carImage"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="8dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_car" />
+            <ImageView
+                android:id="@+id/carImage"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_car" />
+
+            <ImageButton
+                android:id="@+id/changeCarPicButton"
+                android:background="?android:selectableItemBackground"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srcCompat="@android:drawable/ic_menu_camera"
+                android:contentDescription="@string/null_value" />
+        </RelativeLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/carNameLayout"
@@ -255,7 +253,8 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     app:endIconMode="clear_text"
                     app:errorEnabled="true"
-                    app:helperTextEnabled="true">
+                    app:helperTextEnabled="true"
+                    tools:ignore="NestedWeights">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/insertDetail"
@@ -292,7 +291,7 @@
         <View
             android:id="@+id/divider4"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:background="?android:attr/listDivider" />
 
@@ -324,7 +323,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginBottom="16dp"
-            android:text="Remove Trip" />
+            android:text="@string/remove_trip" />
 
     </LinearLayout>
 </ScrollView>
