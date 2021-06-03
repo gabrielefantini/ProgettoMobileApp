@@ -60,16 +60,17 @@
         android:id="@+id/editTripLine"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="8dp"
         android:background="?android:selectableItemBackground"
+        android:contentDescription="@string/null_value"
         android:tint="@android:color/primary_text_light"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/trip_location"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/trip_time"
+        app:layout_constraintHorizontal_bias="0.973"
+        app:layout_constraintStart_toEndOf="@+id/trip_location"
         app:layout_constraintTop_toTopOf="@+id/trip_location"
-        app:srcCompat="@drawable/ic_edit_pencil"
-        android:contentDescription="@string/null_value"  />
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/ic_edit_pencil" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
