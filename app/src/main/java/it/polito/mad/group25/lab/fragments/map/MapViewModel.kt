@@ -9,7 +9,7 @@ import org.osmdroid.views.overlay.Polyline
 import kotlin.math.round
 
 class MapViewModel(application: Application): AndroidViewModel(application) {
-    var geopoints: MutableList<GeoPoint> = mutableListOf()
+    var geopoints: MutableList<TripLocation> = mutableListOf()
 
     var currentLocation: Location? = null
 

@@ -253,7 +253,6 @@ abstract class TripEditFragment(
     fun navigateToMapFragment(locationId: Int?){
         mapViewModel.geopoints = tripEditViewModel.tripStepList
             .filter { tripLoc -> tripLoc.latitude != null && tripLoc.longitude != null }
-            .map { tripLoc -> GeoPoint(tripLoc.latitude!!,tripLoc.longitude!!) }
             .toMutableList()
         mapViewModel.selectedTripLocation = if(locationId != null) {
             tripEditViewModel.tripStepList[locationId]

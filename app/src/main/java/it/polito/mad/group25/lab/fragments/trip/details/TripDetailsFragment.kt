@@ -170,7 +170,6 @@ abstract class TripDetailsFragment(
     private fun navigateToMapFragment(){
         mapViewModel.geopoints = tripViewModel.trip.value!!.locations
             .filter { tripLoc -> tripLoc.latitude != null && tripLoc.longitude != null }
-            .map { tripLoc -> GeoPoint(tripLoc.latitude!!,tripLoc.longitude!!) }
             .toMutableList()
         requireActivity().findNavController(R.id.nav_host_fragment_content_main)
             .navigate(R.id.action_showTripDetailsFragment_to_ShowDetailsMap)

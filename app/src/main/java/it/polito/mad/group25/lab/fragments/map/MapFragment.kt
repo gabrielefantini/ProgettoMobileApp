@@ -83,9 +83,10 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
 
         // adding location markers ***
         geopoints.forEachIndexed { id, gp ->
+            val geoPoint = GeoPoint(gp.latitude!!,gp.longitude!!)
             val marker = Marker(map)
-            marker.position = gp
-            marker.title = "loc $id"
+            marker.position = geoPoint
+            marker.title = gp.location
             marker.snippet = when(id){
                 0 -> "Departure"
                 geopoints.lastIndex -> "Destination"
@@ -93,14 +94,14 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
             }
             map.overlays.add(marker)
 
-            cLat += gp.latitude
-            cLong += gp.longitude
+            cLat += geoPoint.latitude
+            cLong += geoPoint.longitude
         }
         // *****************
 
         // adding path ***
         val pathOverlay = Polyline()
-        geopoints.reversed().forEach {
+        geopoints.map { gp -> GeoPoint(gp.latitude!!,gp.longitude!!) }.reversed().forEach {
             pathOverlay.addPoint(it)
         }
         pathOverlay.outlinePaint.color = Color.parseColor("#800000FF")
@@ -164,7 +165,7 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
 
             if(it.latitude != null && it.longitude != null){
                 setNewPoint(newPosition,GeoPoint(it.latitude!!,it.longitude!!))
-                geocoder.getFromLocation(it.latitude!!,it.longitude!!,1)?.let { addrs -> newAddress = addrs[0] }
+                geocoder.getFromLocation(it.latitude!!,it.longitude!!,5)?.let { addrs -> newAddress = addrs[0] }
             }
         }
 
@@ -179,12 +180,13 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
         // textField end icon onclick -> search for a geoPoint (x,y) compatible with text input ***
         view.findViewById<TextInputLayout>(R.id.location_stopLayout).setEndIconOnClickListener {
             val locName = locationStop.text.toString()
-            val address = geocoder.getFromLocationName(locName,1)
+            val address = geocoder.getFromLocationName(locName,5)
             if(address.size != 0){
                 newAddress = address[0]
                 val geoPoint = GeoPoint(newAddress!!.latitude,newAddress!!.longitude)
 
                 setNewPoint(newPosition, geoPoint)
+                locationStop.setText(newAddress!!.locality)
                 saveStop.isEnabled = true
             }else {
                 showError("$locName not found!")
@@ -201,7 +203,7 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
 
                 setNewPoint(newPosition, geoPoint as GeoPoint)
 
-                var address = geocoder.getFromLocation(geoPoint.latitude,geoPoint.longitude,1)
+                val address = geocoder.getFromLocation(geoPoint.latitude,geoPoint.longitude,5)
                 address?.let {
                     newAddress = it[0]
                     locationStop.setText(newAddress!!.locality)
@@ -254,8 +256,8 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
                     )
                     tripEditViewModel.tripStepList.sortBy { it.locationTime }
 
-                    activity?.findNavController(R.id.nav_host_fragment_content_main)
-                        ?.navigateUp()
+                    activity.findNavController(R.id.nav_host_fragment_content_main)
+                        .navigateUp()
 
                 } else Toast.makeText(context, "Fill all fields!", Toast.LENGTH_LONG).show()
 
@@ -275,8 +277,8 @@ abstract class MapFragment(val editMode: Boolean): Fragment(R.layout.map_fragmen
                     }
                     tripEditViewModel.tripStepList.remove(t)
 
-                    activity?.findNavController(R.id.nav_host_fragment_content_main)
-                        ?.navigateUp()
+                    activity.findNavController(R.id.nav_host_fragment_content_main)
+                        .navigateUp()
                 }
             } else
                 Toast.makeText(
