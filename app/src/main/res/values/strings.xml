@@ -54,7 +54,7 @@
 
     <string name="InterestedUsersText">Interested Users</string>
     <string name="NoOtherInfos">No additional info available.</string>
-    <string name="NoIntUsers">No interested users at the moment...</string>
+    <string name="NoIntUsers">No interested users at the moment…</string>
     <string name="rememberMe">Remember me</string>
     <string name="remove_trip">Remove trip</string>
     <string name="Until">Until</string>
@@ -77,7 +77,7 @@
     <string name="nicknameSection">Nickname</string>
     <string name="emailSection">Email</string>
     <string name="locationSection">Location</string>
-    <string name="rate_trip">Rate Trip</string>
+    <string name="rate_trip">Rate trip</string>
 
     <string name="map">Location Map</string>
     <string name="delete">Delete</string>
