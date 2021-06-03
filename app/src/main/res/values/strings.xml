@@ -85,4 +85,6 @@
     <string name="torino">Torino</string>
     <string name="driver_rate">Driver rate</string>
     <string name="passenger_rate">Passenger rate</string>
+    <string name="comment_optional">Comment (Optional)</string>
+    <string name="add_review">Add Review</string>
 </resources>
