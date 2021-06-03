@@ -24,7 +24,7 @@
             <ImageView
                 android:id="@+id/profilePic"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="170dp"
                 android:contentDescription="@string/profile_pic_description"
                 android:scaleType="centerCrop"
                 android:src="@mipmap/basic_profile_pic"
@@ -42,7 +42,9 @@
                     android:id="@+id/fullName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="6dp"
                     android:text="@string/fullName"
                     android:textAppearance="?attr/textAppearanceHeadline4" />
 
@@ -50,7 +52,9 @@
                     android:id="@+id/nickNameSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="6dp"
                     android:text="@string/nicknameSection"
                     android:textAppearance="?attr/textAppearanceHeadline6" />
 
@@ -58,7 +62,9 @@
                     android:id="@+id/nickName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="6dp"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?android:attr/textColorSecondary" />
 
@@ -66,7 +72,9 @@
                     android:id="@+id/emailSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="6dp"
                     android:text="@string/emailSection"
                     android:textAppearance="?attr/textAppearanceHeadline6" />
 
@@ -74,7 +82,9 @@
                     android:id="@+id/email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="6dp"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?android:attr/textColorSecondary" />
 
@@ -83,7 +93,9 @@
                     android:id="@+id/locationSection"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="6dp"
                     android:text="@string/locationSection"
                     android:textAppearance="?attr/textAppearanceHeadline6" />
 
@@ -91,7 +103,9 @@
                     android:id="@+id/location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="6dp"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="6dp"
                     android:textAppearance="?attr/textAppearanceBody2"
                     android:textColor="?android:attr/textColorSecondary" />
 
@@ -103,11 +117,11 @@
 
                     <TextView
                         android:id="@+id/driver_rate"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="6dp"
+                        android:layout_marginStart="6dp"
                         android:layout_weight="1"
-                        android:text="Driver rate"
+                        android:text="@string/driver_rate"
                         android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <RatingBar
@@ -128,11 +142,11 @@
 
                     <TextView
                         android:id="@+id/passenger_rate"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="6dp"
+                        android:layout_marginStart="6dp"
                         android:layout_weight="1"
-                        android:text="Passenger rate"
+                        android:text="@string/passenger_rate"
                         android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <RatingBar
@@ -151,7 +165,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                android:layout_marginStart="8dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
@@ -170,7 +184,6 @@
                     style="?attr/borderlessButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
                     android:text="@string/trip_list"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/bought_trip_list_shortcut_button"

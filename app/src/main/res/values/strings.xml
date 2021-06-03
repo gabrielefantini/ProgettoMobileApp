@@ -83,4 +83,6 @@
     <string name="delete">Delete</string>
     <string name="_18_30">18:30</string>
     <string name="torino">Torino</string>
+    <string name="driver_rate">Driver rate</string>
+    <string name="passenger_rate">Passenger rate</string>
 </resources>

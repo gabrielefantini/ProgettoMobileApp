@@ -2,8 +2,10 @@ package it.polito.mad.group25.lab.fragments.userprofile
 
 import android.app.Application
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
@@ -50,31 +52,44 @@ abstract class GenericUserProfileFragment(
             view.findViewById<TextView>(R.id.fullName).text = it.fullName
             view.findViewById<TextView>(R.id.email).text = it.email
 
-            val driver_rate = reviewViewModel.reviews.values.toList().filter { reviewVM -> reviewVM.reviewed == userId && reviewVM.isReviewedDriver == true }.map { reviewVM -> reviewVM.stars }
+            val driver_rate = reviewViewModel.reviews.values.toList()
+                .filter { reviewVM -> reviewVM.reviewed == userId && reviewVM.isReviewedDriver == true }
+                .map { reviewVM -> reviewVM.stars }
             if (driver_rate.isNotEmpty()) {
                 var avg = 0F
-                driver_rate.forEach{avg+=it!!}
-                avg = avg/driver_rate.size
+                driver_rate.forEach { avg += it!! }
+                avg = avg / driver_rate.size
                 view.findViewById<RatingBar>(R.id.driver_rate_bar).rating = avg
-            }
-            else
+            } else
                 view.findViewById<RatingBar>(R.id.driver_rate_bar).rating = 0F
 
-            val passenger_rate = reviewViewModel.reviews.values.toList().filter { reviewVM -> reviewVM.reviewed == userId && reviewVM.isReviewedDriver == false }.map { reviewVM -> reviewVM.stars }
+            val passenger_rate = reviewViewModel.reviews.values.toList()
+                .filter { reviewVM -> reviewVM.reviewed == userId && reviewVM.isReviewedDriver == false }
+                .map { reviewVM -> reviewVM.stars }
             if (passenger_rate.isNotEmpty()) {
                 var avg = 0F
-                passenger_rate.forEach{avg+=it!!}
-                avg = avg/passenger_rate.size
+                passenger_rate.forEach { avg += it!! }
+                avg = avg / passenger_rate.size
                 view.findViewById<RatingBar>(R.id.passenger_rate_bar).rating = avg
-            }
-            else
+            } else
                 view.findViewById<RatingBar>(R.id.passenger_rate_bar).rating = 0F
 
-            if (hideSensitiveDataIfNecessary && it.id != authenticationContext.userId())
-                return@observe
+            val nickname = view.findViewById<TextView>(R.id.nickName)
+            val location = view.findViewById<TextView>(R.id.location)
+            nickname.text = it.nickName
+            location.text = it.location
 
-            view.findViewById<TextView>(R.id.nickName).text = it.nickName
-            view.findViewById<TextView>(R.id.location).text = it.location
+            val censurableVisibility =
+                if (hideSensitiveDataIfNecessary && it.id != authenticationContext.userId())
+                    GONE else VISIBLE
+            view.findViewById<Button>(R.id.bought_trip_list_shortcut_button).visibility =
+                censurableVisibility
+            view.findViewById<Button>(R.id.trip_list_shortcut_button).visibility =
+                censurableVisibility
+            view.findViewById<TextView>(R.id.nickNameSection).visibility = censurableVisibility
+            view.findViewById<TextView>(R.id.locationSection).visibility = censurableVisibility
+            nickname.visibility = censurableVisibility
+            location.visibility = censurableVisibility
 
 
         }

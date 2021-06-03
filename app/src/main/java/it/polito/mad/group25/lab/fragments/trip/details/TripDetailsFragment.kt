@@ -2,7 +2,6 @@ package it.polito.mad.group25.lab.fragments.trip.details
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.View.*
 import android.widget.*
@@ -26,7 +25,6 @@ import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 import it.polito.mad.group25.lab.utils.fragment.showError
 import it.polito.mad.group25.lab.utils.toLocalDateTime
 import it.polito.mad.group25.lab.utils.views.fromBlob
-import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -200,6 +198,9 @@ abstract class TripDetailsFragment(
                 })
 
                 username.setOnClickListener {
+                    navigateToUserProfile(user.userId)
+                }
+                proPic.setOnClickListener {
                     navigateToUserProfile(user.userId)
                 }
 
