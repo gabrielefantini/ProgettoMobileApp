@@ -147,4 +147,11 @@
             android:id="@+id/action_ShowEditMap_to_showTripEditFragment"
             app:destination="@id/showTripEditFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/Tutorial"
+        android:name="it.polito.mad.group25.lab.fragments.tutorial.TutorialFragment"
+        android:label="tutorial"
+        tools:layout="@layout/tutorial_fragment">
+    </fragment>
 </navigation>
