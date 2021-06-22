@@ -67,7 +67,10 @@
     <string name="Apply">Apply</string>
     <string name="Discard">Discard</string>
 
-    <string name="Welcome">Welcome</string>
+    <string name="Welcome">Traveling helps<br/>
+        one to understand<br/>
+        they are not<br/>
+        actually lost.</string>
     <string name="car_logo_description">Car logo</string>
 
     <string name="trip_list">My Trips</string>
@@ -78,6 +81,8 @@
     <string name="emailSection">Email</string>
     <string name="locationSection">Location</string>
     <string name="rate_trip">Rate trip</string>
+    <string name="logout">Logout</string>
+
 
     <string name="map">Location Map</string>
     <string name="delete">Delete</string>

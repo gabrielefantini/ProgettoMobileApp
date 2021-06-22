@@ -3,6 +3,7 @@ package it.polito.mad.group25.lab
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +14,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import it.polito.mad.group25.lab.databinding.ActivityMainBinding
+import it.polito.mad.group25.lab.fragments.login.LoginViewModel
 import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 import it.polito.mad.group25.lab.utils.views.fromBlob
 
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
 
     private lateinit var userProfileViewModel: UserProfileViewModel
+    private val loginViewModel: LoginViewModel by viewModels()
     private lateinit var authenticationContext: AuthenticationContext
 
     /*companion object {
@@ -86,6 +89,13 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.closeDrawers()
             true
         }
+        navView.menu.findItem(R.id.logout).setOnMenuItemClickListener {
+            authenticationContext.logoutUser()
+            loginViewModel.signOut()
+            navController.navigate(R.id.LoginFragment)
+            drawerLayout.closeDrawers()
+            true
+        }
 
 
         authenticationContext = ViewModelProvider(this).get(AuthenticationContext::class.java)
@@ -94,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                 //supportActionBar?.title = "Welcome!"
                 //supportActionBar?.setDisplayHomeAsUpEnabled(false)
                 supportActionBar?.hide()
-            }else{
+            } else {
                 supportActionBar?.show()
             }
         })
@@ -122,6 +132,10 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-
+    override fun onBackPressed() {
+        if (authenticationContext.userData.value == null)
+            finish()
+        super.onBackPressed()
+    }
 
 }

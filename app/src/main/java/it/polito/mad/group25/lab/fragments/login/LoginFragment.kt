@@ -12,6 +12,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModel
 import androidx.navigation.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -30,7 +31,8 @@ import it.polito.mad.group25.lab.fragments.userprofile.UserProfileViewModel
 
 class LoginFragment : Fragment(R.layout.login_fragment) {
 
-    private lateinit var mGoogleSignInClient: GoogleSignInClient
+    private val viewModel: LoginViewModel by activityViewModels()
+
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private lateinit var authenticator: FirebaseAuth
 
@@ -47,7 +49,7 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
             .requestEmail()
             .build()
 
-        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
+        viewModel.mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
 
         authenticator = Firebase.auth
 
@@ -88,14 +90,10 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
 
     //sign in to google
     private fun signIn() {
-        var intent = mGoogleSignInClient.signInIntent
+        var intent = viewModel.mGoogleSignInClient.signInIntent
         resultLauncher.launch(intent)
     }
 
-    //sign out from google
-    private fun signOut() {
-        mGoogleSignInClient.signOut()
-    }
 
     private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
         try {
@@ -118,7 +116,7 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
 
                     //if "remember me" is not selected, next time login page is visited google shouldn ask again the google account
                     if (!authenticationContext.rememberMe)
-                        signOut()
+                        viewModel.signOut()
                     complete()
                 }
             }
@@ -128,4 +126,15 @@ class LoginFragment : Fragment(R.layout.login_fragment) {
         activity?.findNavController(R.id.nav_host_fragment_content_main)
             ?.navigate(R.id.action_LoginFragment_to_OthersTripListFragment)
     }
+
+}
+
+class LoginViewModel : ViewModel() {
+    lateinit var mGoogleSignInClient: GoogleSignInClient
+
+    //sign out from google
+    fun signOut() {
+        mGoogleSignInClient.signOut()
+    }
+
 }
