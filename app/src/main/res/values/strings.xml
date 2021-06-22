@@ -67,9 +67,9 @@
     <string name="Apply">Apply</string>
     <string name="Discard">Discard</string>
 
-    <string name="Welcome">Traveling helps<br/>
-        one to understand<br/>
-        they are not<br/>
+    <string name="Welcome">Traveling helps<br/>\n
+        ones to understand<br/>\n
+        they are not<br/>\n
         actually lost.</string>
     <string name="car_logo_description">Car logo</string>
 
