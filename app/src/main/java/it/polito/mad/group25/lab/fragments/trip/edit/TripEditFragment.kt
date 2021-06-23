@@ -407,6 +407,10 @@ abstract class TripEditFragment(
         return true
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        tripEditViewModel.tripDet.clear()
+    }
 
     inner class TripAdapter(var list: List<TripLocation>, val context: Context?) :
         RecyclerView.Adapter<TripAdapter.TripViewHolder>() {
