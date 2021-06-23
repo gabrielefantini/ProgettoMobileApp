@@ -10,15 +10,18 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import it.polito.mad.group25.lab.R
 
-class TutorialFragment: Fragment(R.layout.tutorial_fragment) {
+abstract class TutorialFragment(val layouts: List<Int>, private val nextFragment: Int): Fragment(R.layout.tutorial_fragment) {
 
     private lateinit var fragContext: Context
 
+    //layout components
     private lateinit var viewPager: ViewPager
     private lateinit var skipButton: Button
     private lateinit var nextButton: Button
@@ -27,7 +30,11 @@ class TutorialFragment: Fragment(R.layout.tutorial_fragment) {
 
     private var dots = mutableListOf<TextView>()
     private lateinit var dotsLayout: LinearLayout
-    private lateinit var layouts: List<Int>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        (activity as AppCompatActivity).supportActionBar?.hide()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -39,12 +46,6 @@ class TutorialFragment: Fragment(R.layout.tutorial_fragment) {
         viewPager = view.findViewById(R.id.viewPager)
         dotsLayout = view.findViewById(R.id.layoutDots)
 
-        layouts = listOf (
-            R.layout.tutorial1,
-            R.layout.tutorial2,
-            R.layout.tutorial3
-        )
-
         addBottomDots(fragContext)
 
         viewPagerAdapter = MyViewPageAdapter(layouts)
@@ -52,7 +53,7 @@ class TutorialFragment: Fragment(R.layout.tutorial_fragment) {
         viewPager.addOnPageChangeListener(MyListener())
 
         skipButton.setOnClickListener {
-            //todo: navigate to login
+            returnToFragment()
         }
 
         nextButton.setOnClickListener {
@@ -60,9 +61,21 @@ class TutorialFragment: Fragment(R.layout.tutorial_fragment) {
             if(current < layouts.size)
                 viewPager.currentItem = current
             else{
-                //todo: navigate to login
+                returnToFragment()
             }
         }
+
+        if(layouts.size == 1){
+            nextButton.text = "GOT IT!"
+            skipButton.visibility = View.GONE
+        }
+
+    }
+
+    private fun returnToFragment(){
+        (activity as AppCompatActivity).supportActionBar?.show()
+        activity?.findNavController(R.id.nav_host_fragment_content_main)
+            ?.navigate(nextFragment)
     }
 
     private fun addBottomDots(context: Context){
@@ -99,8 +112,8 @@ class TutorialFragment: Fragment(R.layout.tutorial_fragment) {
 
         override fun onPageSelected(position: Int) {
             selectBottomDot(position)
-            Log.d("aaaa","$position")
-            //changing NEXT to GOT IT
+
+            //changing NEXT to GOT IT at last position
             if(position == layouts.size -1){
                 nextButton.text = "GOT IT!"
                 skipButton.visibility = View.GONE

@@ -68,6 +68,9 @@
         <action
             android:id="@+id/action_showTripEditFragment_to_ShowEditMap"
             app:destination="@id/ShowEditMap" />
+        <action
+            android:id="@+id/action_showTripEditFragment_to_Tutorial2"
+            app:destination="@id/Tutorial2" />
     </fragment>
     <fragment
         android:id="@+id/TripListFragment"
@@ -95,6 +98,9 @@
         <action
             android:id="@+id/action_OthersTripListFragment_to_TripFilterFragment"
             app:destination="@id/TripFilterFragment" />
+        <action
+            android:id="@+id/action_OthersTripListFragment_to_Tutorial"
+            app:destination="@id/Tutorial" />
     </fragment>
     <fragment
         android:id="@+id/LoginFragment"
@@ -150,8 +156,21 @@
 
     <fragment
         android:id="@+id/Tutorial"
-        android:name="it.polito.mad.group25.lab.fragments.tutorial.TutorialFragment"
+        android:name="it.polito.mad.group25.lab.fragments.tutorial.ShowTutorial1"
         android:label="tutorial"
         tools:layout="@layout/tutorial_fragment">
+        <action
+            android:id="@+id/action_Tutorial_to_OthersTripListFragment"
+            app:destination="@id/OthersTripListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/Tutorial2"
+        android:name="it.polito.mad.group25.lab.fragments.tutorial.ShowTutorial2"
+        android:label="tutorial"
+        tools:layout="@layout/tutorial_fragment">
+        <action
+            android:id="@+id/action_Tutorial2_to_showTripEditFragment"
+            app:destination="@id/showTripEditFragment" />
     </fragment>
 </navigation>

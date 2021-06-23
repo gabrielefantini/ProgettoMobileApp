@@ -101,8 +101,6 @@ class MainActivity : AppCompatActivity() {
         authenticationContext = ViewModelProvider(this).get(AuthenticationContext::class.java)
         authenticationContext.authUser.observe(this, { user ->
             if (user == null) {
-                //supportActionBar?.title = "Welcome!"
-                //supportActionBar?.setDisplayHomeAsUpEnabled(false)
                 supportActionBar?.hide()
             } else {
                 supportActionBar?.show()
