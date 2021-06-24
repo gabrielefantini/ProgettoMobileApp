@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity() {
         }
         navView.menu.findItem(R.id.logout).setOnMenuItemClickListener {
             authenticationContext.logoutUser()
+            authenticationContext.rememberMe = false
             loginViewModel.signOut()
             navController.navigate(R.id.LoginFragment)
             drawerLayout.closeDrawers()

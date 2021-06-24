@@ -92,4 +92,8 @@
     <string name="passenger_rate">Passenger rate</string>
     <string name="comment_optional">Comment (Optional)</string>
     <string name="add_review">Add Review</string>
+    <string name="tutorial_a">Here you can see\n<br/>
+        the trips you can join on</string>
+    <string name="tutorial_a_1">Here you can\n<br/>
+        filter the trips</string>
 </resources>

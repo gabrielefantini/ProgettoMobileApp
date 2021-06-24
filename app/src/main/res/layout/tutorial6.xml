@@ -7,13 +7,14 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="357dp"
-        android:layout_height="348dp"
-        android:src="@drawable/tutorial_a"
+        android:layout_width="455dp"
+        android:layout_height="412dp"
+        android:src="@drawable/tutorial_f"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.281" />
 
     <TextView
         android:id="@+id/textView3"
@@ -21,7 +22,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/abril_fatface"
         android:gravity="center"
-        android:text="@string/tutorial_a"
+        android:text="Editing your trip\n you can.."
         android:textColor="#08145A"
         android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
@@ -35,9 +36,9 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/abril_fatface"
         android:gravity="center"
-        android:text="@string/tutorial_a_1"
+        android:text="Confirm an\ninterested user\ncan join \nyour trip."
         android:textColor="#08145A"
-        android:textSize="18sp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView7"
@@ -49,11 +50,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/abril_fatface"
-        android:text="Click here to open\nthe sidebar and navigate\nthrough the app"
+        android:gravity="center"
+        android:text="Add some info\nabout your trip.\nExample:\nno smokers allowed."
         android:textColor="#08145A"
-        android:textSize="18sp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/textView6"
+        app:layout_constraintStart_toEndOf="@id/textView8"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/abril_fatface"
+        android:text="Add an\nintermediate stop"
+        android:textColor="#08145A"
+        android:textSize="16sp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/textView7"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
         app:layout_constraintVertical_bias="0.0" />
