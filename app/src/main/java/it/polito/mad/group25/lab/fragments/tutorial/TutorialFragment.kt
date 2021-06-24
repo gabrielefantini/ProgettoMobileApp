@@ -2,9 +2,6 @@ package it.polito.mad.group25.lab.fragments.tutorial
 
 import android.content.Context
 import android.os.Bundle
-import android.text.Html
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -17,7 +14,7 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import it.polito.mad.group25.lab.R
 
-abstract class TutorialFragment(val layouts: List<Int>, private val nextFragment: Int): Fragment(R.layout.tutorial_fragment) {
+abstract class TutorialFragment(val layouts: List<Int>): Fragment(R.layout.tutorial_fragment) {
 
     private lateinit var fragContext: Context
 
@@ -75,7 +72,7 @@ abstract class TutorialFragment(val layouts: List<Int>, private val nextFragment
     private fun returnToFragment(){
         (activity as AppCompatActivity).supportActionBar?.show()
         activity?.findNavController(R.id.nav_host_fragment_content_main)
-            ?.navigate(nextFragment)
+            ?.popBackStack()
     }
 
     private fun addBottomDots(context: Context){

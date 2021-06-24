@@ -7,8 +7,7 @@ import it.polito.mad.group25.lab.R
 class ShowTutorial2: TutorialFragment(
     listOf(
         R.layout.tutorial1
-    ),
-    R.id.action_Tutorial2_to_showTripEditFragment
+    )
 ){
     private val tutorialViewModel: TutorialViewModel by activityViewModels()
 

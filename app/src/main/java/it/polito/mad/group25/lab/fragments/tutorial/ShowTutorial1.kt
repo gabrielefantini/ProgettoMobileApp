@@ -10,7 +10,6 @@ class ShowTutorial1: TutorialFragment(
         R.layout.tutorial2,
         R.layout.tutorial3
     ),
-    R.id.action_Tutorial_to_OthersTripListFragment
 ){
     private val tutorialViewModel: TutorialViewModel by activityViewModels()
 
