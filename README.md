@@ -1,4 +1,4 @@
-# Mobile Application Development 2020/2021 - Lab 4
+# Mobile Application Development Final Project
 
 ## Group 25
 
